@@ -43,14 +43,6 @@ export default function Index() {
     setIsAuthenticated(!!auth);
     setUserRole(role || "");
     setCurrentUser(user || "");
-
-    // Show welcome modal only on new login
-    if (auth && user && user !== lastUser) {
-      setShowWelcomeModal(true);
-      localStorage.setItem("lastAuthenticatedUser", user);
-    }
-
-    setHasSeenWelcome(true);
   }, []);
 
   // Get role-specific welcome data
