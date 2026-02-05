@@ -45,54 +45,6 @@ export default function Index() {
     setCurrentUser(user || "");
   }, []);
 
-  // Get role-specific welcome data
-  const getRoleWelcomeData = () => {
-    switch (userRole) {
-      case "admin":
-        return {
-          title: "Welcome, Admin!",
-          subtitle: "You have full system access",
-          icon: Shield,
-          color: "purple",
-          gradient: "from-purple-400 via-purple-300 to-blue-300",
-          bgColor: "bg-gradient-to-br from-purple-50 via-blue-50 to-purple-100",
-          message: `All systems operational. You have ${isAuthenticated ? "administrative privileges" : "standard access"}.`,
-        };
-      case "hr":
-        return {
-          title: "Welcome, HR Manager!",
-          subtitle: "Ready to manage your team",
-          icon: Users,
-          color: "green",
-          gradient: "from-green-400 via-emerald-300 to-teal-300",
-          bgColor: "bg-gradient-to-br from-green-50 via-emerald-50 to-teal-100",
-          message: "All employee data is synced and ready. Start managing your team today!",
-        };
-      case "it":
-        return {
-          title: "Welcome, IT Specialist!",
-          subtitle: "System management ready",
-          icon: Zap,
-          color: "orange",
-          gradient: "from-orange-400 via-amber-300 to-yellow-300",
-          bgColor: "bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-100",
-          message: "All systems connected. You're ready to manage IT infrastructure.",
-        };
-      default:
-        return {
-          title: "Welcome Back!",
-          subtitle: "You're logged in",
-          icon: Sparkles,
-          color: "blue",
-          gradient: "from-blue-400 via-cyan-300 to-teal-300",
-          bgColor: "bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-100",
-          message: "Your account is active and ready to use.",
-        };
-    }
-  };
-
-  const welcomeData = getRoleWelcomeData();
-  const WelcomeIcon = welcomeData.icon;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900 overflow-hidden">
