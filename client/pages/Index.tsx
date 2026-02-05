@@ -32,8 +32,6 @@ export default function Index() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState("");
   const [currentUser, setCurrentUser] = useState("");
-  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
-  const [hasSeenWelcome, setHasSeenWelcome] = useState(false);
 
   // Check authentication status
   useEffect(() => {
