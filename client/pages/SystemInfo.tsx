@@ -142,16 +142,24 @@ export default function SystemInfo() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newAssets),
+        }).catch(err => {
+          console.error("Failed to load demo data:", err);
+          throw err;
         });
 
-        const result = await response.json();
-        if (result.success) {
-          setAssetCount((prev) => prev + result.data.length);
-          alert(
-            `Loaded ${result.data.length} demo system assets including mouse, keyboard, and other components!`,
-          );
-        } else {
-          alert("Demo data already exists in the system.");
+        try {
+          const result = await response.json();
+          if (result.success) {
+            setAssetCount((prev) => prev + result.data.length);
+            alert(
+              `Loaded ${result.data.length} demo system assets including mouse, keyboard, and other components!`,
+            );
+          } else {
+            alert("Demo data already exists in the system.");
+          }
+        } catch (e) {
+          console.error("Failed to parse demo data response:", e);
+          alert("Error loading demo data. Please try again.");
         }
       }
     } catch (error) {
