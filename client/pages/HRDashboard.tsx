@@ -2637,7 +2637,15 @@ Generated on: ${new Date().toLocaleString()}
                                     #
                                   </span>
                                   <span>
-                                    Table {employee.tableNumber || "-"}
+                                    {employee.tableNumber ? (
+                                      isNaN(Number(employee.tableNumber)) ? (
+                                        employee.tableNumber
+                                      ) : (
+                                        `Table ${employee.tableNumber}`
+                                      )
+                                    ) : (
+                                      "-"
+                                    )}
                                   </span>
                                 </div>
                                 {employee.joiningDate && (
