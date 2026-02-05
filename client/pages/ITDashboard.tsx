@@ -127,23 +127,46 @@ export default function ITDashboard() {
 
     const loadData = async () => {
       try {
-        const [itsRes, empsRes, deptsRes] = await Promise.all([
-          fetch("/api/it-accounts"),
-          fetch("/api/employees"),
-          fetch("/api/departments"),
-        ]);
+        const requests = [
+          fetch("/api/it-accounts").catch(err => {
+            console.error("Failed to fetch IT accounts:", err);
+            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+          }),
+          fetch("/api/employees").catch(err => {
+            console.error("Failed to fetch employees:", err);
+            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+          }),
+          fetch("/api/departments").catch(err => {
+            console.error("Failed to fetch departments:", err);
+            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+          }),
+        ];
+
+        const [itsRes, empsRes, deptsRes] = await Promise.all(requests);
 
         if (itsRes.ok) {
-          const itsData = await itsRes.json();
-          if (itsData.success) setRecords(itsData.data);
+          try {
+            const itsData = await itsRes.json();
+            if (itsData.success && itsData.data) setRecords(itsData.data);
+          } catch (e) {
+            console.error("Failed to parse IT accounts response:", e);
+          }
         }
         if (empsRes.ok) {
-          const empsData = await empsRes.json();
-          if (empsData.success) setEmployees(empsData.data);
+          try {
+            const empsData = await empsRes.json();
+            if (empsData.success && empsData.data) setEmployees(empsData.data);
+          } catch (e) {
+            console.error("Failed to parse employees response:", e);
+          }
         }
         if (deptsRes.ok) {
-          const deptsData = await deptsRes.json();
-          if (deptsData.success) setDepartments(deptsData.data);
+          try {
+            const deptsData = await deptsRes.json();
+            if (deptsData.success && deptsData.data) setDepartments(deptsData.data);
+          } catch (e) {
+            console.error("Failed to parse departments response:", e);
+          }
         }
       } catch (error) {
         console.error("Failed to load IT dashboard data:", error);
