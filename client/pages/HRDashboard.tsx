@@ -1249,21 +1249,18 @@ Generated on: ${new Date().toLocaleString()}
       (employeeDetailModal.editForm.tableNumber as string) ??
       employeeDetailModal.employee.tableNumber;
     if (pendingTable) {
-      const n = parseInt(pendingTable, 10);
-      const taken = new Set(
-        employees
-          .filter(
-            (e) =>
-              e.status === "active" &&
-              e.id !== employeeDetailModal.employee!.id &&
-              e.tableNumber,
-          )
-          .map((e) => parseInt(e.tableNumber, 10))
-          .filter((x) => !Number.isNaN(x)),
-      );
-      if (Number.isNaN(n) || n < 1 || n > 32 || taken.has(n)) {
+      const takenTableNumbers = employees
+        .filter(
+          (e) =>
+            e.status === "active" &&
+            e.id !== employeeDetailModal.employee!.id &&
+            e.tableNumber,
+        )
+        .map((e) => e.tableNumber);
+
+      if (takenTableNumbers.includes(pendingTable)) {
         alert(
-          "Selected table number is invalid or already assigned to an active employee",
+          "Selected table/location is already assigned to an active employee",
         );
         return;
       }
