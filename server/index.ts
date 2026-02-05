@@ -43,6 +43,12 @@ export function createServer() {
     res.json({ message: ping });
   });
 
+  // Database status endpoint
+  app.get("/api/db-status", (_req, res) => {
+    const status = getDBStatus();
+    res.json(status);
+  });
+
   app.get("/api/demo", handleDemo);
 
   // Salaries API
