@@ -172,9 +172,19 @@ export default function SystemInfo() {
   const exportSystemAssetsToExcel = async () => {
     try {
       // Get all data from API
-      const assetsResponse = await fetch("/api/system-assets");
-      const assetsResult = await assetsResponse.json();
-      const systemAssetsData = assetsResult.success ? assetsResult.data : [];
+      const assetsResponse = await fetch("/api/system-assets").catch(err => {
+        console.error("Failed to fetch assets for export:", err);
+        return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+      });
+
+      let assetsResult;
+      try {
+        assetsResult = await assetsResponse.json();
+      } catch (e) {
+        console.error("Failed to parse assets response:", e);
+        assetsResult = { success: false, data: [] };
+      }
+      const systemAssetsData = assetsResult.success && assetsResult.data ? assetsResult.data : [];
 
       // For now, keep pcLaptopData in localStorage (can be migrated separately)
       const pcLaptopData = JSON.parse(
