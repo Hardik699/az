@@ -107,10 +107,19 @@ export default function SystemInfo() {
   useEffect(() => {
     const fetchAssets = async () => {
       try {
-        const response = await fetch("/api/system-assets");
-        const result = await response.json();
-        if (result.success) {
-          setAssetCount(result.data.length);
+        const response = await fetch("/api/system-assets").catch(err => {
+          console.error("Failed to fetch assets:", err);
+          return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+        });
+
+        try {
+          const result = await response.json();
+          if (result.success && result.data) {
+            setAssetCount(result.data.length);
+          }
+        } catch (e) {
+          console.error("Failed to parse assets response:", e);
+          setAssetCount(0);
         }
       } catch (error) {
         console.error("Failed to fetch assets:", error);
