@@ -837,16 +837,14 @@ export default function HRDashboard() {
       toast.error(`Missing required fields: ${missingFields.join(", ")}`);
       return;
     }
-    const used = new Set(
-      employees
-        .filter((e) => e.status === "active" && e.tableNumber)
-        .map((e) => parseInt(e.tableNumber, 10))
-        .filter((n) => !Number.isNaN(n)),
-    );
-    const chosen = parseInt(newEmployee.tableNumber, 10);
-    if (Number.isNaN(chosen) || chosen < 1 || chosen > 32 || used.has(chosen)) {
+    // Check if table number is already assigned to another active employee
+    const usedTableNumbers = employees
+      .filter((e) => e.status === "active" && e.tableNumber && e.id !== newEmployee.id)
+      .map((e) => e.tableNumber);
+
+    if (usedTableNumbers.includes(newEmployee.tableNumber)) {
       alert(
-        "Selected table number is invalid or already assigned to an active employee",
+        "Selected table/location is already assigned to an active employee",
       );
       return;
     }
