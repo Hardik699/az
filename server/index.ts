@@ -9,7 +9,7 @@ import {
   syncToGoogleSheets,
   getSpreadsheetInfo,
 } from "./services/googleSheets";
-import { connectDB } from "./db";
+import { connectDB, getDBStatus } from "./db";
 import { employeesRouter } from "./routes/employees";
 import { departmentsRouter } from "./routes/departments";
 import { itAccountsRouter } from "./routes/it-accounts";
