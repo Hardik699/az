@@ -3881,9 +3881,24 @@ Generated on: ${new Date().toLocaleString()}
                           }
                         >
                           <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
-                            <SelectValue placeholder="Select table (1-32)" />
+                            <SelectValue placeholder="Select table or location" />
                           </SelectTrigger>
                           <SelectContent className="bg-slate-800 border-slate-700 text-white max-h-60 overflow-y-auto">
+                            {/* Room/Location options */}
+                            {["Room1", "Room2", "IT"].map((room) => {
+                              const isRoomTaken = employees.some(
+                                (e) =>
+                                  e.status === "active" &&
+                                  e.id !== employeeDetailModal.employee!.id &&
+                                  e.tableNumber === room,
+                              );
+                              return (
+                                <SelectItem key={room} value={room} disabled={isRoomTaken}>
+                                  {room}{isRoomTaken ? " (Assigned)" : ""}
+                                </SelectItem>
+                              );
+                            })}
+                            {/* Numeric table options (1-32) */}
                             {Array.from({ length: 32 }, (_, i) => i + 1)
                               .filter((n) => {
                                 const taken = new Set(
@@ -3895,14 +3910,17 @@ Generated on: ${new Date().toLocaleString()}
                                           employeeDetailModal.employee!.id &&
                                         e.tableNumber,
                                     )
-                                    .map((e) => parseInt(e.tableNumber, 10))
-                                    .filter((x) => !Number.isNaN(x)),
+                                    .map((e) => {
+                                      const num = parseInt(e.tableNumber, 10);
+                                      return !Number.isNaN(num) ? num : null;
+                                    })
+                                    .filter((x) => x !== null),
                                 );
                                 return !taken.has(n);
                               })
                               .map((n) => (
                                 <SelectItem key={n} value={String(n)}>
-                                  {n}
+                                  Table {n}
                                 </SelectItem>
                               ))}
                           </SelectContent>
