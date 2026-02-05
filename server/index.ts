@@ -37,6 +37,16 @@ export function createServer() {
   // Static for uploaded files
   app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
 
+  // Health check endpoint
+  app.get("/api/health", (_req, res) => {
+    const dbStatus = getDBStatus();
+    res.json({
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      database: dbStatus,
+    });
+  });
+
   // Example API routes
   app.get("/api/ping", (_req, res) => {
     const ping = process.env.PING_MESSAGE ?? "ping";
