@@ -73,23 +73,46 @@ export default function ITPage() {
     const loadData = async () => {
       setUserRole(localStorage.getItem("userRole") || "");
       try {
-        const [empRes, deptRes, itsRes] = await Promise.all([
-          fetch("/api/employees"),
-          fetch("/api/departments"),
-          fetch("/api/it-accounts"),
-        ]);
+        const requests = [
+          fetch("/api/employees").catch(err => {
+            console.error("Failed to fetch employees:", err);
+            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+          }),
+          fetch("/api/departments").catch(err => {
+            console.error("Failed to fetch departments:", err);
+            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+          }),
+          fetch("/api/it-accounts").catch(err => {
+            console.error("Failed to fetch IT accounts:", err);
+            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+          }),
+        ];
+
+        const [empRes, deptRes, itsRes] = await Promise.all(requests);
 
         if (empRes.ok) {
-          const empData = await empRes.json();
-          if (empData.success) setEmployees(empData.data);
+          try {
+            const empData = await empRes.json();
+            if (empData.success && empData.data) setEmployees(empData.data);
+          } catch (e) {
+            console.error("Failed to parse employees response:", e);
+          }
         }
         if (deptRes.ok) {
-          const deptData = await deptRes.json();
-          if (deptData.success) setDepartments(deptData.data);
+          try {
+            const deptData = await deptRes.json();
+            if (deptData.success && deptData.data) setDepartments(deptData.data);
+          } catch (e) {
+            console.error("Failed to parse departments response:", e);
+          }
         }
         if (itsRes.ok) {
-          const itsData = await itsRes.json();
-          if (itsData.success) setRecords(itsData.data);
+          try {
+            const itsData = await itsRes.json();
+            if (itsData.success && itsData.data) setRecords(itsData.data);
+          } catch (e) {
+            console.error("Failed to parse IT accounts response:", e);
+          }
         }
       } catch (error) {
         console.error("Failed to load IT data:", error);
