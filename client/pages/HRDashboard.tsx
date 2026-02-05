@@ -2005,9 +2005,16 @@ Generated on: ${new Date().toLocaleString()}
                             }
                           >
                             <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
-                              <SelectValue placeholder="Select table (1-32)" />
+                              <SelectValue placeholder="Select table or location" />
                             </SelectTrigger>
                             <SelectContent className="bg-slate-800 border-slate-700 text-white max-h-60 overflow-y-auto">
+                              {/* Room/Location options */}
+                              {["Room1", "Room2", "IT"].map((room) => (
+                                <SelectItem key={room} value={room}>
+                                  {room}
+                                </SelectItem>
+                              ))}
+                              {/* Numeric table options (1-32) */}
                               {Array.from({ length: 32 }, (_, i) => i + 1)
                                 .filter(
                                   (n) =>
@@ -2018,13 +2025,16 @@ Generated on: ${new Date().toLocaleString()}
                                             e.status === "active" &&
                                             e.tableNumber,
                                         )
-                                        .map((e) => parseInt(e.tableNumber, 10))
-                                        .filter((n) => !Number.isNaN(n)),
+                                        .map((e) => {
+                                          const num = parseInt(e.tableNumber, 10);
+                                          return !Number.isNaN(num) ? num : null;
+                                        })
+                                        .filter((n) => n !== null),
                                     ).has(n),
                                 )
                                 .map((n) => (
                                   <SelectItem key={n} value={String(n)}>
-                                    {n}
+                                    Table {n}
                                   </SelectItem>
                                 ))}
                             </SelectContent>
