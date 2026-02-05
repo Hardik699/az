@@ -8,43 +8,49 @@ interface DBStatus {
 
 export function AppWithDBCheck({ children }: { children: React.ReactNode }) {
   const [dbStatus, setDBStatus] = useState<DBStatus | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [hasChecked, setHasChecked] = useState(false);
 
   useEffect(() => {
     const checkDBStatus = async () => {
       try {
-        const response = await fetch("/api/db-status");
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+        const response = await fetch("/api/db-status", {
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
+
         const data = await response.json();
         setDBStatus(data);
       } catch (error) {
         console.error("Failed to check DB status:", error);
         setDBStatus({
           connected: false,
-          error: "Failed to check database connection status",
+          error: "Failed to connect to the database. Please check your connection.",
         });
       } finally {
-        setIsLoading(false);
+        setHasChecked(true);
       }
     };
 
-    // Check immediately
-    checkDBStatus();
+    // Check immediately with a short delay
+    const timer = setTimeout(checkDBStatus, 100);
 
-    // Recheck every 10 seconds
-    const interval = setInterval(checkDBStatus, 10000);
-    return () => clearInterval(interval);
+    // Recheck every 15 seconds in the background
+    const interval = setInterval(checkDBStatus, 15000);
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
   }, []);
 
-  // Show nothing while loading
-  if (isLoading) {
-    return null;
-  }
-
-  // Show error page if database is not connected
-  if (!dbStatus?.connected) {
+  // Show error page ONLY if we've checked and database is not connected
+  if (hasChecked && !dbStatus?.connected) {
     return <DatabaseError />;
   }
 
-  // Show app if database is connected
+  // Show app - either still loading or database is connected
   return <>{children}</>;
 }
