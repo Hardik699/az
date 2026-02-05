@@ -180,45 +180,68 @@ export default function EmployeeDetailsPage() {
       }
 
       try {
-        // Load employee data from API
-        const [empRes, deptRes, salaryRes] = await Promise.all([
-          fetch("/api/employees"),
-          fetch("/api/departments"),
-          fetch("/api/salary-records"),
-        ]);
+        // Load employee data from API with fallback error handling
+        const requests = [
+          fetch("/api/employees").catch(err => {
+            console.error("Failed to fetch employees:", err);
+            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+          }),
+          fetch("/api/departments").catch(err => {
+            console.error("Failed to fetch departments:", err);
+            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+          }),
+          fetch("/api/salary-records").catch(err => {
+            console.error("Failed to fetch salary records:", err);
+            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+          }),
+        ];
+
+        const [empRes, deptRes, salaryRes] = await Promise.all(requests);
 
         let employees: Employee[] = [];
         let dept: Department[] = [];
         let salary: SalaryRecord[] = [];
 
         if (empRes.ok) {
-          const empData = await empRes.json();
-          if (empData.success) {
-            // Normalize employees: map _id to id
-            employees = empData.data.map((emp: any) => ({
-              ...emp,
-              id: emp._id || emp.id,
-            }));
+          try {
+            const empData = await empRes.json();
+            if (empData.success && empData.data) {
+              // Normalize employees: map _id to id
+              employees = empData.data.map((emp: any) => ({
+                ...emp,
+                id: emp._id || emp.id,
+              }));
+            }
+          } catch (e) {
+            console.error("Failed to parse employees response:", e);
           }
         }
         if (deptRes.ok) {
-          const deptData = await deptRes.json();
-          if (deptData.success) {
-            // Normalize departments: map _id to id
-            dept = deptData.data.map((d: any) => ({
-              ...d,
-              id: d._id || d.id,
-            }));
+          try {
+            const deptData = await deptRes.json();
+            if (deptData.success && deptData.data) {
+              // Normalize departments: map _id to id
+              dept = deptData.data.map((d: any) => ({
+                ...d,
+                id: d._id || d.id,
+              }));
+            }
+          } catch (e) {
+            console.error("Failed to parse departments response:", e);
           }
         }
         if (salaryRes.ok) {
-          const salaryData = await salaryRes.json();
-          if (salaryData.success) {
-            // Normalize salary records: map _id to id
-            salary = salaryData.data.map((s: any) => ({
-              ...s,
-              id: s._id || s.id,
-            }));
+          try {
+            const salaryData = await salaryRes.json();
+            if (salaryData.success && salaryData.data) {
+              // Normalize salary records: map _id to id
+              salary = salaryData.data.map((s: any) => ({
+                ...s,
+                id: s._id || s.id,
+              }));
+            }
+          } catch (e) {
+            console.error("Failed to parse salary records response:", e);
           }
         }
 
