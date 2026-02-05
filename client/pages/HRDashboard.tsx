@@ -402,72 +402,110 @@ export default function HRDashboard() {
     const loadData = async () => {
       if (userRole === "admin" || userRole === "hr") {
         try {
+          const requests = [
+            fetch("/api/employees").catch(err => {
+              console.error("Failed to fetch employees:", err);
+              return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+            }),
+            fetch("/api/departments").catch(err => {
+              console.error("Failed to fetch departments:", err);
+              return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+            }),
+            fetch("/api/leave-requests").catch(err => {
+              console.error("Failed to fetch leave requests:", err);
+              return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+            }),
+            fetch("/api/salary-records").catch(err => {
+              console.error("Failed to fetch salary records:", err);
+              return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+            }),
+            fetch("/api/attendance").catch(err => {
+              console.error("Failed to fetch attendance:", err);
+              return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+            }),
+          ];
+
           const [empRes, deptRes, leaveRes, salaryRes, attRes] =
-            await Promise.all([
-              fetch("/api/employees"),
-              fetch("/api/departments"),
-              fetch("/api/leave-requests"),
-              fetch("/api/salary-records"),
-              fetch("/api/attendance"),
-            ]);
+            await Promise.all(requests);
 
           if (empRes.ok) {
-            const empData = await empRes.json();
-            if (empData.success) {
-              // Normalize employees: ensure id field is set to _id
-              const normalizedEmployees = empData.data.map((emp: any) => ({
-                ...emp,
-                id: emp._id || emp.id,
-              }));
-              setEmployees(normalizedEmployees);
+            try {
+              const empData = await empRes.json();
+              if (empData.success && empData.data) {
+                // Normalize employees: ensure id field is set to _id
+                const normalizedEmployees = empData.data.map((emp: any) => ({
+                  ...emp,
+                  id: emp._id || emp.id,
+                }));
+                setEmployees(normalizedEmployees);
+              }
+            } catch (e) {
+              console.error("Failed to parse employees response:", e);
             }
           }
           if (deptRes.ok) {
-            const deptData = await deptRes.json();
-            if (deptData.success) {
-              // Normalize departments: ensure id field is set to _id
-              const normalizedDepts = deptData.data.map((dept: any) => ({
-                ...dept,
-                id: dept._id || dept.id,
-              }));
-              setDepartments(normalizedDepts);
+            try {
+              const deptData = await deptRes.json();
+              if (deptData.success && deptData.data) {
+                // Normalize departments: ensure id field is set to _id
+                const normalizedDepts = deptData.data.map((dept: any) => ({
+                  ...dept,
+                  id: dept._id || dept.id,
+                }));
+                setDepartments(normalizedDepts);
+              }
+            } catch (e) {
+              console.error("Failed to parse departments response:", e);
             }
           }
           if (leaveRes.ok) {
-            const leaveData = await leaveRes.json();
-            if (leaveData.success) {
-              // Normalize leave requests: ensure id field is set to _id
-              const normalizedLeaves = leaveData.data.map((leave: any) => ({
-                ...leave,
-                id: leave._id || leave.id,
-              }));
-              setLeaveRequests(normalizedLeaves);
+            try {
+              const leaveData = await leaveRes.json();
+              if (leaveData.success && leaveData.data) {
+                // Normalize leave requests: ensure id field is set to _id
+                const normalizedLeaves = leaveData.data.map((leave: any) => ({
+                  ...leave,
+                  id: leave._id || leave.id,
+                }));
+                setLeaveRequests(normalizedLeaves);
+              }
+            } catch (e) {
+              console.error("Failed to parse leave requests response:", e);
             }
           }
           if (salaryRes.ok) {
-            const salaryData = await salaryRes.json();
-            if (salaryData.success) {
-              // Normalize salary records: ensure id field is set to _id
-              const normalizedSalaries = salaryData.data.map((salary: any) => ({
-                ...salary,
-                id: salary._id || salary.id,
-              }));
-              setSalaryRecords(normalizedSalaries);
+            try {
+              const salaryData = await salaryRes.json();
+              if (salaryData.success && salaryData.data) {
+                // Normalize salary records: ensure id field is set to _id
+                const normalizedSalaries = salaryData.data.map((salary: any) => ({
+                  ...salary,
+                  id: salary._id || salary.id,
+                }));
+                setSalaryRecords(normalizedSalaries);
+              }
+            } catch (e) {
+              console.error("Failed to parse salary records response:", e);
             }
           }
           if (attRes.ok) {
-            const attData = await attRes.json();
-            if (attData.success) {
-              // Normalize attendance: ensure id field is set to _id
-              const normalizedAtt = attData.data.map((att: any) => ({
-                ...att,
-                id: att._id || att.id,
-              }));
-              setAttendanceRecords(normalizedAtt);
+            try {
+              const attData = await attRes.json();
+              if (attData.success && attData.data) {
+                // Normalize attendance: ensure id field is set to _id
+                const normalizedAtt = attData.data.map((att: any) => ({
+                  ...att,
+                  id: att._id || att.id,
+                }));
+                setAttendanceRecords(normalizedAtt);
+              }
+            } catch (e) {
+              console.error("Failed to parse attendance response:", e);
             }
           }
         } catch (error) {
           console.error("Failed to load HR data from API:", error);
+          // Silently fail - app will continue to work with empty data
         }
       }
     };
