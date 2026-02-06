@@ -87,6 +87,8 @@ export default function PCLaptopInfo() {
   const [editingItem, setEditingItem] = useState<Asset | null>(null);
   const [form, setForm] = useState({
     id: "",
+    systemType: "",
+    totalRam: "",
     mouseId: "",
     keyboardId: "",
     motherboardId: "",
