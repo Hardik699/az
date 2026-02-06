@@ -1184,6 +1184,8 @@ export default function PCLaptopInfo() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>ID</TableHead>
+                      <TableHead>System Type</TableHead>
+                      <TableHead>Total RAM</TableHead>
                       <TableHead>Mouse ID</TableHead>
                       <TableHead>Keyboard ID</TableHead>
                       <TableHead>Motherboard ID</TableHead>
@@ -1193,7 +1195,6 @@ export default function PCLaptopInfo() {
                       <TableHead>Storage ID</TableHead>
                       <TableHead>RAM Slot 1</TableHead>
                       <TableHead>RAM Slot 2</TableHead>
-                      <TableHead>Total RAM</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
