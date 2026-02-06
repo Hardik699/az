@@ -533,7 +533,7 @@ export default function PCLaptopInfo() {
     );
   };
 
-  const save = (e: React.FormEvent) => {
+  const save = async (e: React.FormEvent) => {
     e.preventDefault();
     const record: Asset = {
       id: form.id || nextWxId(items),
