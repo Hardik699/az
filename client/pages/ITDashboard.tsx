@@ -340,7 +340,7 @@ export default function ITDashboard() {
                   <SelectContent className="bg-slate-800 border-slate-700 text-white">
                     <SelectItem key="all" value="all">All Departments</SelectItem>
                     {departments.map((d) => (
-                      <SelectItem key={d.id} value={d.name}>
+                      <SelectItem key={d.id || d._id || d.name} value={d.name}>
                         {d.name}
                       </SelectItem>
                     ))}
