@@ -584,74 +584,79 @@ export default function PCLaptopInfo() {
     setItems(next);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
 
-    // Refresh available assets after saving
-    const sysRaw = localStorage.getItem(SYS_STORAGE_KEY);
-    const sysList: SysAsset[] = sysRaw ? JSON.parse(sysRaw) : [];
+    // Refresh available assets after saving from API
+    try {
+      const response = await fetch("/api/system-assets");
+      const result = await response.json();
+      const sysList: SysAsset[] = result.success ? result.data : [];
 
-    // Get all used IDs including the one we just saved
-    const usedMouseIds = getUsedIds(next, "mouseId");
-    const usedKeyboardIds = getUsedIds(next, "keyboardId");
-    const usedMotherboardIds = getUsedIds(next, "motherboardId");
-    const usedCameraIds = getUsedIds(next, "cameraId");
-    const usedHeadphoneIds = getUsedIds(next, "headphoneId");
-    const usedPowerSupplyIds = getUsedIds(next, "powerSupplyId");
-    const usedStorageIds = getUsedIds(next as any, "storageId" as any);
-    const usedRamIds = Array.from(
-      new Set([
-        ...getUsedIds(next, "ramId"),
-        ...getUsedIds(next as any, "ramId2" as any),
-      ]),
-    );
+      // Get all used IDs including the one we just saved
+      const usedMouseIds = getUsedIds(next, "mouseId");
+      const usedKeyboardIds = getUsedIds(next, "keyboardId");
+      const usedMotherboardIds = getUsedIds(next, "motherboardId");
+      const usedCameraIds = getUsedIds(next, "cameraId");
+      const usedHeadphoneIds = getUsedIds(next, "headphoneId");
+      const usedPowerSupplyIds = getUsedIds(next, "powerSupplyId");
+      const usedStorageIds = getUsedIds(next as any, "storageId" as any);
+      const usedRamIds = Array.from(
+        new Set([
+          ...getUsedIds(next, "ramId"),
+          ...getUsedIds(next as any, "ramId2" as any),
+        ]),
+      );
 
-    // Update available assets
-    setMouseAssets(
-      getAvailableAssets(
-        sysList.filter((s) => s.category === "mouse"),
-        usedMouseIds,
-      ),
-    );
-    setKeyboardAssets(
-      getAvailableAssets(
-        sysList.filter((s) => s.category === "keyboard"),
-        usedKeyboardIds,
-      ),
-    );
-    setMotherboardAssets(
-      getAvailableAssets(
-        sysList.filter((s) => s.category === "motherboard"),
-        usedMotherboardIds,
-      ),
-    );
-    setCameraAssets(
-      getAvailableAssets(
-        sysList.filter((s) => s.category === "camera"),
-        usedCameraIds,
-      ),
-    );
-    setHeadphoneAssets(
-      getAvailableAssets(
-        sysList.filter((s) => s.category === "headphone"),
-        usedHeadphoneIds,
-      ),
-    );
-    setPowerSupplyAssets(
-      getAvailableAssets(
-        sysList.filter((s) => s.category === "power-supply"),
-        usedPowerSupplyIds,
-      ),
-    );
-    setStorageAssets(
-      getAvailableAssets(
-        sysList.filter((s) => s.category === "storage"),
-        usedStorageIds,
-      ),
-    );
-    setRamAssets(
-      getAvailableAssets(
-        sysList.filter((s) => s.category === "ram"),
-        usedRamIds,
-      ),
-    );
+      // Update available assets
+      setMouseAssets(
+        getAvailableAssets(
+          sysList.filter((s) => s.category === "mouse"),
+          usedMouseIds,
+        ),
+      );
+      setKeyboardAssets(
+        getAvailableAssets(
+          sysList.filter((s) => s.category === "keyboard"),
+          usedKeyboardIds,
+        ),
+      );
+      setMotherboardAssets(
+        getAvailableAssets(
+          sysList.filter((s) => s.category === "motherboard"),
+          usedMotherboardIds,
+        ),
+      );
+      setCameraAssets(
+        getAvailableAssets(
+          sysList.filter((s) => s.category === "camera"),
+          usedCameraIds,
+        ),
+      );
+      setHeadphoneAssets(
+        getAvailableAssets(
+          sysList.filter((s) => s.category === "headphone"),
+          usedHeadphoneIds,
+        ),
+      );
+      setPowerSupplyAssets(
+        getAvailableAssets(
+          sysList.filter((s) => s.category === "power-supply"),
+          usedPowerSupplyIds,
+        ),
+      );
+      setStorageAssets(
+        getAvailableAssets(
+          sysList.filter((s) => s.category === "storage"),
+          usedStorageIds,
+        ),
+      );
+      setRamAssets(
+        getAvailableAssets(
+          sysList.filter((s) => s.category === "ram"),
+          usedRamIds,
+        ),
+      );
+    } catch (error) {
+      console.error("Failed to refresh system assets:", error);
+    }
 
     setShowForm(false);
     setEditingItem(null);
