@@ -1139,8 +1139,28 @@ export default function PCLaptopInfo() {
           </CardHeader>
           <CardContent>
             {(() => {
-              const sysRaw = localStorage.getItem(SYS_STORAGE_KEY);
-              const allAssets: SysAsset[] = sysRaw ? JSON.parse(sysRaw) : [];
+              // Note: In a real implementation, this would use useEffect to fetch from API
+              // For now, we're using a synchronous read which may not have latest data
+              // The assets are fetched from API in useEffect and stored in state
+              const allMouseAssets = mouseAssets;
+              const allKeyboardAssets = keyboardAssets;
+              const allMotherboardAssets = motherboardAssets;
+              const allCameraAssets = cameraAssets;
+              const allHeadphoneAssets = headphoneAssets;
+              const allPowerSupplyAssets = powerSupplyAssets;
+              const allStorageAssets = storageAssets;
+              const allRamAssets = ramAssets;
+
+              const allAssets: SysAsset[] = [
+                ...allMouseAssets,
+                ...allKeyboardAssets,
+                ...allMotherboardAssets,
+                ...allCameraAssets,
+                ...allHeadphoneAssets,
+                ...allPowerSupplyAssets,
+                ...allStorageAssets,
+                ...allRamAssets,
+              ];
 
               // Get all used IDs across all components
               const usedMouseIds = getUsedIds(items, "mouseId");
