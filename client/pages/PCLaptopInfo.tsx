@@ -499,6 +499,8 @@ export default function PCLaptopInfo() {
       setEditingItem(itemToEdit);
       setForm({
         id: itemToEdit.id,
+        systemType: itemToEdit.systemType || "",
+        totalRam: itemToEdit.totalRam || "",
         mouseId: itemToEdit.mouseId || "none",
         keyboardId: itemToEdit.keyboardId || "none",
         motherboardId: itemToEdit.motherboardId || "none",
@@ -515,6 +517,8 @@ export default function PCLaptopInfo() {
       setEditingItem(null);
       setForm({
         id,
+        systemType: "",
+        totalRam: "",
         mouseId: "none",
         keyboardId: "none",
         motherboardId: "none",
