@@ -47,7 +47,10 @@ import {
   Settings,
   Eye,
   Pencil,
+  AlertCircle,
+  X,
 } from "lucide-react";
+import { getPendingNotifications, markAsProcessed, deleteNotification } from "@/lib/notifications";
 
 interface ITRecord {
   id: string;
