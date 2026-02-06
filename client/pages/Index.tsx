@@ -50,7 +50,6 @@ export default function Index() {
     return () => clearInterval(timer);
   }, [isAuthenticated, currentUser]);
 
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900 overflow-hidden">
       {/* Animated Background Elements */}
@@ -61,7 +60,11 @@ export default function Index() {
         <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-700"></div>
 
         {/* Animated Grid Background */}
-        <div className={"absolute inset-0 bg-[url('data:image/svg+xml;utf8,<svg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M0 0h60v60H0z\" fill=\"none\"/><path d=\"M0 0h60v1H0z\" stroke=\"rgba(100,116,139,0.1)\" stroke-width=\"1\"/><path d=\"M0 0v60h1V0z\" stroke=\"rgba(100,116,139,0.1)\" stroke-width=\"1\"/><circle cx=\"30\" cy=\"30\" r=\"1\" fill=\"rgba(100,116,139,0.1)\"/></svg>')] opacity-30"}></div>
+        <div
+          className={
+            'absolute inset-0 bg-[url(\'data:image/svg+xml;utf8,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h60v60H0z" fill="none"/><path d="M0 0h60v1H0z" stroke="rgba(100,116,139,0.1)" stroke-width="1"/><path d="M0 0v60h1V0z" stroke="rgba(100,116,139,0.1)" stroke-width="1"/><circle cx="30" cy="30" r="1" fill="rgba(100,116,139,0.1)"/></svg>\')] opacity-30'
+          }
+        ></div>
       </div>
 
       {/* Navigation */}
@@ -84,7 +87,8 @@ export default function Index() {
                 </div>
                 <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent min-h-20 flex items-center justify-center">
                   {displayText}
-                  {displayText.length < `Welcome Back, ${currentUser}!`.length && (
+                  {displayText.length <
+                    `Welcome Back, ${currentUser}!`.length && (
                     <span className="ml-1 animate-pulse">|</span>
                   )}
                 </h1>
@@ -92,10 +96,16 @@ export default function Index() {
 
               <div className="space-y-6">
                 <p className="text-xl text-slate-300 max-w-2xl mx-auto">
-                  You're logged in as <span className="text-blue-400 font-semibold">{currentUser}</span>
+                  You're logged in as{" "}
+                  <span className="text-blue-400 font-semibold">
+                    {currentUser}
+                  </span>
                   {userRole && (
                     <span className="block text-base text-slate-400 mt-2">
-                      Role: <span className="text-cyan-400 capitalize">{userRole}</span>
+                      Role:{" "}
+                      <span className="text-cyan-400 capitalize">
+                        {userRole}
+                      </span>
                     </span>
                   )}
                 </p>
@@ -142,12 +152,12 @@ export default function Index() {
                 <span className="block text-blue-400">System</span>
               </h1>
               <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-                A modern solution for user authentication and management. Secure,
-                simple, and efficient.
+                A modern solution for user authentication and management.
+                Secure, simple, and efficient.
               </p>
               <p className="text-slate-400 text-lg">
-                Use the navigation above to login or contact an administrator for
-                access.
+                Use the navigation above to login or contact an administrator
+                for access.
               </p>
             </>
           )}
@@ -163,9 +173,7 @@ export default function Index() {
               <div className="space-y-3 text-slate-400 max-w-3xl mx-auto">
                 <p className="flex items-center justify-center space-x-2">
                   <ArrowRight className="h-4 w-4 text-blue-400" />
-                  <span>
-                    Click "Login" in the navigation above to sign in
-                  </span>
+                  <span>Click "Login" in the navigation above to sign in</span>
                 </p>
                 <p className="flex items-center justify-center space-x-2">
                   <ArrowRight className="h-4 w-4 text-blue-400" />
@@ -184,7 +192,6 @@ export default function Index() {
           </Card>
         )}
       </main>
-
     </div>
   );
 }

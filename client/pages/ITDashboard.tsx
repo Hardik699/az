@@ -50,7 +50,11 @@ import {
   AlertCircle,
   X,
 } from "lucide-react";
-import { getPendingNotifications, markAsProcessed, deleteNotification } from "@/lib/notifications";
+import {
+  getPendingNotifications,
+  markAsProcessed,
+  deleteNotification,
+} from "@/lib/notifications";
 
 interface ITRecord {
   id: string;
@@ -131,17 +135,23 @@ export default function ITDashboard() {
     const loadData = async () => {
       try {
         const requests = [
-          fetch("/api/it-accounts").catch(err => {
+          fetch("/api/it-accounts").catch((err) => {
             console.error("Failed to fetch IT accounts:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+            return new Response(JSON.stringify({ success: false, data: [] }), {
+              status: 500,
+            });
           }),
-          fetch("/api/employees").catch(err => {
+          fetch("/api/employees").catch((err) => {
             console.error("Failed to fetch employees:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+            return new Response(JSON.stringify({ success: false, data: [] }), {
+              status: 500,
+            });
           }),
-          fetch("/api/departments").catch(err => {
+          fetch("/api/departments").catch((err) => {
             console.error("Failed to fetch departments:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+            return new Response(JSON.stringify({ success: false, data: [] }), {
+              status: 500,
+            });
           }),
         ];
 
@@ -166,7 +176,8 @@ export default function ITDashboard() {
         if (deptsRes.ok) {
           try {
             const deptsData = await deptsRes.json();
-            if (deptsData.success && deptsData.data) setDepartments(deptsData.data);
+            if (deptsData.success && deptsData.data)
+              setDepartments(deptsData.data);
           } catch (e) {
             console.error("Failed to parse departments response:", e);
           }
@@ -338,7 +349,9 @@ export default function ITDashboard() {
                     <SelectValue placeholder="Department" />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-800 border-slate-700 text-white">
-                    <SelectItem key="all" value="all">All Departments</SelectItem>
+                    <SelectItem key="all" value="all">
+                      All Departments
+                    </SelectItem>
                     {departments.map((d) => (
                       <SelectItem key={d.id || d._id || d.name} value={d.name}>
                         {d.name}

@@ -224,7 +224,9 @@ export default function SystemInfoDetail() {
       setAssets(updated);
 
       // Try to delete from API
-      fetch(`/api/system-assets/${id}`, { method: "DELETE" }).catch(console.error);
+      fetch(`/api/system-assets/${id}`, { method: "DELETE" }).catch(
+        console.error,
+      );
       alert("Item deleted successfully");
     } else if (password !== null) {
       alert("Incorrect password");
@@ -333,7 +335,10 @@ export default function SystemInfoDetail() {
       }
     } catch (error) {
       console.error("Failed to save asset:", error);
-      alert("Error saving asset: " + (error instanceof Error ? error.message : "Unknown error"));
+      alert(
+        "Error saving asset: " +
+          (error instanceof Error ? error.message : "Unknown error"),
+      );
     }
   };
 

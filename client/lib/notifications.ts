@@ -40,7 +40,9 @@ export function getPendingNotifications(): ITNotification[] {
 /**
  * Add a new notification
  */
-export function addNotification(notification: Omit<ITNotification, "id" | "createdAt">): ITNotification {
+export function addNotification(
+  notification: Omit<ITNotification, "id" | "createdAt">,
+): ITNotification {
   const newNotification: ITNotification = {
     ...notification,
     id: Date.now().toString(),
@@ -70,7 +72,9 @@ export function markAsProcessed(notificationId: string): void {
  * Delete a notification
  */
 export function deleteNotification(notificationId: string): void {
-  const notifications = getNotifications().filter((n) => n.id !== notificationId);
+  const notifications = getNotifications().filter(
+    (n) => n.id !== notificationId,
+  );
   localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(notifications));
 }
 

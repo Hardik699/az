@@ -341,7 +341,10 @@ export default function PCLaptopInfo() {
         const usedCameraIds = getUsedIds(currentItems, "cameraId");
         const usedHeadphoneIds = getUsedIds(currentItems, "headphoneId");
         const usedPowerSupplyIds = getUsedIds(currentItems, "powerSupplyId");
-        const usedStorageIds = getUsedIds(currentItems as any, "storageId" as any);
+        const usedStorageIds = getUsedIds(
+          currentItems as any,
+          "storageId" as any,
+        );
         const usedRamIds = Array.from(
           new Set([
             ...getUsedIds(currentItems, "ramId"),
@@ -351,7 +354,9 @@ export default function PCLaptopInfo() {
 
         // Filter out used IDs from available assets
         const allMouseAssets = sysList.filter((s) => s.category === "mouse");
-        const allKeyboardAssets = sysList.filter((s) => s.category === "keyboard");
+        const allKeyboardAssets = sysList.filter(
+          (s) => s.category === "keyboard",
+        );
         const allMotherboardAssets = sysList.filter(
           (s) => s.category === "motherboard",
         );
@@ -362,11 +367,15 @@ export default function PCLaptopInfo() {
         const allPowerSupplyAssets = sysList.filter(
           (s) => s.category === "power-supply",
         );
-        const allStorageAssets = sysList.filter((s) => s.category === "storage");
+        const allStorageAssets = sysList.filter(
+          (s) => s.category === "storage",
+        );
         const allRamAssets = sysList.filter((s) => s.category === "ram");
 
         setMouseAssets(getAvailableAssets(allMouseAssets, usedMouseIds));
-        setKeyboardAssets(getAvailableAssets(allKeyboardAssets, usedKeyboardIds));
+        setKeyboardAssets(
+          getAvailableAssets(allKeyboardAssets, usedKeyboardIds),
+        );
         setMotherboardAssets(
           getAvailableAssets(allMotherboardAssets, usedMotherboardIds),
         );
@@ -431,7 +440,10 @@ export default function PCLaptopInfo() {
       const usedCameraIds = getUsedIds(itemsToCheck, "cameraId");
       const usedHeadphoneIds = getUsedIds(itemsToCheck, "headphoneId");
       const usedPowerSupplyIds = getUsedIds(itemsToCheck, "powerSupplyId");
-      const usedStorageIds = getUsedIds(itemsToCheck as any, "storageId" as any);
+      const usedStorageIds = getUsedIds(
+        itemsToCheck as any,
+        "storageId" as any,
+      );
       const usedRamIds = Array.from(
         new Set([
           ...getUsedIds(itemsToCheck, "ramId"),
@@ -784,7 +796,9 @@ export default function PCLaptopInfo() {
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700 text-white">
                       <SelectItem value="Desktop PC">Desktop PC</SelectItem>
-                      <SelectItem value="All In One PC">All In One PC</SelectItem>
+                      <SelectItem value="All In One PC">
+                        All In One PC
+                      </SelectItem>
                       <SelectItem value="Laptop">Laptop</SelectItem>
                     </SelectContent>
                   </Select>

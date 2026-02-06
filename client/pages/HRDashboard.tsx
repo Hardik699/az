@@ -405,25 +405,40 @@ export default function HRDashboard() {
       if (userRole === "admin" || userRole === "hr") {
         try {
           const requests = [
-            fetch("/api/employees").catch(err => {
+            fetch("/api/employees").catch((err) => {
               console.error("Failed to fetch employees:", err);
-              return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+              return new Response(
+                JSON.stringify({ success: false, data: [] }),
+                { status: 500 },
+              );
             }),
-            fetch("/api/departments").catch(err => {
+            fetch("/api/departments").catch((err) => {
               console.error("Failed to fetch departments:", err);
-              return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+              return new Response(
+                JSON.stringify({ success: false, data: [] }),
+                { status: 500 },
+              );
             }),
-            fetch("/api/leave-requests").catch(err => {
+            fetch("/api/leave-requests").catch((err) => {
               console.error("Failed to fetch leave requests:", err);
-              return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+              return new Response(
+                JSON.stringify({ success: false, data: [] }),
+                { status: 500 },
+              );
             }),
-            fetch("/api/salary-records").catch(err => {
+            fetch("/api/salary-records").catch((err) => {
               console.error("Failed to fetch salary records:", err);
-              return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+              return new Response(
+                JSON.stringify({ success: false, data: [] }),
+                { status: 500 },
+              );
             }),
-            fetch("/api/attendance").catch(err => {
+            fetch("/api/attendance").catch((err) => {
               console.error("Failed to fetch attendance:", err);
-              return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+              return new Response(
+                JSON.stringify({ success: false, data: [] }),
+                { status: 500 },
+              );
             }),
           ];
 
@@ -480,10 +495,12 @@ export default function HRDashboard() {
               const salaryData = await salaryRes.json();
               if (salaryData.success && salaryData.data) {
                 // Normalize salary records: ensure id field is set to _id
-                const normalizedSalaries = salaryData.data.map((salary: any) => ({
-                  ...salary,
-                  id: salary._id || salary.id,
-                }));
+                const normalizedSalaries = salaryData.data.map(
+                  (salary: any) => ({
+                    ...salary,
+                    id: salary._id || salary.id,
+                  }),
+                );
                 setSalaryRecords(normalizedSalaries);
               }
             } catch (e) {
@@ -841,7 +858,10 @@ export default function HRDashboard() {
     }
     // Check if table number is already assigned to another active employee
     const usedTableNumbers = employees
-      .filter((e) => e.status === "active" && e.tableNumber && e.id !== newEmployee.id)
+      .filter(
+        (e) =>
+          e.status === "active" && e.tableNumber && e.id !== newEmployee.id,
+      )
       .map((e) => e.tableNumber);
 
     if (usedTableNumbers.includes(newEmployee.tableNumber)) {
@@ -1091,7 +1111,8 @@ export default function HRDashboard() {
 
       // Search filter - search by name, email, employee ID, phone, department
       const searchLower = employeeSearchQuery.toLowerCase().trim();
-      const searchMatch = !searchLower ||
+      const searchMatch =
+        !searchLower ||
         emp.fullName.toLowerCase().includes(searchLower) ||
         emp.email.toLowerCase().includes(searchLower) ||
         emp.employeeId?.toLowerCase().includes(searchLower) ||
@@ -1651,7 +1672,10 @@ Generated on: ${new Date().toLocaleString()}
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <Label htmlFor="hr-id" className="text-slate-300">
-                              HR ID {isManualHRId ? "(Manual Entry)" : "(Auto-generated)"}
+                              HR ID{" "}
+                              {isManualHRId
+                                ? "(Manual Entry)"
+                                : "(Auto-generated)"}
                             </Label>
                             <Button
                               type="button"
@@ -2038,8 +2062,13 @@ Generated on: ${new Date().toLocaleString()}
                                             e.tableNumber,
                                         )
                                         .map((e) => {
-                                          const num = parseInt(e.tableNumber, 10);
-                                          return !Number.isNaN(num) ? num : null;
+                                          const num = parseInt(
+                                            e.tableNumber,
+                                            10,
+                                          );
+                                          return !Number.isNaN(num)
+                                            ? num
+                                            : null;
                                         })
                                         .filter((n) => n !== null),
                                     ).has(n),
@@ -2615,15 +2644,11 @@ Generated on: ${new Date().toLocaleString()}
                                     #
                                   </span>
                                   <span>
-                                    {employee.tableNumber ? (
-                                      isNaN(Number(employee.tableNumber)) ? (
-                                        employee.tableNumber
-                                      ) : (
-                                        `Table ${employee.tableNumber}`
-                                      )
-                                    ) : (
-                                      "-"
-                                    )}
+                                    {employee.tableNumber
+                                      ? isNaN(Number(employee.tableNumber))
+                                        ? employee.tableNumber
+                                        : `Table ${employee.tableNumber}`
+                                      : "-"}
                                   </span>
                                 </div>
                                 {employee.joiningDate && (
@@ -3879,8 +3904,13 @@ Generated on: ${new Date().toLocaleString()}
                                   e.tableNumber === room,
                               );
                               return (
-                                <SelectItem key={room} value={room} disabled={isRoomTaken}>
-                                  {room}{isRoomTaken ? " (Assigned)" : ""}
+                                <SelectItem
+                                  key={room}
+                                  value={room}
+                                  disabled={isRoomTaken}
+                                >
+                                  {room}
+                                  {isRoomTaken ? " (Assigned)" : ""}
                                 </SelectItem>
                               );
                             })}
