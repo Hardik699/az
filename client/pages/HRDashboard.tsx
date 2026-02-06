@@ -2502,66 +2502,6 @@ Generated on: ${new Date().toLocaleString()}
                       {getFilteredEmployees().length} of {employees.length}
                     </Badge>
                   </CardTitle>
-                  {employees.length > 0 && (
-                    <div className="flex gap-2">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-slate-600 text-slate-300 hover:bg-slate-700"
-                          >
-                            <Download className="h-4 w-4 mr-2" />
-                            Export
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-slate-800 border-slate-700">
-                          <DropdownMenuItem
-                            key="export-csv"
-                            onClick={() =>
-                              exportToCSV(
-                                employees,
-                                departments,
-                                `hr-employees-${new Date().toISOString().split("T")[0]}.csv`,
-                              )
-                            }
-                            className="text-slate-300 focus:bg-slate-700 cursor-pointer"
-                          >
-                            <FileText className="h-4 w-4 mr-2" />
-                            Export as CSV
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            key="export-excel"
-                            onClick={() =>
-                              exportToExcel(
-                                employees,
-                                departments,
-                                `hr-employees-${new Date().toISOString().split("T")[0]}.xlsx`,
-                              )
-                            }
-                            className="text-slate-300 focus:bg-slate-700 cursor-pointer"
-                          >
-                            <FileText className="h-4 w-4 mr-2" />
-                            Export as Excel
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            key="export-dept-summary"
-                            onClick={() =>
-                              exportDepartmentSummary(
-                                employees,
-                                departments,
-                                `department-summary-${new Date().toISOString().split("T")[0]}.csv`,
-                              )
-                            }
-                            className="text-slate-300 focus:bg-slate-700 cursor-pointer"
-                          >
-                            <Building2 className="h-4 w-4 mr-2" />
-                            Department Summary
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
