@@ -546,7 +546,7 @@ export default function ITDashboard() {
                                     {(r.emails as any[]).map(
                                       (e: any, i: number) => (
                                         <div
-                                          key={i}
+                                          key={`email-${r.id}-${i}-${e.email}`}
                                           className="p-2 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs"
                                         >
                                           <div>
