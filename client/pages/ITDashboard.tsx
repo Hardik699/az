@@ -273,8 +273,10 @@ export default function ITDashboard() {
                             </Badge>
                           </div>
                           <div className="text-xs text-slate-400">
-                            {notification.department} • Table{" "}
-                            {notification.tableNumber}
+                            {notification.department} •{" "}
+                            {isNaN(Number(notification.tableNumber))
+                              ? notification.tableNumber
+                              : `Table ${notification.tableNumber}`}
                           </div>
                           <div className="text-xs text-slate-500">
                             Created{" "}
