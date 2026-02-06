@@ -323,54 +323,72 @@ export default function PCLaptopInfo() {
     const currentItems = raw ? JSON.parse(raw) : [];
     setItems(currentItems);
 
-    const sysRaw = localStorage.getItem(SYS_STORAGE_KEY);
-    const sysList: SysAsset[] = sysRaw ? JSON.parse(sysRaw) : [];
+    // Fetch system assets from API
+    const fetchSystemAssets = async () => {
+      try {
+        const response = await fetch("/api/system-assets");
+        const result = await response.json();
+        const sysList: SysAsset[] = result.success ? result.data : [];
 
-    // Get all used IDs for each component type
-    const usedMouseIds = getUsedIds(currentItems, "mouseId");
-    const usedKeyboardIds = getUsedIds(currentItems, "keyboardId");
-    const usedMotherboardIds = getUsedIds(currentItems, "motherboardId");
-    const usedCameraIds = getUsedIds(currentItems, "cameraId");
-    const usedHeadphoneIds = getUsedIds(currentItems, "headphoneId");
-    const usedPowerSupplyIds = getUsedIds(currentItems, "powerSupplyId");
-    const usedStorageIds = getUsedIds(currentItems as any, "storageId" as any);
-    const usedRamIds = Array.from(
-      new Set([
-        ...getUsedIds(currentItems, "ramId"),
-        ...getUsedIds(currentItems as any, "ramId2" as any),
-      ]),
-    );
+        // Get all used IDs for each component type
+        const usedMouseIds = getUsedIds(currentItems, "mouseId");
+        const usedKeyboardIds = getUsedIds(currentItems, "keyboardId");
+        const usedMotherboardIds = getUsedIds(currentItems, "motherboardId");
+        const usedCameraIds = getUsedIds(currentItems, "cameraId");
+        const usedHeadphoneIds = getUsedIds(currentItems, "headphoneId");
+        const usedPowerSupplyIds = getUsedIds(currentItems, "powerSupplyId");
+        const usedStorageIds = getUsedIds(currentItems as any, "storageId" as any);
+        const usedRamIds = Array.from(
+          new Set([
+            ...getUsedIds(currentItems, "ramId"),
+            ...getUsedIds(currentItems as any, "ramId2" as any),
+          ]),
+        );
 
-    // Filter out used IDs from available assets
-    const allMouseAssets = sysList.filter((s) => s.category === "mouse");
-    const allKeyboardAssets = sysList.filter((s) => s.category === "keyboard");
-    const allMotherboardAssets = sysList.filter(
-      (s) => s.category === "motherboard",
-    );
-    const allCameraAssets = sysList.filter((s) => s.category === "camera");
-    const allHeadphoneAssets = sysList.filter(
-      (s) => s.category === "headphone",
-    );
-    const allPowerSupplyAssets = sysList.filter(
-      (s) => s.category === "power-supply",
-    );
-    const allStorageAssets = sysList.filter((s) => s.category === "storage");
-    const allRamAssets = sysList.filter((s) => s.category === "ram");
+        // Filter out used IDs from available assets
+        const allMouseAssets = sysList.filter((s) => s.category === "mouse");
+        const allKeyboardAssets = sysList.filter((s) => s.category === "keyboard");
+        const allMotherboardAssets = sysList.filter(
+          (s) => s.category === "motherboard",
+        );
+        const allCameraAssets = sysList.filter((s) => s.category === "camera");
+        const allHeadphoneAssets = sysList.filter(
+          (s) => s.category === "headphone",
+        );
+        const allPowerSupplyAssets = sysList.filter(
+          (s) => s.category === "power-supply",
+        );
+        const allStorageAssets = sysList.filter((s) => s.category === "storage");
+        const allRamAssets = sysList.filter((s) => s.category === "ram");
 
-    setMouseAssets(getAvailableAssets(allMouseAssets, usedMouseIds));
-    setKeyboardAssets(getAvailableAssets(allKeyboardAssets, usedKeyboardIds));
-    setMotherboardAssets(
-      getAvailableAssets(allMotherboardAssets, usedMotherboardIds),
-    );
-    setCameraAssets(getAvailableAssets(allCameraAssets, usedCameraIds));
-    setHeadphoneAssets(
-      getAvailableAssets(allHeadphoneAssets, usedHeadphoneIds),
-    );
-    setPowerSupplyAssets(
-      getAvailableAssets(allPowerSupplyAssets, usedPowerSupplyIds),
-    );
-    setStorageAssets(getAvailableAssets(allStorageAssets, usedStorageIds));
-    setRamAssets(getAvailableAssets(allRamAssets, usedRamIds));
+        setMouseAssets(getAvailableAssets(allMouseAssets, usedMouseIds));
+        setKeyboardAssets(getAvailableAssets(allKeyboardAssets, usedKeyboardIds));
+        setMotherboardAssets(
+          getAvailableAssets(allMotherboardAssets, usedMotherboardIds),
+        );
+        setCameraAssets(getAvailableAssets(allCameraAssets, usedCameraIds));
+        setHeadphoneAssets(
+          getAvailableAssets(allHeadphoneAssets, usedHeadphoneIds),
+        );
+        setPowerSupplyAssets(
+          getAvailableAssets(allPowerSupplyAssets, usedPowerSupplyIds),
+        );
+        setStorageAssets(getAvailableAssets(allStorageAssets, usedStorageIds));
+        setRamAssets(getAvailableAssets(allRamAssets, usedRamIds));
+      } catch (error) {
+        console.error("Failed to fetch system assets:", error);
+        setMouseAssets([]);
+        setKeyboardAssets([]);
+        setMotherboardAssets([]);
+        setCameraAssets([]);
+        setHeadphoneAssets([]);
+        setPowerSupplyAssets([]);
+        setStorageAssets([]);
+        setRamAssets([]);
+      }
+    };
+
+    fetchSystemAssets();
   }, []);
 
   const addNew = () => {
