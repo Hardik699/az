@@ -1202,6 +1202,8 @@ export default function PCLaptopInfo() {
                     {items.map((a) => (
                       <TableRow key={a.id}>
                         <TableCell className="font-medium">{a.id}</TableCell>
+                        <TableCell>{a.systemType || "-"}</TableCell>
+                        <TableCell>{a.totalRam || "-"}</TableCell>
                         <TableCell>{a.mouseId || "-"}</TableCell>
                         <TableCell>{a.keyboardId || "-"}</TableCell>
                         <TableCell>{a.motherboardId || "-"}</TableCell>
