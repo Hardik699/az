@@ -155,6 +155,7 @@ export default function SystemInfoDetail() {
 
   const [assets, setAssets] = useState<Asset[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({
     id: "",
     serialNumber: "",
