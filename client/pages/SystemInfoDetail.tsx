@@ -735,6 +735,7 @@ export default function SystemInfoDetail() {
                         <TableHead>Password</TableHead>
                         <TableHead>Purchase Date</TableHead>
                         <TableHead>Warranty End Date</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     ) : (
                       <TableRow>
@@ -759,6 +760,7 @@ export default function SystemInfoDetail() {
                         <TableHead>Vendor</TableHead>
                         <TableHead>Purchase Date</TableHead>
                         <TableHead>Warranty End Date</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     )}
                   </TableHeader>
