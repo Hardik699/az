@@ -263,6 +263,7 @@ export default function HRDashboard() {
     "all" | "active" | "inactive"
   >("all");
   const [departmentFilter, setDepartmentFilter] = useState<string>("all");
+  const [employeeSearchQuery, setEmployeeSearchQuery] = useState<string>("");
   const [selectedDepartmentView, setSelectedDepartmentView] = useState<
     string | null
   >(null);
