@@ -674,6 +674,8 @@ export default function PCLaptopInfo() {
     // Reset form to clear any residual state
     setForm({
       id: "",
+      systemType: "",
+      totalRam: "",
       mouseId: "none",
       keyboardId: "none",
       motherboardId: "none",
