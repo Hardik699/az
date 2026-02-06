@@ -71,12 +71,76 @@ export default function Index() {
       <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 z-10">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-            User Management
-            <span className="block text-blue-400">System</span>
-          </h1>
-          {!isAuthenticated && (
+          {isAuthenticated && currentUser ? (
+            // Welcome Section for Authenticated Users
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <Sparkles className="h-8 w-8 text-blue-400 animate-spin" />
+                  <span className="text-lg text-blue-400 font-semibold">
+                    Welcome
+                  </span>
+                  <Sparkles className="h-8 w-8 text-blue-400 animate-spin" />
+                </div>
+                <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent min-h-20 flex items-center justify-center">
+                  {displayText}
+                  {displayText.length < `Welcome Back, ${currentUser}!`.length && (
+                    <span className="ml-1 animate-pulse">|</span>
+                  )}
+                </h1>
+              </div>
+
+              <div className="space-y-6">
+                <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+                  You're logged in as <span className="text-blue-400 font-semibold">{currentUser}</span>
+                  {userRole && (
+                    <span className="block text-base text-slate-400 mt-2">
+                      Role: <span className="text-cyan-400 capitalize">{userRole}</span>
+                    </span>
+                  )}
+                </p>
+
+                <div className="flex flex-wrap items-center justify-center gap-4">
+                  {userRole === "admin" && (
+                    <Button
+                      onClick={() => navigate("/admin")}
+                      className="bg-purple-500 hover:bg-purple-600 text-white"
+                    >
+                      Admin Dashboard <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  )}
+                  {userRole === "hr" && (
+                    <Button
+                      onClick={() => navigate("/hr")}
+                      className="bg-green-500 hover:bg-green-600 text-white"
+                    >
+                      HR Dashboard <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  )}
+                  {userRole === "it" && (
+                    <Button
+                      onClick={() => navigate("/it-dashboard")}
+                      className="bg-orange-500 hover:bg-orange-600 text-white"
+                    >
+                      Users Dashboard <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => navigate("/dashboard")}
+                    className="bg-slate-700 hover:bg-slate-600 text-white"
+                  >
+                    Dashboard <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            // Original Content for Non-Authenticated Users
             <>
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+                User Management
+                <span className="block text-blue-400">System</span>
+              </h1>
               <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
                 A modern solution for user authentication and management. Secure,
                 simple, and efficient.
