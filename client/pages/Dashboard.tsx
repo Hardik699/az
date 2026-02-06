@@ -33,9 +33,9 @@ export default function Dashboard() {
                 </Button>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white mb-2">IT</h3>
+                <h3 className="text-lg font-semibold text-white mb-2">Users</h3>
                 <p className="text-slate-400 text-sm group-hover:text-slate-300 transition-colors duration-300">
-                  IT accounts and credentials management
+                  User accounts and credentials management
                 </p>
               </div>
             </CardContent>
