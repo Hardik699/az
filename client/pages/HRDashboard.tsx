@@ -1088,7 +1088,17 @@ export default function HRDashboard() {
         employeeStatusFilter === "all" || emp.status === employeeStatusFilter;
       const departmentMatch =
         departmentFilter === "all" || emp.department === departmentFilter;
-      return statusMatch && departmentMatch;
+
+      // Search filter - search by name, email, employee ID, phone, department
+      const searchLower = employeeSearchQuery.toLowerCase().trim();
+      const searchMatch = !searchLower ||
+        emp.fullName.toLowerCase().includes(searchLower) ||
+        emp.email.toLowerCase().includes(searchLower) ||
+        emp.employeeId?.toLowerCase().includes(searchLower) ||
+        emp.mobileNumber?.includes(searchLower) ||
+        emp.department?.toLowerCase().includes(searchLower);
+
+      return statusMatch && departmentMatch && searchMatch;
     });
   };
 
