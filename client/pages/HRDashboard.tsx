@@ -2564,7 +2564,28 @@ Generated on: ${new Date().toLocaleString()}
                   )}
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
+                {/* Search Input */}
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="text"
+                    placeholder="Search by name, email, ID, phone, or department..."
+                    value={employeeSearchQuery}
+                    onChange={(e) => setEmployeeSearchQuery(e.target.value)}
+                    className="flex-1 bg-slate-800/50 border-slate-700 text-white placeholder-slate-500"
+                  />
+                  {employeeSearchQuery && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setEmployeeSearchQuery("")}
+                      className="text-slate-400 hover:text-white"
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </div>
+
                 {getFilteredEmployees().length === 0 ? (
                   <div className="text-center py-8">
                     <User className="h-12 w-12 text-slate-600 mx-auto mb-4" />
