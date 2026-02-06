@@ -74,22 +74,20 @@ export default function AppNav() {
     <nav className="sticky top-0 z-50 border-b border-white/10 bg-slate-900/90 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo/Brand */}
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center transition-all duration-300 hover:bg-blue-400 hover:scale-110">
-              <Settings className="h-4 w-4 text-white" />
+          {/* Logo/Brand - Infoseum */}
+          <div
+            className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity duration-300 group"
+            onClick={() => navigate("/")}
+          >
+            {/* Infoseum Cyan Dot */}
+            <div className="relative w-6 h-6">
+              <div className="absolute inset-0 bg-cyan-400 rounded-full animate-pulse opacity-75 group-hover:opacity-100"></div>
+              <div className="absolute inset-1 bg-cyan-500 rounded-full"></div>
             </div>
+            {/* Infoseum Text */}
             <div className="hidden sm:block">
-              <h1 className="text-lg font-semibold text-white">
-                {isAuthenticated
-                  ? userRole === "admin"
-                    ? "Admin - All Dashboards"
-                    : userRole === "it"
-                      ? "IT Dashboard"
-                      : userRole === "hr"
-                        ? "HR Dashboard"
-                        : `Welcome, ${currentUser}`
-                  : "User Management System"}
+              <h1 className="text-lg font-bold text-white tracking-tight">
+                <span className="text-cyan-400">Infoseum</span>
               </h1>
             </div>
           </div>
