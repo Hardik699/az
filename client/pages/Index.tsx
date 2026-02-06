@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import AppNav from "@/components/Navigation";
 
 export default function Index() {
@@ -16,6 +16,7 @@ export default function Index() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState("");
   const [currentUser, setCurrentUser] = useState("");
+  const [displayText, setDisplayText] = useState("");
 
   // Check authentication status
   useEffect(() => {
@@ -28,6 +29,26 @@ export default function Index() {
     setUserRole(role || "");
     setCurrentUser(user || "");
   }, []);
+
+  // Typing effect for welcome message
+  useEffect(() => {
+    if (!isAuthenticated || !currentUser) return;
+
+    const welcomeText = `Welcome Back, ${currentUser}!`;
+    let index = 0;
+    setDisplayText("");
+
+    const timer = setInterval(() => {
+      if (index <= welcomeText.length) {
+        setDisplayText(welcomeText.substring(0, index));
+        index++;
+      } else {
+        clearInterval(timer);
+      }
+    }, 50);
+
+    return () => clearInterval(timer);
+  }, [isAuthenticated, currentUser]);
 
 
   return (
