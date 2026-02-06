@@ -36,6 +36,8 @@ import {
 type Asset = {
   id: string;
   createdAt: string;
+  systemType?: string;
+  totalRam?: string;
   mouseId?: string;
   keyboardId?: string;
   motherboardId?: string;
