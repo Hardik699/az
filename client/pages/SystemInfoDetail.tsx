@@ -217,6 +217,42 @@ export default function SystemInfoDetail() {
     setShowForm(true);
   };
 
+  const deleteAsset = (id: string) => {
+    const password = prompt("Enter password to delete this item:");
+    if (password === "1") {
+      const updated = assets.filter((a) => a.id !== id);
+      setAssets(updated);
+
+      // Try to delete from API
+      fetch(`/api/system-assets/${id}`, { method: "DELETE" }).catch(console.error);
+      alert("Item deleted successfully");
+    } else if (password !== null) {
+      alert("Incorrect password");
+    }
+  };
+
+  const editAsset = (asset: Asset) => {
+    setEditingId(asset.id);
+    setForm({
+      id: asset.id,
+      serialNumber: asset.serialNumber || "",
+      vendorName: asset.vendorName || "",
+      companyName: asset.companyName || "",
+      purchaseDate: asset.purchaseDate || "",
+      warrantyEndDate: asset.warrantyEndDate || "",
+      vonageNumber: asset.vonageNumber || "",
+      vonageExtCode: asset.vonageExtCode || "",
+      vonagePassword: asset.vonagePassword || "",
+      ramSize: (asset as any).ramSize || "",
+      ramType: (asset as any).ramType || "",
+      processorModel: (asset as any).processorModel || "",
+      storageType: (asset as any).storageType || "",
+      storageCapacity: (asset as any).storageCapacity || "",
+      quantity: "1",
+    });
+    setShowForm(true);
+  };
+
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isVonage) {
@@ -280,8 +316,16 @@ export default function SystemInfoDetail() {
 
       const result = await response.json();
       if (result.success) {
-        const next = [record, ...assets];
-        setAssets(next);
+        if (editingId) {
+          // Update existing
+          const updated = assets.map((a) => (a.id === editingId ? record : a));
+          setAssets(updated);
+          setEditingId(null);
+        } else {
+          // Add new
+          const next = [record, ...assets];
+          setAssets(next);
+        }
         setShowForm(false);
         alert("Saved");
       } else {
