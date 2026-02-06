@@ -772,6 +772,35 @@ export default function PCLaptopInfo() {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label className="text-slate-300">System Type</Label>
+                  <Select
+                    value={form.systemType}
+                    onValueChange={(v) =>
+                      setForm((s) => ({ ...s, systemType: v }))
+                    }
+                  >
+                    <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
+                      <SelectValue placeholder="Select system type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                      <SelectItem value="Desktop PC">Desktop PC</SelectItem>
+                      <SelectItem value="All In One PC">All In One PC</SelectItem>
+                      <SelectItem value="Laptop">Laptop</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-slate-300">Total RAM</Label>
+                  <Input
+                    value={form.totalRam}
+                    onChange={(e) =>
+                      setForm((s) => ({ ...s, totalRam: e.target.value }))
+                    }
+                    placeholder="e.g., 16GB, 32GB"
+                    className="bg-slate-800/50 border-slate-700 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label className="text-slate-300">Mouse (IDs)</Label>
                   <Select
                     value={form.mouseId}
