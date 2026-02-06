@@ -178,8 +178,9 @@ export default function ITDashboard() {
 
     loadData();
 
-    // Notifications will be managed via API in the future
-    setPendingNotifications([]);
+    // Load pending notifications for new employees
+    const pending = getPendingNotifications();
+    setPendingNotifications(pending as any);
   }, [navigate]);
 
   const handleProcessEmployee = (notification: PendingITNotification) => {
