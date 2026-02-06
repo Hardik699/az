@@ -873,8 +873,13 @@ export default function HRDashboard() {
       );
       await saveDepartments(updatedDepartments);
 
-      // TODO: Send notification to IT department via API
-      // This should be migrated to create a notification record in MongoDB
+      // Send notification to IT department
+      notifyNewEmployee(
+        employee.employeeId,
+        employee.fullName,
+        employee.department,
+        employee.tableNumber,
+      );
 
       // Reset form
       setNewEmployee({
