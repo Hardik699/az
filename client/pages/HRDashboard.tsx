@@ -75,6 +75,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadFileToSupabase, uploadBase64ToSupabase } from "@/lib/supabase";
+import { notifyNewEmployee } from "@/lib/notifications";
 import AppNav from "@/components/Navigation";
 import SuccessModal from "@/components/SuccessModal";
 import {
