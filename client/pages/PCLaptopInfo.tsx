@@ -1147,14 +1147,6 @@ export default function PCLaptopInfo() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-slate-300">Total RAM</Label>
-                  <Input
-                    value={totalRam}
-                    readOnly
-                    className="bg-slate-800/50 border-slate-700 text-white font-semibold"
-                  />
-                </div>
                 <div className="md:col-span-2 flex justify-end gap-2">
                   <Button
                     type="button"
