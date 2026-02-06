@@ -546,6 +546,8 @@ export default function PCLaptopInfo() {
     const record: Asset = {
       id: form.id || nextWxId(items),
       createdAt: editingItem ? editingItem.createdAt : new Date().toISOString(),
+      systemType: form.systemType ? form.systemType.trim() : undefined,
+      totalRam: form.totalRam ? form.totalRam.trim() : undefined,
       mouseId:
         form.mouseId && form.mouseId !== "none"
           ? form.mouseId.trim()
