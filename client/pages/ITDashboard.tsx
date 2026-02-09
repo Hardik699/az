@@ -260,7 +260,7 @@ export default function ITDashboard() {
       department: notification.department,
       tableNumber: notification.tableNumber,
     });
-    navigate(`/it?${urlParams.toString()}`);
+    window.location.href = `/it?${urlParams.toString()}`;
   };
 
   const filtered = records.filter((r) => {
@@ -854,7 +854,7 @@ export default function ITDashboard() {
 
             <div className="flex justify-end">
               <Button
-                onClick={() => navigate("/it")}
+                onClick={() => (window.location.href = "/it")}
                 className="bg-blue-500 hover:bg-blue-600 text-white"
               >
                 Go to IT Form <ArrowRight className="h-4 w-4 ml-2" />
