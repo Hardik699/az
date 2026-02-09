@@ -73,6 +73,7 @@ export function createServer() {
   app.use("/api/employees", employeesRouter);
   app.use("/api/departments", departmentsRouter);
   app.use("/api/it-accounts", itAccountsRouter);
+  app.use("/api/pc-laptop", pcLaptopRouter);
   app.use("/api/attendance", attendanceRouter);
   app.use("/api/leave-requests", leaveRequestsRouter);
   app.use("/api/salary-records", salaryRecordsRouter);
