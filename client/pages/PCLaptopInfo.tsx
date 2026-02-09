@@ -1150,12 +1150,7 @@ export default function PCLaptopInfo() {
                         </div>
                       ) : (
                         storageAssets.map((s) => {
-                          // Get storage details from systemAssets
-                          const sysRaw = localStorage.getItem("systemAssets");
-                          const sysList = sysRaw ? JSON.parse(sysRaw) : [];
-                          const storageDetails = sysList.find(
-                            (item: any) => item.id === s.id,
-                          );
+                          const storageDetails = getAssetById(s.id);
 
                           return (
                             <SelectItem key={s.id} value={s.id}>
