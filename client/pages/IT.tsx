@@ -296,17 +296,21 @@ export default function ITPage() {
     setRecords(next);
     try {
       for (const record of next) {
-        if (record._id) {
+        // Check if this is an existing record (has _id from database)
+        if (record._id && !record.id.startsWith(`${Date.now()}`) && record.id !== record._id) {
+          // Update existing record
           await fetch(`/api/it-accounts/${record._id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(record),
           });
-        } else {
+        } else if (!record._id || record.id.startsWith(`${Date.now()}`)) {
+          // Create new record
+          const { _id, ...recordWithoutId } = record;
           await fetch("/api/it-accounts", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(record),
+            body: JSON.stringify(recordWithoutId),
           });
         }
       }
