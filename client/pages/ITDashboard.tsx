@@ -836,7 +836,7 @@ export default function ITDashboard() {
                                     const params = new URLSearchParams({
                                       itId: r.id,
                                     });
-                                    navigate(`/it?${params.toString()}`);
+                                    window.location.href = `/it?${params.toString()}`;
                                   }}
                                 >
                                   <Pencil className="h-4 w-4 mr-1" /> Edit IT
