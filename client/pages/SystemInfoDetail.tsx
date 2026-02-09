@@ -314,8 +314,11 @@ export default function SystemInfoDetail() {
     };
 
     try {
-      const response = await fetch("/api/system-assets", {
-        method: "POST",
+      const method = editingId ? "PUT" : "POST";
+      const url = editingId ? `/api/system-assets/${editingId}` : "/api/system-assets";
+
+      const response = await fetch(url, {
+        method: method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(record),
       });
