@@ -148,7 +148,7 @@ export default function ITPage() {
       }
 
       // Load available PC/Laptop IDs
-      loadAvailableSystemIds();
+      await loadAvailableSystemIds();
     };
 
     loadData();
