@@ -570,7 +570,7 @@ export default function SystemInfoDetail() {
                               <SelectValue placeholder="Select type" />
                             </SelectTrigger>
                             <SelectContent className="bg-slate-800 border-slate-700 text-white max-h-64">
-                              {["DDR2", "DDR3", "DDR4", "DDR5"].map((t) => (
+                              {["Desktop", "Laptop"].map((t) => (
                                 <SelectItem key={t} value={t}>
                                   {t}
                                 </SelectItem>
