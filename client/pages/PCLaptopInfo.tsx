@@ -102,6 +102,7 @@ export default function PCLaptopInfo() {
   const [totalRam, setTotalRam] = useState("0GB");
   const [isGoogleSheetsConfigured, setIsGoogleSheetsConfigured] =
     useState(false);
+  const [systemAssets, setSystemAssets] = useState<SysAsset[]>([]);
   const { triggerAutoSync } = useGoogleAppsScriptAutoSync();
 
   // Check Google Apps Script configuration on load
