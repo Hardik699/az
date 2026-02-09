@@ -158,44 +158,17 @@ export default function ITDashboard() {
 
     const loadData = async () => {
       try {
-        const requests = [
-          fetch("/api/it-accounts").catch((err) => {
-            console.error("Failed to fetch IT accounts:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), {
-              status: 500,
-            });
-          }),
-          fetch("/api/employees").catch((err) => {
-            console.error("Failed to fetch employees:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), {
-              status: 500,
-            });
-          }),
-          fetch("/api/departments").catch((err) => {
-            console.error("Failed to fetch departments:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), {
-              status: 500,
-            });
-          }),
-        ];
+        // Load IT records
+        await loadITRecords();
 
-        const [itsRes, empsRes, deptsRes] = await Promise.all(requests);
+        // Load employees
+        const empsRes = await fetch("/api/employees").catch((err) => {
+          console.error("Failed to fetch employees:", err);
+          return new Response(JSON.stringify({ success: false, data: [] }), {
+            status: 500,
+          });
+        });
 
-        if (itsRes.ok) {
-          try {
-            const itsData = await itsRes.json();
-            if (itsData.success && itsData.data) {
-              // Map MongoDB _id to id for consistency
-              const mappedRecords = itsData.data.map((rec: any) => ({
-                ...rec,
-                id: rec._id,
-              }));
-              setRecords(mappedRecords);
-            }
-          } catch (e) {
-            console.error("Failed to parse IT accounts response:", e);
-          }
-        }
         if (empsRes.ok) {
           try {
             const empsData = await empsRes.json();
@@ -211,6 +184,15 @@ export default function ITDashboard() {
             console.error("Failed to parse employees response:", e);
           }
         }
+
+        // Load departments
+        const deptsRes = await fetch("/api/departments").catch((err) => {
+          console.error("Failed to fetch departments:", err);
+          return new Response(JSON.stringify({ success: false, data: [] }), {
+            status: 500,
+          });
+        });
+
         if (deptsRes.ok) {
           try {
             const deptsData = await deptsRes.json();
@@ -237,15 +219,17 @@ export default function ITDashboard() {
     const pending = getPendingNotifications();
     setPendingNotifications(pending as any);
 
-    // Polling mechanism - check for new notifications every 5 seconds
-    const notificationInterval = setInterval(() => {
+    // Polling mechanism - check for new IT records and notifications every 5 seconds
+    const refreshInterval = setInterval(() => {
+      loadITRecords(); // Reload IT records
       const freshPending = getPendingNotifications();
       setPendingNotifications(freshPending as any);
     }, 5000);
 
-    // Also reload notifications when page becomes visible (tab focus)
+    // Also reload when page becomes visible (tab focus)
     const handleVisibilityChange = () => {
       if (!document.hidden) {
+        loadITRecords(); // Reload IT records
         const freshPending = getPendingNotifications();
         setPendingNotifications(freshPending as any);
       }
@@ -255,7 +239,7 @@ export default function ITDashboard() {
 
     // Cleanup
     return () => {
-      clearInterval(notificationInterval);
+      clearInterval(refreshInterval);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [navigate]);
