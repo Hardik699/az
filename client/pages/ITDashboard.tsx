@@ -240,6 +240,42 @@ export default function ITDashboard() {
     };
   }, [navigate]);
 
+  // Load system assets from database
+  useEffect(() => {
+    const loadSystemAssets = async () => {
+      try {
+        const response = await fetch("/api/system-assets");
+        const result = await response.json();
+        if (result.success && result.data) {
+          setSystemAssets(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to load system assets:", error);
+        setSystemAssets([]);
+      }
+    };
+
+    loadSystemAssets();
+  }, []);
+
+  // Load PC/Laptop data from database
+  useEffect(() => {
+    const loadPcLaptops = async () => {
+      try {
+        const response = await fetch("/api/pc-laptop");
+        const result = await response.json();
+        if (result.success && result.data) {
+          setPcLaptops(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to load PC/Laptop data:", error);
+        setPcLaptops([]);
+      }
+    };
+
+    loadPcLaptops();
+  }, []);
+
   const handleProcessEmployee = (notification: PendingITNotification) => {
     // Do NOT mark processed here. Keep notification until IT record is created.
     const urlParams = new URLSearchParams({
