@@ -350,6 +350,8 @@ export default function ITPage() {
   const [preSelectedProviderId, setPreSelectedProviderId] =
     useState<string>("");
   const [isPreFilled, setIsPreFilled] = useState(false);
+  const [systemAssets, setSystemAssets] = useState<any[]>([]);
+  const [pcLaptops, setPcLaptops] = useState<any[]>([]);
 
   useEffect(() => {
     if (employee) {
