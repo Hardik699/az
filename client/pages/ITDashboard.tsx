@@ -699,16 +699,11 @@ export default function ITDashboard() {
 
                               {(() => {
                                 if (!previewFull) return null;
-                                const assetsRaw =
-                                  localStorage.getItem("systemAssets");
-                                const assets = assetsRaw
-                                  ? JSON.parse(assetsRaw)
-                                  : [];
                                 let providerAsset: any = null;
                                 if (
                                   (r as any).vitelGlobal?.provider === "vonage"
                                 ) {
-                                  providerAsset = assets.find(
+                                  providerAsset = systemAssets.find(
                                     (a: any) =>
                                       a.category === "vonage" &&
                                       (a.id === r.vitelGlobal?.id ||
@@ -716,7 +711,7 @@ export default function ITDashboard() {
                                         a.vonageNumber === r.vitelGlobal?.id),
                                   );
                                 } else {
-                                  providerAsset = assets.find(
+                                  providerAsset = systemAssets.find(
                                     (a: any) =>
                                       (a.category === "vitel" ||
                                         a.category === "vitel-global") &&
