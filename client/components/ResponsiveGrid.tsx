@@ -30,9 +30,7 @@ export function ResponsiveGrid({
   const colClass = `grid grid-cols-${columns.mobile} sm:grid-cols-${columns.tablet} lg:grid-cols-${columns.desktop}`;
 
   return (
-    <div className={`${colClass} ${gapClass} ${className}`}>
-      {children}
-    </div>
+    <div className={`${colClass} ${gapClass} ${className}`}>{children}</div>
   );
 }
 
@@ -49,7 +47,9 @@ export function ResponsiveContainer({
   className = "",
 }: ResponsiveContainerProps) {
   return (
-    <div className={`w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 ${className}`}>
+    <div
+      className={`w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 ${className}`}
+    >
       {children}
     </div>
   );

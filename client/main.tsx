@@ -22,5 +22,5 @@ createRoot(document.getElementById("root")!).render(
         </BrowserRouter>
       </AppWithDBCheck>
     </TooltipProvider>
-  </QueryClientProvider>
+  </QueryClientProvider>,
 );

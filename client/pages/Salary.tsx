@@ -100,10 +100,14 @@ export default function Salary() {
       <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
         <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <h1 className="text-3xl sm:text-4xl font-bold text-white">Salary Records</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold text-white">
+              Salary Records
+            </h1>
             <div className="w-full sm:w-auto flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
               <div className="w-full sm:w-auto flex items-center gap-2">
-                <Label className="text-sm whitespace-nowrap text-slate-300">Role</Label>
+                <Label className="text-sm whitespace-nowrap text-slate-300">
+                  Role
+                </Label>
                 <select
                   className="flex-1 sm:flex-none rounded-md bg-slate-800 border border-slate-700 px-3 py-2 text-slate-300 text-sm"
                   value={role}
@@ -114,7 +118,9 @@ export default function Salary() {
                 </select>
               </div>
               <div className="w-full sm:w-auto flex items-center gap-2">
-                <Label className="text-sm whitespace-nowrap text-slate-300">User ID</Label>
+                <Label className="text-sm whitespace-nowrap text-slate-300">
+                  User ID
+                </Label>
                 <Input
                   value={userId}
                   onChange={(e) => setUserId(e.target.value)}
@@ -192,7 +198,11 @@ export default function Salary() {
                 />
               </div>
               <div className="sm:col-span-2 lg:col-span-6 flex justify-end">
-                <Button type="submit" disabled={create.isPending} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700">
+                <Button
+                  type="submit"
+                  disabled={create.isPending}
+                  className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+                >
                   Add Salary
                 </Button>
               </div>
@@ -207,8 +217,12 @@ export default function Salary() {
                     <TableHead className="text-slate-300">Employee</TableHead>
                     <TableHead className="text-slate-300">Period</TableHead>
                     <TableHead className="text-slate-300">Amount</TableHead>
-                    <TableHead className="text-slate-300 hidden sm:table-cell">Owner</TableHead>
-                    <TableHead className="text-slate-300 hidden md:table-cell">Documents</TableHead>
+                    <TableHead className="text-slate-300 hidden sm:table-cell">
+                      Owner
+                    </TableHead>
+                    <TableHead className="text-slate-300 hidden md:table-cell">
+                      Documents
+                    </TableHead>
                     <TableHead className="text-slate-300">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -226,7 +240,8 @@ export default function Salary() {
                         setSuccessModal({
                           isOpen: true,
                           title: "📄 Documents Uploaded!",
-                          message: "Your documents have been successfully uploaded.",
+                          message:
+                            "Your documents have been successfully uploaded.",
                         })
                       }
                     />

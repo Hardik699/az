@@ -17,7 +17,9 @@ export class GoogleSheetsService {
       // Use service account credentials from environment
       const credentials = process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS;
       if (!credentials) {
-        console.warn("⚠️ Google Service Account credentials not configured. Google Sheets sync will be unavailable.");
+        console.warn(
+          "⚠️ Google Service Account credentials not configured. Google Sheets sync will be unavailable.",
+        );
         return false;
       }
 
@@ -347,7 +349,8 @@ export const syncToGoogleSheets: RequestHandler = async (req, res) => {
     if (!process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS) {
       return res.status(503).json({
         success: false,
-        message: "Google Sheets is not configured. Please set GOOGLE_SERVICE_ACCOUNT_CREDENTIALS environment variable.",
+        message:
+          "Google Sheets is not configured. Please set GOOGLE_SERVICE_ACCOUNT_CREDENTIALS environment variable.",
       });
     }
 

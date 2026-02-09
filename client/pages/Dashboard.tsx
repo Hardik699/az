@@ -12,8 +12,12 @@ export default function Dashboard() {
       <main className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 space-y-8">
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">Dashboard</h1>
-            <p className="text-slate-400 text-sm sm:text-base mt-1 sm:mt-2">Overview and quick actions</p>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
+              Dashboard
+            </h1>
+            <p className="text-slate-400 text-sm sm:text-base mt-1 sm:mt-2">
+              Overview and quick actions
+            </p>
           </div>
         </header>
 
@@ -33,7 +37,9 @@ export default function Dashboard() {
                 </Button>
               </div>
               <div>
-                <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">Users</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">
+                  Users
+                </h3>
                 <p className="text-slate-400 text-xs sm:text-sm group-hover:text-slate-300 transition-colors duration-300">
                   User accounts and credentials management
                 </p>

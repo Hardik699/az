@@ -15,7 +15,8 @@ const getITAccounts: RequestHandler = async (_req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch IT accounts",
+      error:
+        error instanceof Error ? error.message : "Failed to fetch IT accounts",
     });
   }
 };
@@ -40,7 +41,8 @@ const getITAccountById: RequestHandler = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to fetch IT account",
+      error:
+        error instanceof Error ? error.message : "Failed to fetch IT account",
     });
   }
 };
@@ -79,7 +81,9 @@ const createITAccount: RequestHandler = async (req, res) => {
     const accountData = req.body;
 
     // Check if account with same system ID already exists
-    const existing = await ITAccount.findOne({ systemId: accountData.systemId });
+    const existing = await ITAccount.findOne({
+      systemId: accountData.systemId,
+    });
     if (existing) {
       return res.status(400).json({
         success: false,
@@ -98,7 +102,8 @@ const createITAccount: RequestHandler = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to create IT account",
+      error:
+        error instanceof Error ? error.message : "Failed to create IT account",
     });
   }
 };
@@ -129,7 +134,8 @@ const updateITAccount: RequestHandler = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to update IT account",
+      error:
+        error instanceof Error ? error.message : "Failed to update IT account",
     });
   }
 };
@@ -156,7 +162,8 @@ const deleteITAccount: RequestHandler = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Failed to delete IT account",
+      error:
+        error instanceof Error ? error.message : "Failed to delete IT account",
     });
   }
 };

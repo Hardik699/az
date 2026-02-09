@@ -23,10 +23,7 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/hr" element={<HRDashboard />} />
-      <Route
-        path="/employee/:employeeId"
-        element={<EmployeeDetailsPage />}
-      />
+      <Route path="/employee/:employeeId" element={<EmployeeDetailsPage />} />
       <Route path="/salary" element={<Salary />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/deshbord" element={<Dashboard />} />
@@ -37,10 +34,7 @@ export default function App() {
       <Route path="/system-info/:slug" element={<SystemInfoDetail />} />
       <Route path="/pc-laptop-info" element={<PCLaptopInfo />} />
       <Route path="/demo-data" element={<DemoDataView />} />
-      <Route
-        path="/google-sheets-config"
-        element={<GoogleSheetsConfig />}
-      />
+      <Route path="/google-sheets-config" element={<GoogleSheetsConfig />} />
       <Route
         path="/google-apps-script-config"
         element={<GoogleAppsScriptConfig />}
