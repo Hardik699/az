@@ -335,11 +335,8 @@ export default function EmployeeDetailsPage() {
       (editForm.tableNumber as string) ?? employee.tableNumber;
     if (pendingTable) {
       const n = parseInt(pendingTable, 10);
-      const employees = JSON.parse(
-        localStorage.getItem("hrEmployees") || "[]",
-      ) as Employee[];
       const taken = new Set(
-        employees
+        allEmployees
           .filter(
             (e) =>
               e.status === "active" && e.id !== employee.id && e.tableNumber,
