@@ -343,6 +343,14 @@ const googleSheetsService = new GoogleSheetsService();
 // API route handlers
 export const syncToGoogleSheets: RequestHandler = async (req, res) => {
   try {
+    // Check if Google Sheets is configured
+    if (!process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS) {
+      return res.status(503).json({
+        success: false,
+        message: "Google Sheets is not configured. Please set GOOGLE_SERVICE_ACCOUNT_CREDENTIALS environment variable.",
+      });
+    }
+
     const { pcLaptopData, systemAssetsData } = req.body;
 
     const result = await googleSheetsService.syncAllData(
