@@ -19,15 +19,20 @@ import { leaveRequestsRouter } from "./routes/leave-requests";
 import { salaryRecordsRouter } from "./routes/salary-records";
 import { systemAssetsRouter } from "./routes/system-assets";
 import { clearDataRouter } from "./routes/clear-data";
+import { authRouter, seedUsers } from "./routes/auth";
 
 export function createServer() {
   const app = express();
 
   // Initialize MongoDB connection
-  connectDB().catch((error) => {
-    console.error("Failed to initialize MongoDB:", error);
-    // Continue running even if MongoDB fails to connect
-  });
+  connectDB()
+    .then(() => {
+      seedUsers();
+    })
+    .catch((error) => {
+      console.error("Failed to initialize MongoDB:", error);
+      // Continue running even if MongoDB fails to connect
+    });
 
   // Middleware
   app.use(cors());
@@ -49,6 +54,7 @@ export function createServer() {
   });
 
   // Example API routes
+  app.use("/api/auth", authRouter);
   app.get("/api/ping", (_req, res) => {
     const ping = process.env.PING_MESSAGE ?? "ping";
     res.json({ message: ping });

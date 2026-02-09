@@ -21,7 +21,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Trash2, Save, Shield, ServerCog, RefreshCw } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Save,
+  Shield,
+  ServerCog,
+  RefreshCw,
+  ArrowLeft,
+} from "lucide-react";
 
 interface Employee {
   id: string;
@@ -63,10 +71,234 @@ interface ITRecord {
 }
 
 export default function ITPage() {
+  // --- STATE DECLARATIONS ---
   const [userRole, setUserRole] = useState("");
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [records, setRecords] = useState<ITRecord[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Form state
+  const [employeeId, setEmployeeId] = useState<string>("");
+  const [systemId, setSystemId] = useState("");
+  const [preSelectedSystemId, setPreSelectedSystemId] = useState<string>("");
+  const [tableNumber, setTableNumber] = useState<string>("");
+  const [department, setDepartment] = useState<string>("");
+  const [emails, setEmails] = useState<EmailCred[]>([
+    { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
+  ]);
+  const [provider, setProvider] = useState<"vitel" | "vonage">("vitel");
+  const [vitel, setVitel] = useState({ id: "" });
+  const [lm, setLm] = useState({ id: "", password: "", license: "standard" });
+  const [notes, setNotes] = useState("");
+  const [secretsVisible, setSecretsVisible] = useState(false);
+  const [availableSystemIds, setAvailableSystemIds] = useState<string[]>([]);
+  const [providerIds, setProviderIds] = useState<string[]>([]);
+  const [pcPreview, setPcPreview] = useState<any | null>(null);
+  const [providerPreview, setProviderPreview] = useState<any | null>(null);
+  const [preSelectedProviderId, setPreSelectedProviderId] =
+    useState<string>("");
+  const [isPreFilled, setIsPreFilled] = useState(false);
+  const [systemAssets, setSystemAssets] = useState<any[]>([]);
+  const [pcLaptops, setPcLaptops] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // --- MEMOIZED VALUES ---
+  const employee = useMemo(
+    () => employees.find((e) => e.id === employeeId),
+    [employees, employeeId],
+  );
+
+  const availableEmployees = useMemo(() => {
+    const assignedIds = new Set(records.map((r) => r.employeeId));
+    return employees.filter(
+      (e) => !assignedIds.has(e.id) || e.id === employeeId,
+    );
+  }, [employees, records, employeeId]);
+
+  const availableTables = useMemo(
+    () => Array.from({ length: 32 }, (_, i) => String(i + 1)),
+    [],
+  );
+
+  const usedTables = useMemo(() => {
+    return new Set(
+      employees
+        .filter((e) => e.status === "active" && e.tableNumber)
+        .map((e) => String(e.tableNumber)),
+    );
+  }, [employees]);
+
+  const filteredTables = useMemo(() => {
+    const keep = String(employee?.tableNumber || "");
+    return availableTables.filter(
+      (n) => (keep && n === keep) || !usedTables.has(n),
+    );
+  }, [availableTables, usedTables, employee]);
+
+  const hasAssignedTable = useMemo(
+    () =>
+      !!(
+        (employee?.tableNumber && String(employee.tableNumber).trim()) ||
+        (tableNumber && String(tableNumber).trim())
+      ),
+    [employee, tableNumber],
+  );
+
+  // --- HELPER FUNCTIONS ---
+
+  // Load and filter available PC/Laptop IDs from database
+  const loadAvailableSystemIds = async () => {
+    try {
+      const response = await fetch("/api/pc-laptop");
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        const pcLaptops = result.data;
+        const pcLaptopIds = pcLaptops.map((item: any) => item.id);
+
+        // Get currently assigned system IDs from records
+        const assignedIds = records.map((record) => record.systemId);
+
+        // Filter out assigned IDs to show only available ones
+        let available = pcLaptopIds.filter(
+          (id: string) => !assignedIds.includes(id),
+        );
+        if (preSelectedSystemId && !available.includes(preSelectedSystemId)) {
+          available = [preSelectedSystemId, ...available];
+        }
+        setAvailableSystemIds(available);
+      } else {
+        setAvailableSystemIds([]);
+      }
+    } catch (error) {
+      console.error("Failed to load PC/Laptop IDs:", error);
+      setAvailableSystemIds([]);
+    }
+  };
+
+  const saveRecords = async (next: ITRecord[]) => {
+    setRecords(next);
+    const errors: string[] = [];
+
+    try {
+      for (const record of next) {
+        // If record has _id, it's an existing record from the database
+        if (record._id) {
+          const response = await fetch(`/api/it-accounts/${record._id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(record),
+          });
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            errors.push(
+              `Failed to update ${record.employeeName}: ${errData.error || response.statusText}`,
+            );
+          }
+        } else {
+          // New record - don't send _id or use id for creation
+          const { _id, ...recordData } = record;
+          const response = await fetch("/api/it-accounts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(recordData),
+          });
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            errors.push(
+              `Failed to create ${record.employeeName}: ${errData.error || response.statusText}`,
+            );
+          } else {
+            // Update the record in state with the new _id from server if possible
+            const result = await response.json();
+            if (result.success && result.data && result.data._id) {
+              setRecords((current) =>
+                current.map((r) =>
+                  r.id === record.id ? { ...r, _id: result.data._id } : r,
+                ),
+              );
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to save IT accounts:", error);
+      errors.push(error instanceof Error ? error.message : String(error));
+    }
+
+    if (errors.length > 0) {
+      alert("Some errors occurred while saving:\n" + errors.join("\n"));
+    }
+
+    // Refresh available system IDs after saving
+    await loadAvailableSystemIds();
+    return errors.length === 0;
+  };
+
+  const addEmailRow = () =>
+    setEmails((rows) => [
+      ...rows,
+      { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
+    ]);
+
+  const requirePasscode = () => {
+    const code = prompt("Enter passcode to view passwords");
+    if (code === "1111") {
+      setSecretsVisible(true);
+    } else if (code !== null) {
+      alert("Incorrect passcode");
+    }
+  };
+
+  const removeEmailRow = (idx: number) =>
+    setEmails((rows) => rows.filter((_, i) => i !== idx));
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!employeeId || !systemId || !department || !tableNumber) {
+      alert(
+        "Please fill required fields (Employee, System ID, Department, Table)",
+      );
+      return;
+    }
+    const cleanEmails = emails.filter((r) => r.email.trim());
+
+    const rec: ITRecord = {
+      id: editingId || `${Date.now()}`,
+      _id: editingId || undefined,
+      employeeId,
+      employeeName: employee?.fullName || "",
+      systemId: systemId.trim(),
+      tableNumber,
+      department,
+      emails: cleanEmails,
+      vitelGlobal: { id: vitel.id.trim(), provider },
+      lmPlayer: { ...lm },
+      notes: notes.trim() || undefined,
+      createdAt: new Date().toISOString(),
+    };
+    const success = await saveRecords(editingId ? [rec] : [rec, ...records]);
+
+    if (success) {
+      // reset minimal
+      setEditingId(null);
+      setSystemId("");
+      setEmails([
+        { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
+      ]);
+      setProvider("vitel");
+      setVitel({ id: "" });
+      setLm({ id: "", password: "", license: "standard" });
+      setNotes("");
+      alert(editingId ? "Updated Successfully" : "Saved Successfully");
+      if (editingId) {
+        window.location.href = "/it-dashboard";
+      }
+    }
+  };
+
+  // --- EFFECTS ---
 
   // Load local data
   useEffect(() => {
@@ -147,6 +379,7 @@ export default function ITPage() {
 
       // Load available PC/Laptop IDs
       await loadAvailableSystemIds();
+      setIsLoading(false);
     };
 
     loadData();
@@ -188,52 +421,11 @@ export default function ITPage() {
     loadPcLaptops();
   }, []);
 
-  // Handle URL parameters after employees are loaded
+  // Handle URL parameters (Prefill from HR notification only)
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const preItId = urlParams.get("itId") || "";
 
-    // If editing an existing IT record by id, load from state records (loaded from API)
-    if (preItId && records.length > 0) {
-      const rec = records.find((x) => x.id === preItId);
-      if (rec) {
-        setEmployeeId(rec.employeeId);
-        setDepartment(rec.department);
-        setTableNumber(rec.tableNumber);
-        setSystemId(rec.systemId);
-        setPreSelectedSystemId(rec.systemId);
-        setEmails(
-          rec.emails && rec.emails.length
-            ? rec.emails
-            : [
-                {
-                  provider: "CUSTOM",
-                  providerCustom: "",
-                  email: "",
-                  password: "",
-                },
-              ],
-        );
-        setProvider((rec.vitelGlobal?.provider as any) || "vitel");
-        setVitel({ id: rec.vitelGlobal?.id || "" });
-        setPreSelectedProviderId(rec.vitelGlobal?.id || "");
-        setLm({
-          id: rec.lmPlayer?.id || "",
-          password: rec.lmPlayer?.password || "",
-          license: rec.lmPlayer?.license || "standard",
-        });
-        setNotes(rec.notes || "");
-        setIsPreFilled(true);
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname,
-        );
-        return;
-      }
-    }
-
-    // Otherwise, fall back to param-based prefill (HR notification / partial edit)
+    // Only pre-fill from HR notification params
     const preEmployeeId = urlParams.get("employeeId") || "";
     const preDepartment = urlParams.get("department") || "";
     const preTableNumber = urlParams.get("tableNumber") || "";
@@ -242,6 +434,42 @@ export default function ITPage() {
     const preProviderId = urlParams.get("providerId") || "";
     const preLmId = urlParams.get("lmId") || "";
     const preLmPassword = urlParams.get("lmPassword") || "";
+    const editId = urlParams.get("editId") || "";
+
+    if (editId) {
+      setEditingId(editId);
+      fetch(`/api/it-accounts/${editId}`)
+        .then((res) => res.json())
+        .then((result) => {
+          if (result.success && result.data) {
+            const r = result.data;
+            setEmployeeId(r.employeeId);
+            setSystemId(r.systemId);
+            setPreSelectedSystemId(r.systemId);
+            setTableNumber(r.tableNumber);
+            setDepartment(r.department);
+            setEmails(
+              r.emails && r.emails.length
+                ? r.emails
+                : [
+                    {
+                      provider: "CUSTOM",
+                      providerCustom: "",
+                      email: "",
+                      password: "",
+                    },
+                  ],
+            );
+            setProvider(r.vitelGlobal?.provider || "vitel");
+            setVitel({ id: r.vitelGlobal?.id || "" });
+            setPreSelectedProviderId(r.vitelGlobal?.id || "");
+            setLm(r.lmPlayer || { id: "", password: "", license: "standard" });
+            setNotes(r.notes || "");
+            setIsPreFilled(true);
+          }
+        })
+        .catch((err) => console.error("Error fetching record for edit:", err));
+    }
 
     if (preEmployeeId) setEmployeeId(preEmployeeId);
     if (preDepartment) setDepartment(preDepartment);
@@ -293,105 +521,15 @@ export default function ITPage() {
       setIsPreFilled(true);
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [employees]);
-
-  // Load and filter available PC/Laptop IDs from database
-  const loadAvailableSystemIds = async () => {
-    try {
-      const response = await fetch("/api/pc-laptop");
-      const result = await response.json();
-
-      if (result.success && result.data) {
-        const pcLaptops = result.data;
-        const pcLaptopIds = pcLaptops.map((item: any) => item.id);
-
-        // Get currently assigned system IDs from records
-        const assignedIds = records.map((record) => record.systemId);
-
-        // Filter out assigned IDs to show only available ones
-        let available = pcLaptopIds.filter(
-          (id: string) => !assignedIds.includes(id),
-        );
-        if (
-          preSelectedSystemId &&
-          !available.includes(preSelectedSystemId) &&
-          pcLaptopIds.includes(preSelectedSystemId)
-        ) {
-          available = [preSelectedSystemId, ...available];
-        }
-        setAvailableSystemIds(available);
-      } else {
-        setAvailableSystemIds([]);
-      }
-    } catch (error) {
-      console.error("Failed to load PC/Laptop IDs:", error);
-      setAvailableSystemIds([]);
-    }
-  };
-
-  const saveRecords = async (next: ITRecord[]) => {
-    setRecords(next);
-    try {
-      for (const record of next) {
-        // If record has _id, it's an existing record from the database
-        if (record._id) {
-          await fetch(`/api/it-accounts/${record._id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(record),
-          });
-        } else {
-          // New record - don't send _id or use id for creation
-          const { _id, ...recordData } = record;
-          await fetch("/api/it-accounts", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(recordData),
-          });
-        }
-      }
-    } catch (error) {
-      console.error("Failed to save IT accounts:", error);
-    }
-
-    // Refresh available system IDs after saving
-    await loadAvailableSystemIds();
-  };
-
-  // Form state
-  const [employeeId, setEmployeeId] = useState<string>("");
-  const employee = useMemo(
-    () => employees.find((e) => e.id === employeeId),
-    [employees, employeeId],
-  );
-  const [systemId, setSystemId] = useState("");
-  const [preSelectedSystemId, setPreSelectedSystemId] = useState<string>("");
-  const [tableNumber, setTableNumber] = useState<string>("");
-  const [department, setDepartment] = useState<string>("");
-  const [emails, setEmails] = useState<EmailCred[]>([
-    { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
-  ]);
-  const [provider, setProvider] = useState<"vitel" | "vonage">("vitel");
-  const [vitel, setVitel] = useState({ id: "" });
-  const [lm, setLm] = useState({ id: "", password: "", license: "standard" });
-  const [notes, setNotes] = useState("");
-  const [secretsVisible, setSecretsVisible] = useState(false);
-  const [availableSystemIds, setAvailableSystemIds] = useState<string[]>([]);
-  const [providerIds, setProviderIds] = useState<string[]>([]);
-  const [pcPreview, setPcPreview] = useState<any | null>(null);
-  const [providerPreview, setProviderPreview] = useState<any | null>(null);
-  const [preSelectedProviderId, setPreSelectedProviderId] =
-    useState<string>("");
-  const [isPreFilled, setIsPreFilled] = useState(false);
-  const [systemAssets, setSystemAssets] = useState<any[]>([]);
-  const [pcLaptops, setPcLaptops] = useState<any[]>([]);
+  }, [employees, systemAssets]);
 
   useEffect(() => {
-    if (employee) {
+    // Only auto-fill from employee if NOT pre-filled from URL
+    if (employee && !isPreFilled) {
       setDepartment(employee.department || "");
       if (employee.tableNumber) setTableNumber(String(employee.tableNumber));
     }
-  }, [employee]);
+  }, [employee, isPreFilled]);
 
   // Load provider IDs from System assets (from database)
   useEffect(() => {
@@ -456,94 +594,19 @@ export default function ITPage() {
     }
   }, [provider, vitel.id, systemAssets]);
 
-  const availableTables = useMemo(
-    () => Array.from({ length: 32 }, (_, i) => String(i + 1)),
-    [],
-  );
-
-  const usedTables = useMemo(() => {
-    return new Set(
-      employees
-        .filter((e) => e.status === "active" && e.tableNumber)
-        .map((e) => String(e.tableNumber)),
-    );
-  }, [employees]);
-
-  const filteredTables = useMemo(() => {
-    const keep = String(employee?.tableNumber || "");
-    return availableTables.filter(
-      (n) => (keep && n === keep) || !usedTables.has(n),
-    );
-  }, [availableTables, usedTables, employee]);
-
-  const hasAssignedTable = useMemo(
-    () =>
-      !!(
-        (employee?.tableNumber && String(employee.tableNumber).trim()) ||
-        (tableNumber && String(tableNumber).trim())
-      ),
-    [employee, tableNumber],
-  );
-
-  const addEmailRow = () =>
-    setEmails((rows) => [
-      ...rows,
-      { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
-    ]);
-
-  const requirePasscode = () => {
-    const code = prompt("Enter passcode to view passwords");
-    if (code === "1111") {
-      setSecretsVisible(true);
-    } else if (code !== null) {
-      alert("Incorrect passcode");
-    }
-  };
-  const removeEmailRow = (idx: number) =>
-    setEmails((rows) => rows.filter((_, i) => i !== idx));
-
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!employeeId || !systemId || !department || !tableNumber) {
-      alert(
-        "Please fill required fields (Employee, System ID, Department, Table)",
-      );
-      return;
-    }
-    const cleanEmails = emails.filter((r) => r.email.trim());
-    const rec: ITRecord = {
-      id: `${Date.now()}`,
-      employeeId,
-      employeeName: employee?.fullName || "",
-      systemId: systemId.trim(),
-      tableNumber,
-      department,
-      emails: cleanEmails,
-      vitelGlobal: { id: vitel.id.trim(), provider },
-      lmPlayer: { ...lm },
-      notes: notes.trim() || undefined,
-      createdAt: new Date().toISOString(),
-    };
-    saveRecords([rec, ...records]);
-
-    // TODO: Mark related notification as processed via API
-
-    // reset minimal
-    setSystemId("");
-    setEmails([
-      { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
-    ]);
-    setProvider("vitel");
-    setVitel({ id: "" });
-    setLm({ id: "", password: "", license: "standard" });
-    setNotes("");
-    alert("Saved");
-  };
+  // --- RENDER ---
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
       <AppNav />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <Button
+          variant="ghost"
+          className="text-slate-400 hover:text-white mb-4"
+          onClick={() => navigate("/it-dashboard")}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
+        </Button>
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2">
@@ -585,7 +648,9 @@ export default function ITPage() {
 
         <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-white">Add IT Credentials</CardTitle>
+            <CardTitle className="text-white">
+              {editingId ? "Edit IT Credentials" : "Add IT Credentials"}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <form
@@ -609,11 +674,17 @@ export default function ITPage() {
                       <SelectValue placeholder="Select employee" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700 text-white max-h-64">
-                      {employees.map((e) => (
-                        <SelectItem key={e.id} value={e.id}>
-                          {e.fullName}
-                        </SelectItem>
-                      ))}
+                      {availableEmployees.length === 0 ? (
+                        <div className="px-3 py-2 text-slate-400">
+                          No employees available (all have IT accounts)
+                        </div>
+                      ) : (
+                        availableEmployees.map((e) => (
+                          <SelectItem key={e.id} value={e.id}>
+                            {e.fullName}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                 )}
@@ -853,7 +924,7 @@ export default function ITPage() {
               {/* Telephony Provider */}
               <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-slate-300">Provider</Label>
+                  <Label className="text-slate-300">VG/VON</Label>
                   <Select
                     value={provider}
                     onValueChange={(v) => setProvider(v as any)}
@@ -935,7 +1006,7 @@ export default function ITPage() {
               {/* LM Player */}
               <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-slate-300">LM Player ID</Label>
+                  <Label className="text-slate-300">LM ID</Label>
                   <Input
                     value={lm.id}
                     onChange={(e) =>
@@ -945,7 +1016,7 @@ export default function ITPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-slate-300">LM Player Password</Label>
+                  <Label className="text-slate-300">Lm password</Label>
                   <Input
                     type={secretsVisible ? "text" : "password"}
                     value={lm.password}
@@ -968,11 +1039,41 @@ export default function ITPage() {
               </div>
 
               <div className="md:col-span-3 flex justify-end gap-2">
+                {editingId && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="border-slate-600 text-slate-300"
+                    onClick={() => {
+                      setEditingId(null);
+                      setEmployeeId("");
+                      setSystemId("");
+                      setEmails([
+                        {
+                          provider: "CUSTOM",
+                          providerCustom: "",
+                          email: "",
+                          password: "",
+                        },
+                      ]);
+                      setVitel({ id: "" });
+                      setLm({
+                        id: "",
+                        password: "",
+                        license: "standard",
+                      });
+                      setNotes("");
+                    }}
+                  >
+                    Cancel Edit
+                  </Button>
+                )}
                 <Button
                   type="submit"
                   className="bg-blue-500 hover:bg-blue-600 text-white"
                 >
-                  <Save className="h-4 w-4 mr-2" /> Save
+                  <Save className="h-4 w-4 mr-2" />{" "}
+                  {editingId ? "Update" : "Save"}
                 </Button>
               </div>
             </form>
@@ -996,8 +1097,8 @@ export default function ITPage() {
                       <TableHead>Dept</TableHead>
                       <TableHead>Table</TableHead>
                       <TableHead>Emails</TableHead>
-                      <TableHead>Telephony</TableHead>
-                      <TableHead>LM Player</TableHead>
+                      <TableHead>VG/VON</TableHead>
+                      <TableHead>LM ID</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>

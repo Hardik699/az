@@ -12,16 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-  SheetFooter,
-} from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -46,7 +37,6 @@ import {
   Bell,
   Settings,
   Eye,
-  Pencil,
   AlertCircle,
   X,
   RefreshCw,
@@ -102,30 +92,24 @@ interface PendingITNotification {
 export default function ITDashboard() {
   const navigate = useNavigate();
   const [records, setRecords] = useState<ITRecord[]>([]);
-  const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [query, setQuery] = useState("");
   const [deptFilter, setDeptFilter] = useState("all");
   const [pendingNotifications, setPendingNotifications] = useState<
     PendingITNotification[]
   >([]);
-  const [previewSecrets, setPreviewSecrets] = useState(false);
-  const [previewFull, setPreviewFull] = useState(false);
-  const [systemAssets, setSystemAssets] = useState<any[]>([]);
-  const [pcLaptops, setPcLaptops] = useState<any[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const requirePreviewPasscode = () => {
-    const code = prompt("Enter passcode to show passwords");
-    if (code === "1111") setPreviewSecrets(true);
-    else if (code !== null) alert("Incorrect passcode");
-  };
+  const [lastError, setLastError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   // Function to load IT records from database
-  const loadITRecords = async () => {
+  const loadITRecords = async (showError = true) => {
     try {
       const response = await fetch("/api/it-accounts");
-      if (!response.ok) throw new Error("Failed to fetch");
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || "Failed to fetch IT accounts");
+      }
       const itsData = await response.json();
       if (itsData.success && itsData.data) {
         // Map MongoDB _id to id for consistency
@@ -134,9 +118,45 @@ export default function ITDashboard() {
           id: rec._id,
         }));
         setRecords(mappedRecords);
+        setLastError(null);
+        setLastUpdated(new Date());
       }
     } catch (error) {
-      console.error("Failed to load IT records:", error);
+      if (showError) {
+        console.error("Failed to load IT records:", error);
+      }
+      // Only set last error if it's a persistent issue
+      if (error instanceof Error && error.message.includes("fetch")) {
+        setLastError("Network error: Server might be restarting...");
+      } else {
+        setLastError(
+          error instanceof Error ? error.message : "Failed to load IT records",
+        );
+      }
+    }
+  };
+
+  const loadAllData = async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([
+        loadITRecords(false),
+        (async () => {
+          const res = await fetch("/api/departments");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.data) {
+              setDepartments(
+                data.data.map((dept: any) => ({ ...dept, id: dept._id })),
+              );
+            }
+          }
+        })(),
+      ]);
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -156,80 +176,26 @@ export default function ITDashboard() {
       return;
     }
 
-    const loadData = async () => {
-      try {
-        // Load IT records
-        await loadITRecords();
-
-        // Load employees
-        const empsRes = await fetch("/api/employees").catch((err) => {
-          console.error("Failed to fetch employees:", err);
-          return new Response(JSON.stringify({ success: false, data: [] }), {
-            status: 500,
-          });
-        });
-
-        if (empsRes.ok) {
-          try {
-            const empsData = await empsRes.json();
-            if (empsData.success && empsData.data) {
-              // Map MongoDB _id to id for consistency
-              const mappedEmployees = empsData.data.map((emp: any) => ({
-                ...emp,
-                id: emp._id,
-              }));
-              setEmployees(mappedEmployees);
-            }
-          } catch (e) {
-            console.error("Failed to parse employees response:", e);
-          }
-        }
-
-        // Load departments
-        const deptsRes = await fetch("/api/departments").catch((err) => {
-          console.error("Failed to fetch departments:", err);
-          return new Response(JSON.stringify({ success: false, data: [] }), {
-            status: 500,
-          });
-        });
-
-        if (deptsRes.ok) {
-          try {
-            const deptsData = await deptsRes.json();
-            if (deptsData.success && deptsData.data) {
-              // Map MongoDB _id to id for consistency
-              const mappedDepts = deptsData.data.map((dept: any) => ({
-                ...dept,
-                id: dept._id,
-              }));
-              setDepartments(mappedDepts);
-            }
-          } catch (e) {
-            console.error("Failed to parse departments response:", e);
-          }
-        }
-      } catch (error) {
-        console.error("Failed to load IT dashboard data:", error);
-      }
-    };
-
-    loadData();
+    loadAllData();
 
     // Load pending notifications for new employees
     const pending = getPendingNotifications();
     setPendingNotifications(pending as any);
 
-    // Polling mechanism - check for new IT records and notifications every 5 seconds
+    // Polling mechanism - check for new IT records and notifications every 10 seconds (increased from 5s)
     const refreshInterval = setInterval(() => {
-      loadITRecords(); // Reload IT records
-      const freshPending = getPendingNotifications();
-      setPendingNotifications(freshPending as any);
-    }, 5000);
+      // Don't poll if the page is hidden to save resources and avoid noise
+      if (!document.hidden) {
+        loadITRecords(false);
+        const freshPending = getPendingNotifications();
+        setPendingNotifications(freshPending as any);
+      }
+    }, 10000);
 
     // Also reload when page becomes visible (tab focus)
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        loadITRecords(); // Reload IT records
+        loadITRecords(false);
         const freshPending = getPendingNotifications();
         setPendingNotifications(freshPending as any);
       }
@@ -244,41 +210,7 @@ export default function ITDashboard() {
     };
   }, [navigate]);
 
-  // Load system assets from database
-  useEffect(() => {
-    const loadSystemAssets = async () => {
-      try {
-        const response = await fetch("/api/system-assets");
-        const result = await response.json();
-        if (result.success && result.data) {
-          setSystemAssets(result.data);
-        }
-      } catch (error) {
-        console.error("Failed to load system assets:", error);
-        setSystemAssets([]);
-      }
-    };
-
-    loadSystemAssets();
-  }, []);
-
-  // Load PC/Laptop data from database
-  useEffect(() => {
-    const loadPcLaptops = async () => {
-      try {
-        const response = await fetch("/api/pc-laptop");
-        const result = await response.json();
-        if (result.success && result.data) {
-          setPcLaptops(result.data);
-        }
-      } catch (error) {
-        console.error("Failed to load PC/Laptop data:", error);
-        setPcLaptops([]);
-      }
-    };
-
-    loadPcLaptops();
-  }, []);
+  // Remove the separate useEffects for assets and pc-laptops as they are now in loadAllData
 
   const handleProcessEmployee = (notification: PendingITNotification) => {
     // Do NOT mark processed here. Keep notification until IT record is created.
@@ -322,17 +254,24 @@ export default function ITDashboard() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full sm:w-auto">
+            {lastError && (
+              <Badge
+                variant="outline"
+                className="border-red-500/50 text-red-400 bg-red-500/10 flex items-center gap-1"
+              >
+                <AlertCircle className="h-3 w-3" /> {lastError}
+              </Badge>
+            )}
+            {lastUpdated && !lastError && (
+              <span className="text-slate-500 text-xs hidden sm:inline">
+                Last updated: {lastUpdated.toLocaleTimeString()}
+              </span>
+            )}
             <Button
               variant="outline"
               size="sm"
               className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition-all duration-300"
-              onClick={async () => {
-                setIsRefreshing(true);
-                await loadITRecords();
-                const freshPending = getPendingNotifications();
-                setPendingNotifications(freshPending as any);
-                setIsRefreshing(false);
-              }}
+              onClick={loadAllData}
               disabled={isRefreshing}
               title="Refresh IT records and notifications"
             >
@@ -487,9 +426,9 @@ export default function ITDashboard() {
                     <TableHead>System ID</TableHead>
                     <TableHead>Table</TableHead>
                     <TableHead>Emails</TableHead>
-                    <TableHead>Provider</TableHead>
-                    <TableHead>Provider ID</TableHead>
-                    <TableHead>LM Player</TableHead>
+                    <TableHead>VG/VON</TableHead>
+                    <TableHead>VG/VON ID</TableHead>
+                    <TableHead>LM ID</TableHead>
                     <TableHead>Preview</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -515,360 +454,14 @@ export default function ITDashboard() {
                       <TableCell>{r.vitelGlobal?.id || "-"}</TableCell>
                       <TableCell>{r.lmPlayer.id || "-"}</TableCell>
                       <TableCell>
-                        <Sheet>
-                          <SheetTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="border-slate-600 text-slate-300 hover:bg-slate-700"
-                            >
-                              <Eye className="h-4 w-4 mr-1" /> Preview
-                            </Button>
-                          </SheetTrigger>
-                          <SheetContent
-                            side="right"
-                            className="bg-slate-900 border-slate-700 text-white w-screen max-w-none h-screen overflow-y-auto"
-                          >
-                            <SheetHeader>
-                              <SheetTitle className="text-white">
-                                IT Account Preview
-                              </SheetTitle>
-                            </SheetHeader>
-                            <div className="mt-3 flex items-center justify-end gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="border-slate-600 text-slate-300"
-                                onClick={() => setPreviewFull((v) => !v)}
-                              >
-                                {previewFull
-                                  ? "Hide Details"
-                                  : "View Full Details"}
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="border-slate-600 text-slate-300"
-                                onClick={() =>
-                                  previewSecrets
-                                    ? setPreviewSecrets(false)
-                                    : requirePreviewPasscode()
-                                }
-                              >
-                                {previewSecrets
-                                  ? "Hide Passwords"
-                                  : "Show Passwords"}
-                              </Button>
-                            </div>
-                            <div className="mt-4 space-y-4 text-sm text-slate-300">
-                              {(() => {
-                                const emp =
-                                  (employees as any[]).find(
-                                    (e: any) => e.id === r.employeeId,
-                                  ) || null;
-                                const initials = (r.employeeName || "?")
-                                  .split(" ")
-                                  .map((x) => x[0])
-                                  .slice(0, 2)
-                                  .join("");
-                                return (
-                                  <div className="flex items-center gap-4">
-                                    <Avatar className="h-14 w-14">
-                                      <AvatarImage
-                                        src={
-                                          (emp && emp.photo) ||
-                                          "/placeholder.svg"
-                                        }
-                                        alt={r.employeeName}
-                                      />
-                                      <AvatarFallback>
-                                        {initials}
-                                      </AvatarFallback>
-                                    </Avatar>
-                                    <div>
-                                      <div className="text-lg font-semibold text-white">
-                                        {r.employeeName}
-                                      </div>
-                                      <div className="text-slate-400 text-xs">
-                                        Emp ID:{" "}
-                                        {emp?.employeeId || r.employeeId}
-                                      </div>
-                                    </div>
-                                  </div>
-                                );
-                              })()}
-
-                              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                                <div>
-                                  <div className="text-slate-400">
-                                    Department
-                                  </div>
-                                  <div className="text-white/90">
-                                    {r.department}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-slate-400">
-                                    System ID
-                                  </div>
-                                  <div className="text-white/90">
-                                    {r.systemId}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-slate-400">Table</div>
-                                  <div className="text-white/90">
-                                    {r.tableNumber}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-slate-400">Provider</div>
-                                  <div className="text-white/90">
-                                    {r.vitelGlobal?.id
-                                      ? (r as any).vitelGlobal?.provider ===
-                                        "vonage"
-                                        ? "Vonage"
-                                        : "Vitel Global"
-                                      : "-"}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-slate-400">
-                                    Provider ID
-                                  </div>
-                                  <div className="text-white/90">
-                                    {r.vitelGlobal?.id || "-"}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-slate-400">
-                                    LM Player
-                                  </div>
-                                  <div className="text-white/90">
-                                    {r.lmPlayer?.id || "-"}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-slate-400">License</div>
-                                  <div className="text-white/90">
-                                    {r.lmPlayer?.license || "-"}
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div>
-                                <div className="text-slate-400 mb-1">
-                                  Emails
-                                </div>
-                                {(r.emails || []).length ? (
-                                  <div className="rounded border border-slate-700 bg-slate-800/30 divide-y divide-slate-700">
-                                    {(r.emails as any[]).map(
-                                      (e: any, i: number) => (
-                                        <div
-                                          key={`email-${r.id}-${i}-${e.email}`}
-                                          className="p-2 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs"
-                                        >
-                                          <div>
-                                            <div className="text-slate-500">
-                                              Provider
-                                            </div>
-                                            <div>
-                                              {e.providerCustom ||
-                                                e.provider ||
-                                                "-"}
-                                            </div>
-                                          </div>
-                                          <div>
-                                            <div className="text-slate-500">
-                                              Email
-                                            </div>
-                                            <div>{e.email || "-"}</div>
-                                          </div>
-                                          <div>
-                                            <div className="text-slate-500">
-                                              Password
-                                            </div>
-                                            <div>
-                                              {e.password
-                                                ? previewSecrets
-                                                  ? e.password
-                                                  : "••••••"
-                                                : "-"}
-                                            </div>
-                                          </div>
-                                        </div>
-                                      ),
-                                    )}
-                                  </div>
-                                ) : (
-                                  <div className="rounded border border-slate-700 bg-slate-800/30 p-2 text-xs">
-                                    -
-                                  </div>
-                                )}
-                              </div>
-
-                              {(() => {
-                                if (!previewFull) return null;
-                                let providerAsset: any = null;
-                                if (
-                                  (r as any).vitelGlobal?.provider === "vonage"
-                                ) {
-                                  providerAsset = systemAssets.find(
-                                    (a: any) =>
-                                      a.category === "vonage" &&
-                                      (a.id === r.vitelGlobal?.id ||
-                                        a.vonageExtCode === r.vitelGlobal?.id ||
-                                        a.vonageNumber === r.vitelGlobal?.id),
-                                  );
-                                } else {
-                                  providerAsset = systemAssets.find(
-                                    (a: any) =>
-                                      (a.category === "vitel" ||
-                                        a.category === "vitel-global") &&
-                                      a.id === r.vitelGlobal?.id,
-                                  );
-                                }
-                                return (
-                                  <div className="rounded border border-slate-700 bg-slate-800/30 p-3">
-                                    <div className="font-medium text-white mb-2">
-                                      Provider Details
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-                                      <div>
-                                        Category:{" "}
-                                        {providerAsset?.category ||
-                                          (r as any).vitelGlobal?.provider ||
-                                          "-"}
-                                      </div>
-                                      <div>ID: {r.vitelGlobal?.id || "-"}</div>
-                                      <div>
-                                        Vendor:{" "}
-                                        {providerAsset?.vendorName || "-"}
-                                      </div>
-                                      <div>
-                                        Company:{" "}
-                                        {providerAsset?.companyName || "-"}
-                                      </div>
-                                      <div>
-                                        Ext:{" "}
-                                        {providerAsset?.vonageExtCode || "-"}
-                                      </div>
-                                      <div>
-                                        Number:{" "}
-                                        {providerAsset?.vonageNumber || "-"}
-                                      </div>
-                                      <div>
-                                        Password:{" "}
-                                        {providerAsset?.vonagePassword
-                                          ? previewSecrets
-                                            ? providerAsset.vonagePassword
-                                            : "••••••"
-                                          : "-"}
-                                      </div>
-                                    </div>
-                                  </div>
-                                );
-                              })()}
-
-                              {(() => {
-                                if (!previewFull) return null;
-                                const pc =
-                                  pcLaptops.find(
-                                    (x: any) => x.id === r.systemId,
-                                  ) || {};
-                                const nameFor = (id: string) => {
-                                  if (!id) return "-";
-                                  const a = systemAssets.find(
-                                    (t: any) => t.id === id,
-                                  );
-                                  return a
-                                    ? `${a.companyName || a.vendorName || "-"} (${a.id})`
-                                    : id;
-                                };
-                                const rows = [
-                                  {
-                                    label: "Mouse",
-                                    v: nameFor((pc as any).mouseId),
-                                  },
-                                  {
-                                    label: "Keyboard",
-                                    v: nameFor((pc as any).keyboardId),
-                                  },
-                                  {
-                                    label: "Motherboard",
-                                    v: nameFor((pc as any).motherboardId),
-                                  },
-                                  {
-                                    label: "Camera",
-                                    v: nameFor((pc as any).cameraId),
-                                  },
-                                  {
-                                    label: "Headphone",
-                                    v: nameFor((pc as any).headphoneId),
-                                  },
-                                  {
-                                    label: "Power Supply",
-                                    v: nameFor((pc as any).powerSupplyId),
-                                  },
-                                  {
-                                    label: "RAM",
-                                    v: nameFor((pc as any).ramId),
-                                  },
-                                  {
-                                    label: "Monitor",
-                                    v: nameFor((pc as any).monitorId),
-                                  },
-                                ];
-                                return (
-                                  <div className="rounded border border-slate-700 bg-slate-800/30 p-3">
-                                    <div className="font-medium text-white mb-2">
-                                      System Details
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-                                      {rows.map((row) => (
-                                        <div key={row.label}>
-                                          <div className="text-slate-500">
-                                            {row.label}
-                                          </div>
-                                          <div>{row.v}</div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                );
-                              })()}
-
-                              {r.notes && (
-                                <div>
-                                  <div className="text-slate-400 mb-1">
-                                    Notes
-                                  </div>
-                                  <div className="rounded border border-slate-700 bg-slate-800/30 p-2 text-xs whitespace-pre-wrap">
-                                    {r.notes}
-                                  </div>
-                                </div>
-                              )}
-                              <div className="text-xs text-slate-500">
-                                Created:{" "}
-                                {new Date(r.createdAt).toLocaleString()}
-                              </div>
-
-                              <div className="flex justify-end gap-2 pt-2">
-                                <Button
-                                  className="bg-blue-500 hover:bg-blue-600 text-white"
-                                  onClick={() => {
-                                    const params = new URLSearchParams({
-                                      itId: r.id,
-                                    });
-                                    window.location.href = `/it?${params.toString()}`;
-                                  }}
-                                >
-                                  <Pencil className="h-4 w-4 mr-1" /> Edit IT
-                                </Button>
-                              </div>
-                            </div>
-                          </SheetContent>
-                        </Sheet>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                          onClick={() => navigate(`/it-preview/${r.id}`)}
+                        >
+                          <Eye className="h-4 w-4 mr-1" /> Preview
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

@@ -79,20 +79,24 @@ const getITAccountByEmployeeId: RequestHandler = async (req, res) => {
 const createITAccount: RequestHandler = async (req, res) => {
   try {
     const accountData = req.body;
+    console.log("Creating IT account for systemId:", accountData.systemId);
 
     // Check if account with same system ID already exists
-    const existing = await ITAccount.findOne({
-      systemId: accountData.systemId,
-    });
-    if (existing) {
-      return res.status(400).json({
-        success: false,
-        error: "IT account with this system ID already exists",
+    if (accountData.systemId) {
+      const existing = await ITAccount.findOne({
+        systemId: accountData.systemId,
       });
+      if (existing) {
+        return res.status(400).json({
+          success: false,
+          error: "IT account with this system ID already exists",
+        });
+      }
     }
 
     const account = new ITAccount(accountData);
     await account.save();
+    console.log("IT account created successfully:", account._id);
 
     res.status(201).json({
       success: true,
@@ -100,6 +104,7 @@ const createITAccount: RequestHandler = async (req, res) => {
       message: "IT account created successfully",
     });
   } catch (error) {
+    console.error("Error creating IT account:", error);
     res.status(500).json({
       success: false,
       error:

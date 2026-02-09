@@ -41,57 +41,48 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Define default users with their roles
-    let users: Record<string, { password: string; role: string }> = {
-      admin: { password: "123", role: "admin" },
-      it: { password: "123", role: "it" },
-      hr: { password: "123", role: "hr" },
-    };
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-    // Check if users have been updated in localStorage
-    const storedUsersJson = localStorage.getItem("appUsers");
-    if (storedUsersJson) {
-      try {
-        users = JSON.parse(storedUsersJson);
-      } catch (error) {
-        console.error("Error parsing stored users:", error);
-      }
-    } else {
-      // Initialize appUsers on first login
-      localStorage.setItem("appUsers", JSON.stringify(users));
-    }
+      const result = await response.json();
 
-    // Check credentials
-    if (users[username] && users[username].password === password) {
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("userRole", users[username].role);
-      localStorage.setItem("currentUser", username);
+      if (result.success && result.data) {
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("userRole", result.data.role);
+        localStorage.setItem("currentUser", result.data.username);
 
-      // Show success dialog
-      setSuccessDialog(true);
-      setTimeout(() => {
-        navigate("/");
-      }, 1500);
-    } else {
-      // Determine specific error message
-      if (!username || !password) {
-        setErrorDialog({
-          isOpen: true,
-          message:
-            "Please enter both username and password to continue.",
-        });
-      } else if (!users[username]) {
-        setErrorDialog({
-          isOpen: true,
-          message: `Username "${username}" not found. Please check and try again.`,
-        });
+        // Show success dialog
+        setSuccessDialog(true);
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);
       } else {
-        setErrorDialog({
-          isOpen: true,
-          message:
-            "Invalid password. Please check your credentials and try again.",
-        });
+        // Determine specific error message
+        if (!username || !password) {
+          setErrorDialog({
+            isOpen: true,
+            message: "Please enter both username and password to continue.",
+          });
+        } else {
+          setErrorDialog({
+            isOpen: true,
+            message:
+              result.error || "Invalid username or password. Please try again.",
+          });
+        }
       }
+    } catch (error) {
+      console.error("Login error:", error);
+      setErrorDialog({
+        isOpen: true,
+        message: "A network error occurred. Please try again later.",
+      });
     }
 
     setIsLoading(false);
@@ -223,11 +214,14 @@ export default function Login() {
         </div>
 
         {/* Error Dialog */}
-        <Dialog open={errorDialog.isOpen} onOpenChange={(open) => {
-          if (!open) {
-            setErrorDialog({ isOpen: false, message: "" });
-          }
-        }}>
+        <Dialog
+          open={errorDialog.isOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              setErrorDialog({ isOpen: false, message: "" });
+            }
+          }}
+        >
           <DialogContent className="bg-gradient-to-br from-slate-900 to-slate-800 border-red-500/30 text-white">
             <DialogHeader>
               <div className="flex items-center space-x-3">

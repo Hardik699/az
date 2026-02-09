@@ -9,6 +9,7 @@ import Salary from "./pages/Salary";
 import Dashboard from "./pages/Dashboard";
 import IT from "./pages/IT";
 import ITDashboard from "./pages/ITDashboard";
+import ITPreviewPage from "./pages/ITPreviewPage";
 import SystemInfo from "./pages/SystemInfo";
 import SystemInfoDetail from "./pages/SystemInfoDetail";
 import PCLaptopInfo from "./pages/PCLaptopInfo";
@@ -30,6 +31,7 @@ export default function App() {
       <Route path="/it" element={<IT />} />
       <Route path="/it-dashboard" element={<ITDashboard />} />
       <Route path="/it-deshbord" element={<ITDashboard />} />
+      <Route path="/it-preview/:id" element={<ITPreviewPage />} />
       <Route path="/system-info" element={<SystemInfo />} />
       <Route path="/system-info/:slug" element={<SystemInfoDetail />} />
       <Route path="/pc-laptop-info" element={<PCLaptopInfo />} />

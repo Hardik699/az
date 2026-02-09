@@ -29,26 +29,33 @@ const itAccountSchema = new Schema<IITAccount>(
     department: String,
     emails: [
       {
+        provider: { type: String },
+        providerCustom: { type: String },
         email: { type: String, required: true },
-        password: { type: String, required: true },
+        password: { type: String },
       },
     ],
     vitelGlobal: {
-      id: String,
+      id: { type: String },
       provider: { type: String, enum: ["vitel", "vonage"] },
-      type: String,
-      extNumber: String,
-      password: String,
+      type: { type: String },
+      extNumber: { type: String },
+      password: { type: String },
     },
     lmPlayer: {
-      id: { type: String, required: true },
-      password: { type: String, required: true },
-      license: String,
+      id: { type: String, required: false },
+      password: { type: String, required: false },
+      license: { type: String },
     },
     notes: String,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
+
+// Force model re-registration in development to pick up schema changes
+if (process.env.NODE_ENV !== "production") {
+  delete mongoose.models.ITAccount;
+}
 
 export const ITAccount =
   mongoose.models.ITAccount ||
