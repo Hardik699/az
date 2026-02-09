@@ -260,7 +260,7 @@ export default function ITDashboard() {
       department: notification.department,
       tableNumber: notification.tableNumber,
     });
-    window.location.href = `/it?${urlParams.toString()}`;
+    navigate(`/it?${urlParams.toString()}`);
   };
 
   const filtered = records.filter((r) => {
@@ -836,7 +836,7 @@ export default function ITDashboard() {
                                     const params = new URLSearchParams({
                                       itId: r.id,
                                     });
-                                    window.location.href = `/it?${params.toString()}`;
+                                    navigate(`/it?${params.toString()}`);
                                   }}
                                 >
                                   <Pencil className="h-4 w-4 mr-1" /> Edit IT
@@ -854,7 +854,7 @@ export default function ITDashboard() {
 
             <div className="flex justify-end">
               <Button
-                onClick={() => (window.location.href = "/it")}
+                onClick={() => navigate("/it")}
                 className="bg-blue-500 hover:bg-blue-600 text-white"
               >
                 Go to IT Form <ArrowRight className="h-4 w-4 ml-2" />
