@@ -212,6 +212,28 @@ export default function ITDashboard() {
     // Load pending notifications for new employees
     const pending = getPendingNotifications();
     setPendingNotifications(pending as any);
+
+    // Polling mechanism - check for new notifications every 5 seconds
+    const notificationInterval = setInterval(() => {
+      const freshPending = getPendingNotifications();
+      setPendingNotifications(freshPending as any);
+    }, 5000);
+
+    // Also reload notifications when page becomes visible (tab focus)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        const freshPending = getPendingNotifications();
+        setPendingNotifications(freshPending as any);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Cleanup
+    return () => {
+      clearInterval(notificationInterval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [navigate]);
 
   const handleProcessEmployee = (notification: PendingITNotification) => {
