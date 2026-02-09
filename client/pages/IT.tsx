@@ -150,8 +150,7 @@ export default function ITPage() {
         );
         if (
           preSelectedSystemId &&
-          !available.includes(preSelectedSystemId) &&
-          pcLaptopIds.includes(preSelectedSystemId)
+          !available.includes(preSelectedSystemId)
         ) {
           available = [preSelectedSystemId, ...available];
         }
