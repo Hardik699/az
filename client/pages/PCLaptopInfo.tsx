@@ -424,7 +424,7 @@ export default function PCLaptopInfo() {
       }
     };
 
-    fetchSystemAssets();
+    fetchPCLaptopData();
   }, []);
 
   const addNew = () => {
