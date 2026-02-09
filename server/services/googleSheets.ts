@@ -17,7 +17,8 @@ export class GoogleSheetsService {
       // Use service account credentials from environment
       const credentials = process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS;
       if (!credentials) {
-        throw new Error("Google Service Account credentials not found");
+        console.warn("⚠️ Google Service Account credentials not configured. Google Sheets sync will be unavailable.");
+        return false;
       }
 
       const serviceAccount = JSON.parse(credentials);
