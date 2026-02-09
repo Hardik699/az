@@ -331,31 +331,61 @@ export default function ITPage() {
 
   const saveRecords = async (next: ITRecord[]) => {
     setRecords(next);
+    const errors: string[] = [];
+
     try {
       for (const record of next) {
         // If record has _id, it's an existing record from the database
         if (record._id) {
-          await fetch(`/api/it-accounts/${record._id}`, {
+          const response = await fetch(`/api/it-accounts/${record._id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(record),
           });
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            errors.push(
+              `Failed to update ${record.employeeName}: ${errData.error || response.statusText}`,
+            );
+          }
         } else {
           // New record - don't send _id or use id for creation
           const { _id, ...recordData } = record;
-          await fetch("/api/it-accounts", {
+          const response = await fetch("/api/it-accounts", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(recordData),
           });
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            errors.push(
+              `Failed to create ${record.employeeName}: ${errData.error || response.statusText}`,
+            );
+          } else {
+            // Update the record in state with the new _id from server if possible
+            const result = await response.json();
+            if (result.success && result.data && result.data._id) {
+              setRecords((current) =>
+                current.map((r) =>
+                  r.id === record.id ? { ...r, _id: result.data._id } : r,
+                ),
+              );
+            }
+          }
         }
       }
     } catch (error) {
       console.error("Failed to save IT accounts:", error);
+      errors.push(error instanceof Error ? error.message : String(error));
+    }
+
+    if (errors.length > 0) {
+      alert("Some errors occurred while saving:\n" + errors.join("\n"));
     }
 
     // Refresh available system IDs after saving
     await loadAvailableSystemIds();
+    return errors.length === 0;
   };
 
   // Form state
@@ -502,7 +532,7 @@ export default function ITPage() {
   const removeEmailRow = (idx: number) =>
     setEmails((rows) => rows.filter((_, i) => i !== idx));
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!employeeId || !systemId || !department || !tableNumber) {
       alert(
@@ -524,20 +554,22 @@ export default function ITPage() {
       notes: notes.trim() || undefined,
       createdAt: new Date().toISOString(),
     };
-    saveRecords([rec, ...records]);
+    const success = await saveRecords([rec, ...records]);
 
-    // TODO: Mark related notification as processed via API
+    if (success) {
+      // TODO: Mark related notification as processed via API
 
-    // reset minimal
-    setSystemId("");
-    setEmails([
-      { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
-    ]);
-    setProvider("vitel");
-    setVitel({ id: "" });
-    setLm({ id: "", password: "", license: "standard" });
-    setNotes("");
-    alert("Saved");
+      // reset minimal
+      setSystemId("");
+      setEmails([
+        { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
+      ]);
+      setProvider("vitel");
+      setVitel({ id: "" });
+      setLm({ id: "", password: "", license: "standard" });
+      setNotes("");
+      alert("Saved Successfully");
+    }
   };
 
   return (
