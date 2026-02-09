@@ -1086,6 +1086,30 @@ export default function ITPage() {
               </div>
 
               <div className="md:col-span-3 flex justify-end gap-2">
+                {(editingId || isPreFilled) && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                    onClick={() => {
+                      setEditingId(null);
+                      setIsPreFilled(false);
+                      setEmployeeId("");
+                      setSystemId("");
+                      setDepartment("");
+                      setTableNumber("");
+                      setEmails([
+                        { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
+                      ]);
+                      setProvider("vitel");
+                      setVitel({ id: "" });
+                      setLm({ id: "", password: "", license: "standard" });
+                      setNotes("");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                )}
                 <Button
                   type="submit"
                   className="bg-blue-500 hover:bg-blue-600 text-white"
