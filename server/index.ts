@@ -13,6 +13,7 @@ import { connectDB, getDBStatus } from "./db";
 import { employeesRouter } from "./routes/employees";
 import { departmentsRouter } from "./routes/departments";
 import { itAccountsRouter } from "./routes/it-accounts";
+import { pcLaptopRouter } from "./routes/pc-laptop";
 import { attendanceRouter } from "./routes/attendance";
 import { leaveRequestsRouter } from "./routes/leave-requests";
 import { salaryRecordsRouter } from "./routes/salary-records";
