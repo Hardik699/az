@@ -429,7 +429,10 @@ export default function ITPage() {
 
         setEmails(
           rec.emails && rec.emails.length
-            ? rec.emails
+            ? rec.emails.map((e: any) => ({
+                ...e,
+                provider: e.provider || "CUSTOM",
+              }))
             : [
                 {
                   provider: "CUSTOM",
