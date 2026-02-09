@@ -263,32 +263,37 @@ export default function ITPage() {
     }
   }, [employees]);
 
-  // Load and filter available PC/Laptop IDs
-  const loadAvailableSystemIds = () => {
-    const pcLaptopData = localStorage.getItem("pcLaptopAssets");
-    const itRecords = localStorage.getItem("itAccounts");
+  // Load and filter available PC/Laptop IDs from database
+  const loadAvailableSystemIds = async () => {
+    try {
+      const response = await fetch("/api/pc-laptop");
+      const result = await response.json();
 
-    if (pcLaptopData) {
-      const pcLaptops = JSON.parse(pcLaptopData);
-      const pcLaptopIds = pcLaptops.map((item: any) => item.id);
+      if (result.success && result.data) {
+        const pcLaptops = result.data;
+        const pcLaptopIds = pcLaptops.map((item: any) => item.id);
 
-      // Get currently assigned system IDs
-      const assignedIds = itRecords
-        ? JSON.parse(itRecords).map((record: ITRecord) => record.systemId)
-        : [];
+        // Get currently assigned system IDs from records
+        const assignedIds = records.map((record) => record.systemId);
 
-      // Filter out assigned IDs to show only available ones
-      let available = pcLaptopIds.filter(
-        (id: string) => !assignedIds.includes(id),
-      );
-      if (
-        preSelectedSystemId &&
-        !available.includes(preSelectedSystemId) &&
-        pcLaptopIds.includes(preSelectedSystemId)
-      ) {
-        available = [preSelectedSystemId, ...available];
+        // Filter out assigned IDs to show only available ones
+        let available = pcLaptopIds.filter(
+          (id: string) => !assignedIds.includes(id),
+        );
+        if (
+          preSelectedSystemId &&
+          !available.includes(preSelectedSystemId) &&
+          pcLaptopIds.includes(preSelectedSystemId)
+        ) {
+          available = [preSelectedSystemId, ...available];
+        }
+        setAvailableSystemIds(available);
+      } else {
+        setAvailableSystemIds([]);
       }
-      setAvailableSystemIds(available);
+    } catch (error) {
+      console.error("Failed to load PC/Laptop IDs:", error);
+      setAvailableSystemIds([]);
     }
   };
 
