@@ -394,11 +394,9 @@ export default function ITPage() {
     }
   }, [employee]);
 
-  // Load provider IDs from System Info assets
+  // Load provider IDs from System assets (from database)
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const assets = raw ? (JSON.parse(raw) as any[]) : [];
-    let ids = assets
+    let ids = systemAssets
       .filter((a) =>
         provider === "vonage"
           ? a.category === "vonage"
@@ -417,7 +415,7 @@ export default function ITPage() {
     setVitel((s) => ({
       id: ids.includes(s.id) ? s.id : preSelectedProviderId || "",
     }));
-  }, [provider, preSelectedProviderId]);
+  }, [provider, preSelectedProviderId, systemAssets]);
 
   // Ensure the pre-selected System ID is present in options after URL parsing
   useEffect(() => {
