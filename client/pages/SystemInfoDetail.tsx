@@ -809,6 +809,7 @@ export default function SystemInfoDetail() {
                         <TableRow key={a.id}>
                           <TableCell className="font-medium">{a.id}</TableCell>
                           <TableCell>{a.companyName}</TableCell>
+                          <TableCell>{a.modal || "-"}</TableCell>
                           <TableCell>{a.vonageNumber}</TableCell>
                           <TableCell>{a.vonageExtCode}</TableCell>
                           <TableCell>{a.vonagePassword}</TableCell>
