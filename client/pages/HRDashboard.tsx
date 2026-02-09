@@ -1565,7 +1565,7 @@ Generated on: ${new Date().toLocaleString()}
           onValueChange={setActiveTab}
           className="space-y-6"
         >
-          <TabsList className="grid w-full grid-cols-5 bg-slate-800/50 border border-slate-700">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 bg-slate-800/50 border border-slate-700">
             <TabsTrigger
               value="employees"
               className="data-[state=active]:bg-blue-500 data-[state=active]:text-white"
