@@ -1111,12 +1111,7 @@ export default function PCLaptopInfo() {
                         </div>
                       ) : (
                         ramAssets.map((m) => {
-                          // Get RAM details from systemAssets
-                          const sysRaw = localStorage.getItem("systemAssets");
-                          const sysList = sysRaw ? JSON.parse(sysRaw) : [];
-                          const ramDetails = sysList.find(
-                            (item: any) => item.id === m.id,
-                          );
+                          const ramDetails = getAssetById(m.id);
 
                           return (
                             <SelectItem key={m.id} value={m.id}>
@@ -1198,12 +1193,7 @@ export default function PCLaptopInfo() {
                         </div>
                       ) : (
                         ramAssets.map((m) => {
-                          // Get RAM details from systemAssets
-                          const sysRaw = localStorage.getItem("systemAssets");
-                          const sysList = sysRaw ? JSON.parse(sysRaw) : [];
-                          const ramDetails = sysList.find(
-                            (item: any) => item.id === m.id,
-                          );
+                          const ramDetails = getAssetById(m.id);
 
                           return (
                             <SelectItem key={m.id} value={m.id}>
