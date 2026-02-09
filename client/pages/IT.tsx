@@ -21,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Trash2, Save, Shield, ServerCog, RefreshCw } from "lucide-react";
+import { Plus, Trash2, Save, Shield, ServerCog, RefreshCw, ArrowLeft } from "lucide-react";
 
 interface Employee {
   id: string;
@@ -590,6 +590,13 @@ export default function ITPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
       <AppNav />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <Button
+          variant="ghost"
+          className="text-slate-400 hover:text-white mb-4"
+          onClick={() => navigate("/it-dashboard")}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
+        </Button>
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2">
