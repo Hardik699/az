@@ -372,14 +372,14 @@ export default function SystemInfoDetail() {
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <Button
               onClick={() => navigate("/system-info")}
-              className="bg-slate-700 hover:bg-slate-600 text-white"
+              className="bg-slate-700 hover:bg-slate-600 text-white w-full sm:w-auto"
             >
               Back
             </Button>
             {data ? (
               <Button
                 onClick={openForm}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
+                className="bg-blue-500 hover:bg-blue-600 text-white w-full sm:w-auto"
               >
                 Add System Info
               </Button>
