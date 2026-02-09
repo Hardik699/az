@@ -1280,12 +1280,7 @@ export default function PCLaptopInfo() {
                             const ramId = a.ramId;
                             if (!ramId) return "-";
 
-                            // Get RAM details from systemAssets
-                            const sysRaw = localStorage.getItem("systemAssets");
-                            const sysList = sysRaw ? JSON.parse(sysRaw) : [];
-                            const ramDetails = sysList.find(
-                              (item: any) => item.id === ramId,
-                            );
+                            const ramDetails = getAssetById(ramId);
 
                             return ramDetails
                               ? `${ramId} (${ramDetails.ramSize || "RAM"})`
