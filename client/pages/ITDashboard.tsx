@@ -336,7 +336,9 @@ export default function ITDashboard() {
               disabled={isRefreshing}
               title="Refresh IT records and notifications"
             >
-              <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+              />
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -771,8 +773,9 @@ export default function ITDashboard() {
                               {(() => {
                                 if (!previewFull) return null;
                                 const pc =
-                                  pcLaptops.find((x: any) => x.id === r.systemId) ||
-                                  {};
+                                  pcLaptops.find(
+                                    (x: any) => x.id === r.systemId,
+                                  ) || {};
                                 const nameFor = (id: string) => {
                                   if (!id) return "-";
                                   const a = systemAssets.find(

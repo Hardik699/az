@@ -147,7 +147,9 @@ export default function PCLaptopInfo() {
 
     // Get RAM 2 size
     if (form.ramId2 && form.ramId2 !== "none") {
-      const ram2Details = ramAssets.find((item: any) => item.id === form.ramId2);
+      const ram2Details = ramAssets.find(
+        (item: any) => item.id === form.ramId2,
+      );
       if (ram2Details?.ramSize) {
         const size2 = parseInt(ram2Details.ramSize.replace(/[^0-9]/g, "")) || 0;
         total += size2;
@@ -1318,7 +1320,9 @@ export default function PCLaptopInfo() {
 
                             // Get RAM 2 size
                             if ((a as any).ramId2) {
-                              const ram2Details = getAssetById((a as any).ramId2);
+                              const ram2Details = getAssetById(
+                                (a as any).ramId2,
+                              );
                               if (ram2Details?.ramSize) {
                                 const size2 =
                                   parseInt(

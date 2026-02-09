@@ -32,7 +32,7 @@ const pcLaptopSchema = new Schema<IPCLaptop>(
     ramId: String,
     ramId2: String,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const PCLaptop =

@@ -183,17 +183,23 @@ export default function EmployeeDetailsPage() {
       try {
         // Load employee data from API with fallback error handling
         const requests = [
-          fetch("/api/employees").catch(err => {
+          fetch("/api/employees").catch((err) => {
             console.error("Failed to fetch employees:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+            return new Response(JSON.stringify({ success: false, data: [] }), {
+              status: 500,
+            });
           }),
-          fetch("/api/departments").catch(err => {
+          fetch("/api/departments").catch((err) => {
             console.error("Failed to fetch departments:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+            return new Response(JSON.stringify({ success: false, data: [] }), {
+              status: 500,
+            });
           }),
-          fetch("/api/salary-records").catch(err => {
+          fetch("/api/salary-records").catch((err) => {
             console.error("Failed to fetch salary records:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+            return new Response(JSON.stringify({ success: false, data: [] }), {
+              status: 500,
+            });
           }),
         ];
 
