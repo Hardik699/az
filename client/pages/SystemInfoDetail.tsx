@@ -767,6 +767,7 @@ export default function SystemInfoDetail() {
                       <TableRow>
                         <TableHead>ID</TableHead>
                         <TableHead>Company</TableHead>
+                        <TableHead>Modal</TableHead>
                         <TableHead>Number</TableHead>
                         <TableHead>Ext Code</TableHead>
                         <TableHead>Password</TableHead>
@@ -779,6 +780,7 @@ export default function SystemInfoDetail() {
                         <TableHead>ID</TableHead>
                         <TableHead>Company</TableHead>
                         <TableHead>Serial Number</TableHead>
+                        <TableHead>Modal</TableHead>
                         {categoryKey === "ram" && (
                           <TableHead>RAM Size</TableHead>
                         )}
