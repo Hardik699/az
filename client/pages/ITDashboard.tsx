@@ -227,7 +227,9 @@ export default function ITDashboard() {
           <div className="flex items-center gap-3">
             <ServerCog className="h-7 w-7 text-blue-400 flex-shrink-0" />
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white">IT Dashboard</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                IT Dashboard
+              </h1>
               <p className="text-slate-400 text-sm sm:text-base">
                 Overview of IT accounts and systems
               </p>

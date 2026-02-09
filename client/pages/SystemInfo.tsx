@@ -107,9 +107,11 @@ export default function SystemInfo() {
   useEffect(() => {
     const fetchAssets = async () => {
       try {
-        const response = await fetch("/api/system-assets").catch(err => {
+        const response = await fetch("/api/system-assets").catch((err) => {
           console.error("Failed to fetch assets:", err);
-          return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+          return new Response(JSON.stringify({ success: false, data: [] }), {
+            status: 500,
+          });
         });
 
         try {
@@ -142,7 +144,7 @@ export default function SystemInfo() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newAssets),
-        }).catch(err => {
+        }).catch((err) => {
           console.error("Failed to load demo data:", err);
           throw err;
         });
@@ -172,9 +174,11 @@ export default function SystemInfo() {
   const exportSystemAssetsToExcel = async () => {
     try {
       // Get all data from API
-      const assetsResponse = await fetch("/api/system-assets").catch(err => {
+      const assetsResponse = await fetch("/api/system-assets").catch((err) => {
         console.error("Failed to fetch assets for export:", err);
-        return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+        return new Response(JSON.stringify({ success: false, data: [] }), {
+          status: 500,
+        });
       });
 
       let assetsResult;
@@ -184,7 +188,8 @@ export default function SystemInfo() {
         console.error("Failed to parse assets response:", e);
         assetsResult = { success: false, data: [] };
       }
-      const systemAssetsData = assetsResult.success && assetsResult.data ? assetsResult.data : [];
+      const systemAssetsData =
+        assetsResult.success && assetsResult.data ? assetsResult.data : [];
 
       // For now, keep pcLaptopData in localStorage (can be migrated separately)
       const pcLaptopData = JSON.parse(
@@ -439,7 +444,9 @@ export default function SystemInfo() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">System Info</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">
+              System Info
+            </h1>
             <p className="text-slate-400">Hardware categories</p>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
@@ -469,7 +476,10 @@ export default function SystemInfo() {
                 Sync to Sheets
               </Button>
             )}
-            <Badge variant="secondary" className="bg-slate-700 text-slate-300 w-full sm:w-auto text-center sm:text-left">
+            <Badge
+              variant="secondary"
+              className="bg-slate-700 text-slate-300 w-full sm:w-auto text-center sm:text-left"
+            >
               {assetCount} assets | {items.length} categories
             </Badge>
           </div>

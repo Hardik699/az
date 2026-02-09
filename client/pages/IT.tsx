@@ -74,17 +74,23 @@ export default function ITPage() {
       setUserRole(localStorage.getItem("userRole") || "");
       try {
         const requests = [
-          fetch("/api/employees").catch(err => {
+          fetch("/api/employees").catch((err) => {
             console.error("Failed to fetch employees:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+            return new Response(JSON.stringify({ success: false, data: [] }), {
+              status: 500,
+            });
           }),
-          fetch("/api/departments").catch(err => {
+          fetch("/api/departments").catch((err) => {
             console.error("Failed to fetch departments:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+            return new Response(JSON.stringify({ success: false, data: [] }), {
+              status: 500,
+            });
           }),
-          fetch("/api/it-accounts").catch(err => {
+          fetch("/api/it-accounts").catch((err) => {
             console.error("Failed to fetch IT accounts:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+            return new Response(JSON.stringify({ success: false, data: [] }), {
+              status: 500,
+            });
           }),
         ];
 
@@ -101,7 +107,8 @@ export default function ITPage() {
         if (deptRes.ok) {
           try {
             const deptData = await deptRes.json();
-            if (deptData.success && deptData.data) setDepartments(deptData.data);
+            if (deptData.success && deptData.data)
+              setDepartments(deptData.data);
           } catch (e) {
             console.error("Failed to parse departments response:", e);
           }
@@ -482,13 +489,17 @@ export default function ITPage() {
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2">
-              <ServerCog className="h-7 w-7 text-blue-400 flex-shrink-0" /> IT Management
+              <ServerCog className="h-7 w-7 text-blue-400 flex-shrink-0" /> IT
+              Management
             </h1>
             <p className="text-slate-400">
               Create and store system credentials
             </p>
           </div>
-          <Badge variant="secondary" className="bg-slate-700 text-slate-300 w-full sm:w-auto text-center sm:text-left">
+          <Badge
+            variant="secondary"
+            className="bg-slate-700 text-slate-300 w-full sm:w-auto text-center sm:text-left"
+          >
             Role: {userRole || "guest"}
           </Badge>
         </header>

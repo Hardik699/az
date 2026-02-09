@@ -315,7 +315,9 @@ export default function SystemInfoDetail() {
 
     try {
       const method = editingId ? "PUT" : "POST";
-      const url = editingId ? `/api/system-assets/${editingId}` : "/api/system-assets";
+      const url = editingId
+        ? `/api/system-assets/${editingId}`
+        : "/api/system-assets";
 
       const response = await fetch(url, {
         method: method,

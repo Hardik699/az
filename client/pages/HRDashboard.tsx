@@ -1476,7 +1476,9 @@ Generated on: ${new Date().toLocaleString()}
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">HR Dashboard</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+              HR Dashboard
+            </h1>
             <p className="text-slate-400">Human Resources Management System</p>
           </div>
           <Button

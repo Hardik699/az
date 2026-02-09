@@ -713,7 +713,9 @@ export default function PCLaptopInfo() {
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">PC/Laptop Info</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">
+              PC/Laptop Info
+            </h1>
             <p className="text-slate-400">Manage PCs and laptops</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center w-full sm:w-auto">
