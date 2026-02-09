@@ -185,10 +185,10 @@ const getITAccountsByDepartment: RequestHandler = async (req, res) => {
 };
 
 router.get("/", getITAccounts);
+router.post("/", createITAccount);
 router.get("/employee/:employeeId", getITAccountByEmployeeId);
 router.get("/department/:department", getITAccountsByDepartment);
 router.get("/:id", getITAccountById);
-router.post("/", createITAccount);
 router.put("/:id", updateITAccount);
 router.delete("/:id", deleteITAccount);
 
