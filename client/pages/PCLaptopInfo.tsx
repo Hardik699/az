@@ -711,12 +711,12 @@ export default function PCLaptopInfo() {
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
       <AppNav />
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <header className="flex items-center justify-between">
+        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white">PC/Laptop Info</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">PC/Laptop Info</h1>
             <p className="text-slate-400">Manage PCs and laptops</p>
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center w-full sm:w-auto">
             <Button
               onClick={addNew}
               className="bg-blue-500 hover:bg-blue-600 text-white"
