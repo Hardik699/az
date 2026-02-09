@@ -531,11 +531,12 @@ export default function ITPage() {
   }, [employees, records, systemAssets]);
 
   useEffect(() => {
-    if (employee) {
+    // Only auto-fill from employee if NOT in edit mode (isPreFilled is false)
+    if (employee && !isPreFilled) {
       setDepartment(employee.department || "");
       if (employee.tableNumber) setTableNumber(String(employee.tableNumber));
     }
-  }, [employee]);
+  }, [employee, isPreFilled]);
 
   // Load provider IDs from System assets (from database)
   useEffect(() => {
