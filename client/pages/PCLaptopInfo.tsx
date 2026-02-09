@@ -157,15 +157,17 @@ export default function PCLaptopInfo() {
   }, [form.ramId, form.ramId2, ramAssets]);
 
   // Export to Excel function
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     try {
-      // Get all data from localStorage
-      const pcLaptopData = JSON.parse(
-        localStorage.getItem(STORAGE_KEY) || "[]",
-      );
-      const systemAssetsData = JSON.parse(
-        localStorage.getItem(SYS_STORAGE_KEY) || "[]",
-      );
+      // Fetch PC/Laptop data from API
+      const pcResponse = await fetch("/api/pc-laptop");
+      const pcResult = await pcResponse.json();
+      const pcLaptopData = pcResult.success ? pcResult.data : [];
+
+      // Fetch system assets from API
+      const assetsResponse = await fetch("/api/system-assets");
+      const assetsResult = await assetsResponse.json();
+      const systemAssetsData = assetsResult.success ? assetsResult.data : [];
 
       // Create a new workbook
       const workbook = XLSX.utils.book_new();
