@@ -606,6 +606,28 @@ export default function PCLaptopInfo() {
     setItems(next);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
 
+    // Save to database API
+    try {
+      if (editingItem) {
+        // Update existing record in database
+        await fetch(`/api/pc-laptop/${record.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(record),
+        });
+      } else {
+        // Create new record in database
+        await fetch("/api/pc-laptop", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(record),
+        });
+      }
+    } catch (error) {
+      console.error("Failed to save to database:", error);
+      alert("Saved locally, but failed to sync with database. Please try again.");
+    }
+
     // Refresh available assets after saving from API
     try {
       const response = await fetch("/api/system-assets");
