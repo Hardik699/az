@@ -323,12 +323,46 @@ export default function PCLaptopInfo() {
     setEditingItem(null);
     setShowForm(false);
 
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const currentItems = raw ? JSON.parse(raw) : [];
-    setItems(currentItems);
+    // Fetch PC/Laptop data from database API
+    const fetchPCLaptopData = async () => {
+      try {
+        const response = await fetch("/api/pc-laptop");
+        const result = await response.json();
+        let currentItems: Asset[] = [];
 
-    // Fetch system assets from API
-    const fetchSystemAssets = async () => {
+        if (result.success && result.data) {
+          // Map MongoDB data
+          currentItems = result.data.map((item: any) => ({
+            ...item,
+            id: item.id || item._id,
+          }));
+        }
+
+        // Also load from localStorage as fallback/merge
+        const localRaw = localStorage.getItem(STORAGE_KEY);
+        if (localRaw) {
+          const localItems = JSON.parse(localRaw);
+          // Merge: local items that aren't in database
+          const dbIds = new Set(currentItems.map((item) => item.id));
+          const localOnlyItems = localItems.filter((item: Asset) => !dbIds.has(item.id));
+          currentItems = [...currentItems, ...localOnlyItems];
+        }
+
+        setItems(currentItems);
+
+        // Fetch system assets from API
+        fetchSystemAssetsData(currentItems);
+      } catch (error) {
+        console.error("Failed to fetch PC/Laptop data from database:", error);
+        // Fallback to localStorage
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const currentItems = raw ? JSON.parse(raw) : [];
+        setItems(currentItems);
+        fetchSystemAssetsData(currentItems);
+      }
+    };
+
+    const fetchSystemAssetsData = async (currentItems: Asset[]) => {
       try {
         const response = await fetch("/api/system-assets");
         const result = await response.json();
