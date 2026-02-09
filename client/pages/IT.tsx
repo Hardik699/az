@@ -47,6 +47,7 @@ type EmailCred = {
 
 interface ITRecord {
   id: string;
+  _id?: string; // MongoDB ID for existing records
   employeeId: string;
   employeeName: string;
   systemId: string;
