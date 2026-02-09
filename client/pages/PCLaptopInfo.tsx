@@ -357,6 +357,9 @@ export default function PCLaptopInfo() {
         const result = await response.json();
         const sysList: SysAsset[] = result.success ? result.data : [];
 
+        // Store all system assets for lookups
+        setAllSystemAssets(sysList);
+
         // Get all used IDs for each component type
         const usedMouseIds = getUsedIds(currentItems, "mouseId");
         const usedKeyboardIds = getUsedIds(currentItems, "keyboardId");
