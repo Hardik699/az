@@ -837,20 +837,6 @@ export default function ITDashboard() {
                                 Created:{" "}
                                 {new Date(r.createdAt).toLocaleString()}
                               </div>
-
-                              <div className="flex justify-end gap-2 pt-2">
-                                <Button
-                                  className="bg-blue-500 hover:bg-blue-600 text-white"
-                                  onClick={() => {
-                                    const params = new URLSearchParams({
-                                      itId: r.id,
-                                    });
-                                    window.location.href = `/it?${params.toString()}`;
-                                  }}
-                                >
-                                  <Pencil className="h-4 w-4 mr-1" /> Edit IT
-                                </Button>
-                              </div>
                             </div>
                           </SheetContent>
                         </Sheet>
