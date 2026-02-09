@@ -93,7 +93,7 @@ export default function AppNav() {
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
               {isAuthenticated ? (
                 <>
                   {/* Admin Options - Show both dashboards */}
