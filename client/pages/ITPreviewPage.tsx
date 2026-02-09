@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Eye, EyeOff, Shield, ServerCog, Cpu, Smartphone, Mail } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, Shield, ServerCog, Cpu, Smartphone, Mail, Pencil } from "lucide-react";
 
 interface ITRecord {
   _id: string;
@@ -149,6 +149,13 @@ export default function ITPreviewPage() {
             </div>
           </div>
           <div className="flex gap-3">
+            <Button
+              variant="outline"
+              className="border-slate-700 text-slate-300 hover:bg-slate-800"
+              onClick={() => navigate(`/it?editId=${record._id}`)}
+            >
+              <Pencil className="mr-2 h-4 w-4" /> Edit
+            </Button>
             <Button
               variant="outline"
               className="border-slate-700 text-slate-300 hover:bg-slate-800"
