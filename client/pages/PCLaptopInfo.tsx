@@ -1268,12 +1268,7 @@ export default function PCLaptopInfo() {
                             const storageId = (a as any).storageId;
                             if (!storageId) return "-";
 
-                            // Get storage details from systemAssets
-                            const sysRaw = localStorage.getItem("systemAssets");
-                            const sysList = sysRaw ? JSON.parse(sysRaw) : [];
-                            const storageDetails = sysList.find(
-                              (item: any) => item.id === storageId,
-                            );
+                            const storageDetails = getAssetById(storageId);
 
                             return storageDetails
                               ? `${storageId} (${storageDetails.storageType || "Storage"} - ${storageDetails.storageCapacity || "Unknown"})`
