@@ -92,6 +92,7 @@ export default function ITPage() {
   const [isPreFilled, setIsPreFilled] = useState(false);
   const [systemAssets, setSystemAssets] = useState<any[]>([]);
   const [pcLaptops, setPcLaptops] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // --- MEMOIZED VALUES ---
   const employee = useMemo(
@@ -362,6 +363,7 @@ export default function ITPage() {
 
       // Load available PC/Laptop IDs
       await loadAvailableSystemIds();
+      setIsLoading(false);
     };
 
     loadData();
@@ -410,13 +412,21 @@ export default function ITPage() {
 
     // If editing an existing IT record by id, load from state records (loaded from API)
     if (preItId && records.length > 0) {
+      console.log("Found itId in URL, searching records...");
       const rec = records.find((x) => x.id === preItId);
       if (rec) {
+        console.log("Record found:", rec);
         setEmployeeId(rec.employeeId);
         setDepartment(rec.department);
         setTableNumber(rec.tableNumber);
         setSystemId(rec.systemId);
         setPreSelectedSystemId(rec.systemId);
+
+        // Ensure the systemId is in availableSystemIds immediately
+        setAvailableSystemIds(prev =>
+          prev.includes(rec.systemId) ? prev : [rec.systemId, ...prev]
+        );
+
         setEmails(
           rec.emails && rec.emails.length
             ? rec.emails
@@ -432,6 +442,14 @@ export default function ITPage() {
         setProvider((rec.vitelGlobal?.provider as any) || "vitel");
         setVitel({ id: rec.vitelGlobal?.id || "" });
         setPreSelectedProviderId(rec.vitelGlobal?.id || "");
+
+        // Ensure the vitel ID is in providerIds immediately
+        if (rec.vitelGlobal?.id) {
+          setProviderIds(prev =>
+            prev.includes(rec.vitelGlobal.id) ? prev : [rec.vitelGlobal.id, ...prev]
+          );
+        }
+
         setLm({
           id: rec.lmPlayer?.id || "",
           password: rec.lmPlayer?.password || "",
@@ -445,6 +463,8 @@ export default function ITPage() {
           window.location.pathname,
         );
         return;
+      } else {
+        console.warn("Record not found for itId:", preItId);
       }
     }
 
