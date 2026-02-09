@@ -29,6 +29,8 @@ const itAccountSchema = new Schema<IITAccount>(
     department: String,
     emails: [
       {
+        provider: { type: String },
+        providerCustom: { type: String },
         email: { type: String, required: true },
         password: { type: String },
       },
