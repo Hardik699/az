@@ -444,15 +444,22 @@ export default function ITPage() {
     loadPcLaptops();
   }, []);
 
-  // Handle URL parameters after employees are loaded
+  // Handle URL parameters
   useEffect(() => {
+    // If we're already editing or pre-filled, don't process URL params again
+    // unless it's a fresh load (which it is here)
     const urlParams = new URLSearchParams(window.location.search);
     const preItId = urlParams.get("itId") || "";
 
-    // If editing an existing IT record by id, load from state records (loaded from API)
-    if (preItId && records.length > 0) {
+    // IMPORTANT: If itId is present, we MUST wait for records to load
+    if (preItId) {
+      if (records.length === 0) {
+        console.log("itId present but records not loaded yet, waiting...");
+        return;
+      }
+
       console.log("Found itId in URL, searching records...");
-      const rec = records.find((x) => x.id === preItId);
+      const rec = records.find((x) => x.id === preItId || x._id === preItId);
       if (rec) {
         console.log("Record found:", rec);
         setEditingId(rec._id || rec.id);
@@ -508,11 +515,14 @@ export default function ITPage() {
         return;
       } else {
         console.warn("Record not found for itId:", preItId);
+        // If we have itId but can't find it even after records loaded,
+        // maybe it's a deleted record? We'll fall through to HR logic just in case.
       }
     }
 
-    // Otherwise, fall back to param-based prefill (HR notification / partial edit)
+    // HR Prefill logic (only if not already editing an IT record)
     const preEmployeeId = urlParams.get("employeeId") || "";
+    // ... rest same ...
     const preDepartment = urlParams.get("department") || "";
     const preTableNumber = urlParams.get("tableNumber") || "";
     const preSystemId = urlParams.get("systemId") || "";
