@@ -434,14 +434,12 @@ export default function ITPage() {
 
   // Auto-load provider details when provider ID changes
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const assets = raw ? (JSON.parse(raw) as any[]) : [];
     if (!vitel.id) {
       setProviderPreview(null);
       return;
     }
     if (provider === "vonage") {
-      const match = assets.find(
+      const match = systemAssets.find(
         (a) =>
           a.category === "vonage" &&
           (a.vonageExtCode === vitel.id ||
@@ -450,14 +448,14 @@ export default function ITPage() {
       );
       setProviderPreview(match || null);
     } else {
-      const match = assets.find(
+      const match = systemAssets.find(
         (a) =>
           (a.category === "vitel" || a.category === "vitel-global") &&
           a.id === vitel.id,
       );
       setProviderPreview(match || null);
     }
-  }, [provider, vitel.id]);
+  }, [provider, vitel.id, systemAssets]);
 
   const availableTables = useMemo(
     () => Array.from({ length: 32 }, (_, i) => String(i + 1)),
