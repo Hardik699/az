@@ -102,6 +102,8 @@ export default function PCLaptopInfo() {
   const [totalRam, setTotalRam] = useState("0GB");
   const [isGoogleSheetsConfigured, setIsGoogleSheetsConfigured] =
     useState(false);
+  const [systemAssets, setSystemAssets] = useState<SysAsset[]>([]);
+  const [allSystemAssets, setAllSystemAssets] = useState<SysAsset[]>([]);
   const { triggerAutoSync } = useGoogleAppsScriptAutoSync();
 
   // Check Google Apps Script configuration on load
@@ -125,16 +127,18 @@ export default function PCLaptopInfo() {
     return allAssets.filter((asset) => !usedIds.includes(asset.id));
   };
 
+  // Helper function to get asset details by ID
+  const getAssetById = (id: string): SysAsset | undefined => {
+    return allSystemAssets.find((asset) => asset.id === id);
+  };
+
   // Calculate total RAM whenever RAM selections change
   const calculateTotalRam = () => {
-    const sysRaw = localStorage.getItem("systemAssets");
-    const sysList = sysRaw ? JSON.parse(sysRaw) : [];
-
     let total = 0;
 
     // Get RAM 1 size
     if (form.ramId && form.ramId !== "none") {
-      const ram1Details = sysList.find((item: any) => item.id === form.ramId);
+      const ram1Details = ramAssets.find((item: any) => item.id === form.ramId);
       if (ram1Details?.ramSize) {
         const size1 = parseInt(ram1Details.ramSize.replace(/[^0-9]/g, "")) || 0;
         total += size1;
@@ -143,7 +147,9 @@ export default function PCLaptopInfo() {
 
     // Get RAM 2 size
     if (form.ramId2 && form.ramId2 !== "none") {
-      const ram2Details = sysList.find((item: any) => item.id === form.ramId2);
+      const ram2Details = ramAssets.find(
+        (item: any) => item.id === form.ramId2,
+      );
       if (ram2Details?.ramSize) {
         const size2 = parseInt(ram2Details.ramSize.replace(/[^0-9]/g, "")) || 0;
         total += size2;
@@ -156,18 +162,20 @@ export default function PCLaptopInfo() {
   // Update total RAM when RAM selections change
   useEffect(() => {
     setTotalRam(calculateTotalRam());
-  }, [form.ramId, form.ramId2]);
+  }, [form.ramId, form.ramId2, ramAssets]);
 
   // Export to Excel function
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     try {
-      // Get all data from localStorage
-      const pcLaptopData = JSON.parse(
-        localStorage.getItem(STORAGE_KEY) || "[]",
-      );
-      const systemAssetsData = JSON.parse(
-        localStorage.getItem(SYS_STORAGE_KEY) || "[]",
-      );
+      // Fetch PC/Laptop data from API
+      const pcResponse = await fetch("/api/pc-laptop");
+      const pcResult = await pcResponse.json();
+      const pcLaptopData = pcResult.success ? pcResult.data : [];
+
+      // Fetch system assets from API
+      const assetsResponse = await fetch("/api/system-assets");
+      const assetsResult = await assetsResponse.json();
+      const systemAssetsData = assetsResult.success ? assetsResult.data : [];
 
       // Create a new workbook
       const workbook = XLSX.utils.book_new();
@@ -323,16 +331,41 @@ export default function PCLaptopInfo() {
     setEditingItem(null);
     setShowForm(false);
 
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const currentItems = raw ? JSON.parse(raw) : [];
-    setItems(currentItems);
+    // Fetch PC/Laptop data from database API ONLY
+    const fetchPCLaptopData = async () => {
+      try {
+        const response = await fetch("/api/pc-laptop");
+        const result = await response.json();
+        let currentItems: Asset[] = [];
 
-    // Fetch system assets from API
-    const fetchSystemAssets = async () => {
+        if (result.success && result.data) {
+          // Map MongoDB data
+          currentItems = result.data.map((item: any) => ({
+            ...item,
+            id: item.id || item._id,
+          }));
+        }
+
+        setItems(currentItems);
+
+        // Fetch system assets from API
+        fetchSystemAssetsData(currentItems);
+      } catch (error) {
+        console.error("Failed to fetch PC/Laptop data from database:", error);
+        // No fallback - show empty if database fails
+        setItems([]);
+        fetchSystemAssetsData([]);
+      }
+    };
+
+    const fetchSystemAssetsData = async (currentItems: Asset[]) => {
       try {
         const response = await fetch("/api/system-assets");
         const result = await response.json();
         const sysList: SysAsset[] = result.success ? result.data : [];
+
+        // Store all system assets for lookups
+        setAllSystemAssets(sysList);
 
         // Get all used IDs for each component type
         const usedMouseIds = getUsedIds(currentItems, "mouseId");
@@ -401,7 +434,7 @@ export default function PCLaptopInfo() {
       }
     };
 
-    fetchSystemAssets();
+    fetchPCLaptopData();
   }, []);
 
   const addNew = () => {
@@ -419,9 +452,8 @@ export default function PCLaptopInfo() {
       setEditingItem(null);
     }
 
-    // Refresh available assets before opening form
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const currentItems = raw ? JSON.parse(raw) : [];
+    // Use current items from state (which comes from database)
+    const currentItems = items;
 
     try {
       const response = await fetch("/api/system-assets");
@@ -603,8 +635,30 @@ export default function PCLaptopInfo() {
       next = [record, ...items];
     }
 
-    setItems(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    // Save to database API ONLY (no localStorage)
+    try {
+      if (editingItem) {
+        // Update existing record in database
+        await fetch(`/api/pc-laptop/${record.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(record),
+        });
+      } else {
+        // Create new record in database
+        await fetch("/api/pc-laptop", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(record),
+        });
+      }
+      // Only update state after successful database save
+      setItems(next);
+    } catch (error) {
+      console.error("Failed to save to database:", error);
+      alert("Failed to save to database. Please try again.");
+      return; // Don't update state if save fails
+    }
 
     // Refresh available assets after saving from API
     try {
@@ -1059,12 +1113,7 @@ export default function PCLaptopInfo() {
                         </div>
                       ) : (
                         ramAssets.map((m) => {
-                          // Get RAM details from systemAssets
-                          const sysRaw = localStorage.getItem("systemAssets");
-                          const sysList = sysRaw ? JSON.parse(sysRaw) : [];
-                          const ramDetails = sysList.find(
-                            (item: any) => item.id === m.id,
-                          );
+                          const ramDetails = getAssetById(m.id);
 
                           return (
                             <SelectItem key={m.id} value={m.id}>
@@ -1103,12 +1152,7 @@ export default function PCLaptopInfo() {
                         </div>
                       ) : (
                         storageAssets.map((s) => {
-                          // Get storage details from systemAssets
-                          const sysRaw = localStorage.getItem("systemAssets");
-                          const sysList = sysRaw ? JSON.parse(sysRaw) : [];
-                          const storageDetails = sysList.find(
-                            (item: any) => item.id === s.id,
-                          );
+                          const storageDetails = getAssetById(s.id);
 
                           return (
                             <SelectItem key={s.id} value={s.id}>
@@ -1146,12 +1190,7 @@ export default function PCLaptopInfo() {
                         </div>
                       ) : (
                         ramAssets.map((m) => {
-                          // Get RAM details from systemAssets
-                          const sysRaw = localStorage.getItem("systemAssets");
-                          const sysList = sysRaw ? JSON.parse(sysRaw) : [];
-                          const ramDetails = sysList.find(
-                            (item: any) => item.id === m.id,
-                          );
+                          const ramDetails = getAssetById(m.id);
 
                           return (
                             <SelectItem key={m.id} value={m.id}>
@@ -1231,12 +1270,7 @@ export default function PCLaptopInfo() {
                             const storageId = (a as any).storageId;
                             if (!storageId) return "-";
 
-                            // Get storage details from systemAssets
-                            const sysRaw = localStorage.getItem("systemAssets");
-                            const sysList = sysRaw ? JSON.parse(sysRaw) : [];
-                            const storageDetails = sysList.find(
-                              (item: any) => item.id === storageId,
-                            );
+                            const storageDetails = getAssetById(storageId);
 
                             return storageDetails
                               ? `${storageId} (${storageDetails.storageType || "Storage"} - ${storageDetails.storageCapacity || "Unknown"})`
@@ -1248,12 +1282,7 @@ export default function PCLaptopInfo() {
                             const ramId = a.ramId;
                             if (!ramId) return "-";
 
-                            // Get RAM details from systemAssets
-                            const sysRaw = localStorage.getItem("systemAssets");
-                            const sysList = sysRaw ? JSON.parse(sysRaw) : [];
-                            const ramDetails = sysList.find(
-                              (item: any) => item.id === ramId,
-                            );
+                            const ramDetails = getAssetById(ramId);
 
                             return ramDetails
                               ? `${ramId} (${ramDetails.ramSize || "RAM"})`
@@ -1265,12 +1294,7 @@ export default function PCLaptopInfo() {
                             const ramId2 = (a as any).ramId2;
                             if (!ramId2) return "-";
 
-                            // Get RAM details from systemAssets
-                            const sysRaw = localStorage.getItem("systemAssets");
-                            const sysList = sysRaw ? JSON.parse(sysRaw) : [];
-                            const ramDetails = sysList.find(
-                              (item: any) => item.id === ramId2,
-                            );
+                            const ramDetails = getAssetById(ramId2);
 
                             return ramDetails
                               ? `${ramId2} (${ramDetails.ramSize || "RAM"})`
@@ -1280,16 +1304,11 @@ export default function PCLaptopInfo() {
                         <TableCell>
                           {(() => {
                             // Calculate total RAM from both slots
-                            const sysRaw = localStorage.getItem("systemAssets");
-                            const sysList = sysRaw ? JSON.parse(sysRaw) : [];
-
                             let total = 0;
 
                             // Get RAM 1 size
                             if (a.ramId) {
-                              const ram1Details = sysList.find(
-                                (item: any) => item.id === a.ramId,
-                              );
+                              const ram1Details = getAssetById(a.ramId);
                               if (ram1Details?.ramSize) {
                                 const size1 =
                                   parseInt(
@@ -1301,8 +1320,8 @@ export default function PCLaptopInfo() {
 
                             // Get RAM 2 size
                             if ((a as any).ramId2) {
-                              const ram2Details = sysList.find(
-                                (item: any) => item.id === (a as any).ramId2,
+                              const ram2Details = getAssetById(
+                                (a as any).ramId2,
                               );
                               if (ram2Details?.ramSize) {
                                 const size2 =

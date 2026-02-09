@@ -49,6 +49,7 @@ import {
   Pencil,
   AlertCircle,
   X,
+  RefreshCw,
 } from "lucide-react";
 import {
   getPendingNotifications,
@@ -110,10 +111,33 @@ export default function ITDashboard() {
   >([]);
   const [previewSecrets, setPreviewSecrets] = useState(false);
   const [previewFull, setPreviewFull] = useState(false);
+  const [systemAssets, setSystemAssets] = useState<any[]>([]);
+  const [pcLaptops, setPcLaptops] = useState<any[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   const requirePreviewPasscode = () => {
     const code = prompt("Enter passcode to show passwords");
     if (code === "1111") setPreviewSecrets(true);
     else if (code !== null) alert("Incorrect passcode");
+  };
+
+  // Function to load IT records from database
+  const loadITRecords = async () => {
+    try {
+      const response = await fetch("/api/it-accounts");
+      if (!response.ok) throw new Error("Failed to fetch");
+      const itsData = await response.json();
+      if (itsData.success && itsData.data) {
+        // Map MongoDB _id to id for consistency
+        const mappedRecords = itsData.data.map((rec: any) => ({
+          ...rec,
+          id: rec._id,
+        }));
+        setRecords(mappedRecords);
+      }
+    } catch (error) {
+      console.error("Failed to load IT records:", error);
+    }
   };
 
   useEffect(() => {
@@ -134,50 +158,52 @@ export default function ITDashboard() {
 
     const loadData = async () => {
       try {
-        const requests = [
-          fetch("/api/it-accounts").catch((err) => {
-            console.error("Failed to fetch IT accounts:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), {
-              status: 500,
-            });
-          }),
-          fetch("/api/employees").catch((err) => {
-            console.error("Failed to fetch employees:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), {
-              status: 500,
-            });
-          }),
-          fetch("/api/departments").catch((err) => {
-            console.error("Failed to fetch departments:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), {
-              status: 500,
-            });
-          }),
-        ];
+        // Load IT records
+        await loadITRecords();
 
-        const [itsRes, empsRes, deptsRes] = await Promise.all(requests);
+        // Load employees
+        const empsRes = await fetch("/api/employees").catch((err) => {
+          console.error("Failed to fetch employees:", err);
+          return new Response(JSON.stringify({ success: false, data: [] }), {
+            status: 500,
+          });
+        });
 
-        if (itsRes.ok) {
-          try {
-            const itsData = await itsRes.json();
-            if (itsData.success && itsData.data) setRecords(itsData.data);
-          } catch (e) {
-            console.error("Failed to parse IT accounts response:", e);
-          }
-        }
         if (empsRes.ok) {
           try {
             const empsData = await empsRes.json();
-            if (empsData.success && empsData.data) setEmployees(empsData.data);
+            if (empsData.success && empsData.data) {
+              // Map MongoDB _id to id for consistency
+              const mappedEmployees = empsData.data.map((emp: any) => ({
+                ...emp,
+                id: emp._id,
+              }));
+              setEmployees(mappedEmployees);
+            }
           } catch (e) {
             console.error("Failed to parse employees response:", e);
           }
         }
+
+        // Load departments
+        const deptsRes = await fetch("/api/departments").catch((err) => {
+          console.error("Failed to fetch departments:", err);
+          return new Response(JSON.stringify({ success: false, data: [] }), {
+            status: 500,
+          });
+        });
+
         if (deptsRes.ok) {
           try {
             const deptsData = await deptsRes.json();
-            if (deptsData.success && deptsData.data)
-              setDepartments(deptsData.data);
+            if (deptsData.success && deptsData.data) {
+              // Map MongoDB _id to id for consistency
+              const mappedDepts = deptsData.data.map((dept: any) => ({
+                ...dept,
+                id: dept._id,
+              }));
+              setDepartments(mappedDepts);
+            }
           } catch (e) {
             console.error("Failed to parse departments response:", e);
           }
@@ -192,7 +218,67 @@ export default function ITDashboard() {
     // Load pending notifications for new employees
     const pending = getPendingNotifications();
     setPendingNotifications(pending as any);
+
+    // Polling mechanism - check for new IT records and notifications every 5 seconds
+    const refreshInterval = setInterval(() => {
+      loadITRecords(); // Reload IT records
+      const freshPending = getPendingNotifications();
+      setPendingNotifications(freshPending as any);
+    }, 5000);
+
+    // Also reload when page becomes visible (tab focus)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadITRecords(); // Reload IT records
+        const freshPending = getPendingNotifications();
+        setPendingNotifications(freshPending as any);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Cleanup
+    return () => {
+      clearInterval(refreshInterval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [navigate]);
+
+  // Load system assets from database
+  useEffect(() => {
+    const loadSystemAssets = async () => {
+      try {
+        const response = await fetch("/api/system-assets");
+        const result = await response.json();
+        if (result.success && result.data) {
+          setSystemAssets(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to load system assets:", error);
+        setSystemAssets([]);
+      }
+    };
+
+    loadSystemAssets();
+  }, []);
+
+  // Load PC/Laptop data from database
+  useEffect(() => {
+    const loadPcLaptops = async () => {
+      try {
+        const response = await fetch("/api/pc-laptop");
+        const result = await response.json();
+        if (result.success && result.data) {
+          setPcLaptops(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to load PC/Laptop data:", error);
+        setPcLaptops([]);
+      }
+    };
+
+    loadPcLaptops();
+  }, []);
 
   const handleProcessEmployee = (notification: PendingITNotification) => {
     // Do NOT mark processed here. Keep notification until IT record is created.
@@ -236,6 +322,24 @@ export default function ITDashboard() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full sm:w-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition-all duration-300"
+              onClick={async () => {
+                setIsRefreshing(true);
+                await loadITRecords();
+                const freshPending = getPendingNotifications();
+                setPendingNotifications(freshPending as any);
+                setIsRefreshing(false);
+              }}
+              disabled={isRefreshing}
+              title="Refresh IT records and notifications"
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+              />
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -605,16 +709,11 @@ export default function ITDashboard() {
 
                               {(() => {
                                 if (!previewFull) return null;
-                                const assetsRaw =
-                                  localStorage.getItem("systemAssets");
-                                const assets = assetsRaw
-                                  ? JSON.parse(assetsRaw)
-                                  : [];
                                 let providerAsset: any = null;
                                 if (
                                   (r as any).vitelGlobal?.provider === "vonage"
                                 ) {
-                                  providerAsset = assets.find(
+                                  providerAsset = systemAssets.find(
                                     (a: any) =>
                                       a.category === "vonage" &&
                                       (a.id === r.vitelGlobal?.id ||
@@ -622,7 +721,7 @@ export default function ITDashboard() {
                                         a.vonageNumber === r.vitelGlobal?.id),
                                   );
                                 } else {
-                                  providerAsset = assets.find(
+                                  providerAsset = systemAssets.find(
                                     (a: any) =>
                                       (a.category === "vitel" ||
                                         a.category === "vitel-global") &&
@@ -673,20 +772,13 @@ export default function ITDashboard() {
 
                               {(() => {
                                 if (!previewFull) return null;
-                                const pcRaw =
-                                  localStorage.getItem("pcLaptopAssets");
-                                const pcs = pcRaw ? JSON.parse(pcRaw) : [];
                                 const pc =
-                                  pcs.find((x: any) => x.id === r.systemId) ||
-                                  {};
-                                const assetsRaw2 =
-                                  localStorage.getItem("systemAssets");
-                                const assets2 = assetsRaw2
-                                  ? JSON.parse(assetsRaw2)
-                                  : [];
+                                  pcLaptops.find(
+                                    (x: any) => x.id === r.systemId,
+                                  ) || {};
                                 const nameFor = (id: string) => {
                                   if (!id) return "-";
-                                  const a = assets2.find(
+                                  const a = systemAssets.find(
                                     (t: any) => t.id === id,
                                   );
                                   return a

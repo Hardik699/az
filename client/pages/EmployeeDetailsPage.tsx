@@ -130,6 +130,7 @@ export default function EmployeeDetailsPage() {
   const { employeeId } = useParams<{ employeeId: string }>();
   const navigate = useNavigate();
   const [employee, setEmployee] = useState<Employee | null>(null);
+  const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [salaryRecords, setSalaryRecords] = useState<SalaryRecord[]>([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -182,17 +183,23 @@ export default function EmployeeDetailsPage() {
       try {
         // Load employee data from API with fallback error handling
         const requests = [
-          fetch("/api/employees").catch(err => {
+          fetch("/api/employees").catch((err) => {
             console.error("Failed to fetch employees:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+            return new Response(JSON.stringify({ success: false, data: [] }), {
+              status: 500,
+            });
           }),
-          fetch("/api/departments").catch(err => {
+          fetch("/api/departments").catch((err) => {
             console.error("Failed to fetch departments:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+            return new Response(JSON.stringify({ success: false, data: [] }), {
+              status: 500,
+            });
           }),
-          fetch("/api/salary-records").catch(err => {
+          fetch("/api/salary-records").catch((err) => {
             console.error("Failed to fetch salary records:", err);
-            return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+            return new Response(JSON.stringify({ success: false, data: [] }), {
+              status: 500,
+            });
           }),
         ];
 
@@ -245,6 +252,7 @@ export default function EmployeeDetailsPage() {
           }
         }
 
+        setAllEmployees(employees);
         setDepartments(dept);
         setSalaryRecords(salary);
 
@@ -333,11 +341,8 @@ export default function EmployeeDetailsPage() {
       (editForm.tableNumber as string) ?? employee.tableNumber;
     if (pendingTable) {
       const n = parseInt(pendingTable, 10);
-      const employees = JSON.parse(
-        localStorage.getItem("hrEmployees") || "[]",
-      ) as Employee[];
       const taken = new Set(
-        employees
+        allEmployees
           .filter(
             (e) =>
               e.status === "active" && e.id !== employee.id && e.tableNumber,

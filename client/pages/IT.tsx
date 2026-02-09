@@ -1,7 +1,6 @@
 import AppNav from "@/components/Navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { STORAGE_KEY } from "@/lib/systemAssets";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,6 +46,7 @@ type EmailCred = {
 
 interface ITRecord {
   id: string;
+  _id?: string; // MongoDB ID for existing records
   employeeId: string;
   employeeName: string;
   systemId: string;
@@ -71,7 +71,6 @@ export default function ITPage() {
   // Load local data
   useEffect(() => {
     const loadData = async () => {
-      setUserRole(localStorage.getItem("userRole") || "");
       try {
         const requests = [
           fetch("/api/employees").catch((err) => {
@@ -99,7 +98,14 @@ export default function ITPage() {
         if (empRes.ok) {
           try {
             const empData = await empRes.json();
-            if (empData.success && empData.data) setEmployees(empData.data);
+            if (empData.success && empData.data) {
+              // Map MongoDB _id to id for consistency
+              const mappedEmployees = empData.data.map((emp: any) => ({
+                ...emp,
+                id: emp._id,
+              }));
+              setEmployees(mappedEmployees);
+            }
           } catch (e) {
             console.error("Failed to parse employees response:", e);
           }
@@ -107,8 +113,14 @@ export default function ITPage() {
         if (deptRes.ok) {
           try {
             const deptData = await deptRes.json();
-            if (deptData.success && deptData.data)
-              setDepartments(deptData.data);
+            if (deptData.success && deptData.data) {
+              // Map MongoDB _id to id for consistency
+              const mappedDepts = deptData.data.map((dept: any) => ({
+                ...dept,
+                id: dept._id,
+              }));
+              setDepartments(mappedDepts);
+            }
           } catch (e) {
             console.error("Failed to parse departments response:", e);
           }
@@ -116,7 +128,15 @@ export default function ITPage() {
         if (itsRes.ok) {
           try {
             const itsData = await itsRes.json();
-            if (itsData.success && itsData.data) setRecords(itsData.data);
+            if (itsData.success && itsData.data) {
+              // Map MongoDB _id to id for consistency
+              const mappedRecords = itsData.data.map((rec: any) => ({
+                ...rec,
+                id: rec._id, // Use _id as the primary id
+                _id: rec._id, // Keep _id for database operations
+              }));
+              setRecords(mappedRecords);
+            }
           } catch (e) {
             console.error("Failed to parse IT accounts response:", e);
           }
@@ -126,10 +146,46 @@ export default function ITPage() {
       }
 
       // Load available PC/Laptop IDs
-      loadAvailableSystemIds();
+      await loadAvailableSystemIds();
     };
 
     loadData();
+  }, []);
+
+  // Load system assets from database
+  useEffect(() => {
+    const loadSystemAssets = async () => {
+      try {
+        const response = await fetch("/api/system-assets");
+        const result = await response.json();
+        if (result.success && result.data) {
+          setSystemAssets(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to load system assets:", error);
+        setSystemAssets([]);
+      }
+    };
+
+    loadSystemAssets();
+  }, []);
+
+  // Load PC/Laptop data from database
+  useEffect(() => {
+    const loadPcLaptops = async () => {
+      try {
+        const response = await fetch("/api/pc-laptop");
+        const result = await response.json();
+        if (result.success && result.data) {
+          setPcLaptops(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to load PC/Laptop data:", error);
+        setPcLaptops([]);
+      }
+    };
+
+    loadPcLaptops();
   }, []);
 
   // Handle URL parameters after employees are loaded
@@ -208,9 +264,7 @@ export default function ITPage() {
     if (preProvider === "vonage" || preProvider === "vitel") {
       setProvider(preProvider as any);
     } else if (preProviderId) {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      const assets = raw ? (JSON.parse(raw) as any[]) : [];
-      const isVonage = assets.some(
+      const isVonage = systemAssets.some(
         (a) =>
           a.category === "vonage" &&
           (a.vonageExtCode === preProviderId ||
@@ -241,32 +295,37 @@ export default function ITPage() {
     }
   }, [employees]);
 
-  // Load and filter available PC/Laptop IDs
-  const loadAvailableSystemIds = () => {
-    const pcLaptopData = localStorage.getItem("pcLaptopAssets");
-    const itRecords = localStorage.getItem("itAccounts");
+  // Load and filter available PC/Laptop IDs from database
+  const loadAvailableSystemIds = async () => {
+    try {
+      const response = await fetch("/api/pc-laptop");
+      const result = await response.json();
 
-    if (pcLaptopData) {
-      const pcLaptops = JSON.parse(pcLaptopData);
-      const pcLaptopIds = pcLaptops.map((item: any) => item.id);
+      if (result.success && result.data) {
+        const pcLaptops = result.data;
+        const pcLaptopIds = pcLaptops.map((item: any) => item.id);
 
-      // Get currently assigned system IDs
-      const assignedIds = itRecords
-        ? JSON.parse(itRecords).map((record: ITRecord) => record.systemId)
-        : [];
+        // Get currently assigned system IDs from records
+        const assignedIds = records.map((record) => record.systemId);
 
-      // Filter out assigned IDs to show only available ones
-      let available = pcLaptopIds.filter(
-        (id: string) => !assignedIds.includes(id),
-      );
-      if (
-        preSelectedSystemId &&
-        !available.includes(preSelectedSystemId) &&
-        pcLaptopIds.includes(preSelectedSystemId)
-      ) {
-        available = [preSelectedSystemId, ...available];
+        // Filter out assigned IDs to show only available ones
+        let available = pcLaptopIds.filter(
+          (id: string) => !assignedIds.includes(id),
+        );
+        if (
+          preSelectedSystemId &&
+          !available.includes(preSelectedSystemId) &&
+          pcLaptopIds.includes(preSelectedSystemId)
+        ) {
+          available = [preSelectedSystemId, ...available];
+        }
+        setAvailableSystemIds(available);
+      } else {
+        setAvailableSystemIds([]);
       }
-      setAvailableSystemIds(available);
+    } catch (error) {
+      console.error("Failed to load PC/Laptop IDs:", error);
+      setAvailableSystemIds([]);
     }
   };
 
@@ -274,6 +333,7 @@ export default function ITPage() {
     setRecords(next);
     try {
       for (const record of next) {
+        // If record has _id, it's an existing record from the database
         if (record._id) {
           await fetch(`/api/it-accounts/${record._id}`, {
             method: "PUT",
@@ -281,10 +341,12 @@ export default function ITPage() {
             body: JSON.stringify(record),
           });
         } else {
+          // New record - don't send _id or use id for creation
+          const { _id, ...recordData } = record;
           await fetch("/api/it-accounts", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(record),
+            body: JSON.stringify(recordData),
           });
         }
       }
@@ -293,7 +355,7 @@ export default function ITPage() {
     }
 
     // Refresh available system IDs after saving
-    loadAvailableSystemIds();
+    await loadAvailableSystemIds();
   };
 
   // Form state
@@ -321,6 +383,8 @@ export default function ITPage() {
   const [preSelectedProviderId, setPreSelectedProviderId] =
     useState<string>("");
   const [isPreFilled, setIsPreFilled] = useState(false);
+  const [systemAssets, setSystemAssets] = useState<any[]>([]);
+  const [pcLaptops, setPcLaptops] = useState<any[]>([]);
 
   useEffect(() => {
     if (employee) {
@@ -329,11 +393,9 @@ export default function ITPage() {
     }
   }, [employee]);
 
-  // Load provider IDs from System Info assets
+  // Load provider IDs from System assets (from database)
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const assets = raw ? (JSON.parse(raw) as any[]) : [];
-    let ids = assets
+    let ids = systemAssets
       .filter((a) =>
         provider === "vonage"
           ? a.category === "vonage"
@@ -352,7 +414,7 @@ export default function ITPage() {
     setVitel((s) => ({
       id: ids.includes(s.id) ? s.id : preSelectedProviderId || "",
     }));
-  }, [provider, preSelectedProviderId]);
+  }, [provider, preSelectedProviderId, systemAssets]);
 
   // Ensure the pre-selected System ID is present in options after URL parsing
   useEffect(() => {
@@ -365,22 +427,18 @@ export default function ITPage() {
       setPcPreview(null);
       return;
     }
-    const raw = localStorage.getItem("pcLaptopAssets");
-    const list = raw ? (JSON.parse(raw) as any[]) : [];
-    const found = list.find((x) => x.id === systemId) || null;
+    const found = pcLaptops.find((x) => x.id === systemId) || null;
     setPcPreview(found);
-  }, [systemId]);
+  }, [systemId, pcLaptops]);
 
   // Auto-load provider details when provider ID changes
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const assets = raw ? (JSON.parse(raw) as any[]) : [];
     if (!vitel.id) {
       setProviderPreview(null);
       return;
     }
     if (provider === "vonage") {
-      const match = assets.find(
+      const match = systemAssets.find(
         (a) =>
           a.category === "vonage" &&
           (a.vonageExtCode === vitel.id ||
@@ -389,14 +447,14 @@ export default function ITPage() {
       );
       setProviderPreview(match || null);
     } else {
-      const match = assets.find(
+      const match = systemAssets.find(
         (a) =>
           (a.category === "vitel" || a.category === "vitel-global") &&
           a.id === vitel.id,
       );
       setProviderPreview(match || null);
     }
-  }, [provider, vitel.id]);
+  }, [provider, vitel.id, systemAssets]);
 
   const availableTables = useMemo(
     () => Array.from({ length: 32 }, (_, i) => String(i + 1)),

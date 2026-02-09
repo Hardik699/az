@@ -13,6 +13,7 @@ import { connectDB, getDBStatus } from "./db";
 import { employeesRouter } from "./routes/employees";
 import { departmentsRouter } from "./routes/departments";
 import { itAccountsRouter } from "./routes/it-accounts";
+import { pcLaptopRouter } from "./routes/pc-laptop";
 import { attendanceRouter } from "./routes/attendance";
 import { leaveRequestsRouter } from "./routes/leave-requests";
 import { salaryRecordsRouter } from "./routes/salary-records";
@@ -72,6 +73,7 @@ export function createServer() {
   app.use("/api/employees", employeesRouter);
   app.use("/api/departments", departmentsRouter);
   app.use("/api/it-accounts", itAccountsRouter);
+  app.use("/api/pc-laptop", pcLaptopRouter);
   app.use("/api/attendance", attendanceRouter);
   app.use("/api/leave-requests", leaveRequestsRouter);
   app.use("/api/salary-records", salaryRecordsRouter);

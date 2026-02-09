@@ -191,10 +191,23 @@ export default function SystemInfo() {
       const systemAssetsData =
         assetsResult.success && assetsResult.data ? assetsResult.data : [];
 
-      // For now, keep pcLaptopData in localStorage (can be migrated separately)
-      const pcLaptopData = JSON.parse(
-        localStorage.getItem("pcLaptopAssets") || "[]",
-      );
+      // Fetch PC/Laptop data from database
+      const pcResponse = await fetch("/api/pc-laptop").catch((err) => {
+        console.error("Failed to fetch PC/Laptop for export:", err);
+        return new Response(JSON.stringify({ success: false, data: [] }), {
+          status: 500,
+        });
+      });
+
+      let pcResult;
+      try {
+        pcResult = await pcResponse.json();
+      } catch (e) {
+        console.error("Failed to parse PC/Laptop response:", e);
+        pcResult = { success: false, data: [] };
+      }
+      const pcLaptopData =
+        pcResult.success && pcResult.data ? pcResult.data : [];
 
       // Create a new workbook
       const workbook = XLSX.utils.book_new();
