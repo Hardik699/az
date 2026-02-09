@@ -134,7 +134,8 @@ export default function ITPage() {
               // Map MongoDB _id to id for consistency
               const mappedRecords = itsData.data.map((rec: any) => ({
                 ...rec,
-                id: rec._id,
+                id: rec._id, // Use _id as the primary id
+                _id: rec._id, // Keep _id for database operations
               }));
               setRecords(mappedRecords);
             }
