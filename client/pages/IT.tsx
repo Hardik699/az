@@ -101,6 +101,13 @@ export default function ITPage() {
     [employees, employeeId],
   );
 
+  const availableEmployees = useMemo(() => {
+    const assignedIds = new Set(records.map((r) => r.employeeId));
+    return employees.filter(
+      (e) => !assignedIds.has(e.id) || e.id === employeeId,
+    );
+  }, [employees, records, employeeId]);
+
   const availableTables = useMemo(
     () => Array.from({ length: 32 }, (_, i) => String(i + 1)),
     [],
@@ -664,11 +671,17 @@ export default function ITPage() {
                       <SelectValue placeholder="Select employee" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700 text-white max-h-64">
-                      {employees.map((e) => (
-                        <SelectItem key={e.id} value={e.id}>
-                          {e.fullName}
-                        </SelectItem>
-                      ))}
+                      {availableEmployees.length === 0 ? (
+                        <div className="px-3 py-2 text-slate-400">
+                          No employees available (all have IT accounts)
+                        </div>
+                      ) : (
+                        availableEmployees.map((e) => (
+                          <SelectItem key={e.id} value={e.id}>
+                            {e.fullName}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                 )}
