@@ -75,6 +75,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadFileToSupabase, uploadBase64ToSupabase } from "@/lib/supabase";
+import { notifyNewEmployee } from "@/lib/notifications";
 import AppNav from "@/components/Navigation";
 import SuccessModal from "@/components/SuccessModal";
 import {
@@ -262,6 +263,7 @@ export default function HRDashboard() {
     "all" | "active" | "inactive"
   >("all");
   const [departmentFilter, setDepartmentFilter] = useState<string>("all");
+  const [employeeSearchQuery, setEmployeeSearchQuery] = useState<string>("");
   const [selectedDepartmentView, setSelectedDepartmentView] = useState<
     string | null
   >(null);
@@ -402,72 +404,127 @@ export default function HRDashboard() {
     const loadData = async () => {
       if (userRole === "admin" || userRole === "hr") {
         try {
+          const requests = [
+            fetch("/api/employees").catch((err) => {
+              console.error("Failed to fetch employees:", err);
+              return new Response(
+                JSON.stringify({ success: false, data: [] }),
+                { status: 500 },
+              );
+            }),
+            fetch("/api/departments").catch((err) => {
+              console.error("Failed to fetch departments:", err);
+              return new Response(
+                JSON.stringify({ success: false, data: [] }),
+                { status: 500 },
+              );
+            }),
+            fetch("/api/leave-requests").catch((err) => {
+              console.error("Failed to fetch leave requests:", err);
+              return new Response(
+                JSON.stringify({ success: false, data: [] }),
+                { status: 500 },
+              );
+            }),
+            fetch("/api/salary-records").catch((err) => {
+              console.error("Failed to fetch salary records:", err);
+              return new Response(
+                JSON.stringify({ success: false, data: [] }),
+                { status: 500 },
+              );
+            }),
+            fetch("/api/attendance").catch((err) => {
+              console.error("Failed to fetch attendance:", err);
+              return new Response(
+                JSON.stringify({ success: false, data: [] }),
+                { status: 500 },
+              );
+            }),
+          ];
+
           const [empRes, deptRes, leaveRes, salaryRes, attRes] =
-            await Promise.all([
-              fetch("/api/employees"),
-              fetch("/api/departments"),
-              fetch("/api/leave-requests"),
-              fetch("/api/salary-records"),
-              fetch("/api/attendance"),
-            ]);
+            await Promise.all(requests);
 
           if (empRes.ok) {
-            const empData = await empRes.json();
-            if (empData.success) {
-              // Normalize employees: ensure id field is set to _id
-              const normalizedEmployees = empData.data.map((emp: any) => ({
-                ...emp,
-                id: emp._id || emp.id,
-              }));
-              setEmployees(normalizedEmployees);
+            try {
+              const empData = await empRes.json();
+              if (empData.success && empData.data) {
+                // Normalize employees: ensure id field is set to _id
+                const normalizedEmployees = empData.data.map((emp: any) => ({
+                  ...emp,
+                  id: emp._id || emp.id,
+                }));
+                setEmployees(normalizedEmployees);
+              }
+            } catch (e) {
+              console.error("Failed to parse employees response:", e);
             }
           }
           if (deptRes.ok) {
-            const deptData = await deptRes.json();
-            if (deptData.success) {
-              // Normalize departments: ensure id field is set to _id
-              const normalizedDepts = deptData.data.map((dept: any) => ({
-                ...dept,
-                id: dept._id || dept.id,
-              }));
-              setDepartments(normalizedDepts);
+            try {
+              const deptData = await deptRes.json();
+              if (deptData.success && deptData.data) {
+                // Normalize departments: ensure id field is set to _id
+                const normalizedDepts = deptData.data.map((dept: any) => ({
+                  ...dept,
+                  id: dept._id || dept.id,
+                }));
+                setDepartments(normalizedDepts);
+              }
+            } catch (e) {
+              console.error("Failed to parse departments response:", e);
             }
           }
           if (leaveRes.ok) {
-            const leaveData = await leaveRes.json();
-            if (leaveData.success) {
-              // Normalize leave requests: ensure id field is set to _id
-              const normalizedLeaves = leaveData.data.map((leave: any) => ({
-                ...leave,
-                id: leave._id || leave.id,
-              }));
-              setLeaveRequests(normalizedLeaves);
+            try {
+              const leaveData = await leaveRes.json();
+              if (leaveData.success && leaveData.data) {
+                // Normalize leave requests: ensure id field is set to _id
+                const normalizedLeaves = leaveData.data.map((leave: any) => ({
+                  ...leave,
+                  id: leave._id || leave.id,
+                }));
+                setLeaveRequests(normalizedLeaves);
+              }
+            } catch (e) {
+              console.error("Failed to parse leave requests response:", e);
             }
           }
           if (salaryRes.ok) {
-            const salaryData = await salaryRes.json();
-            if (salaryData.success) {
-              // Normalize salary records: ensure id field is set to _id
-              const normalizedSalaries = salaryData.data.map((salary: any) => ({
-                ...salary,
-                id: salary._id || salary.id,
-              }));
-              setSalaryRecords(normalizedSalaries);
+            try {
+              const salaryData = await salaryRes.json();
+              if (salaryData.success && salaryData.data) {
+                // Normalize salary records: ensure id field is set to _id
+                const normalizedSalaries = salaryData.data.map(
+                  (salary: any) => ({
+                    ...salary,
+                    id: salary._id || salary.id,
+                  }),
+                );
+                setSalaryRecords(normalizedSalaries);
+              }
+            } catch (e) {
+              console.error("Failed to parse salary records response:", e);
             }
           }
           if (attRes.ok) {
-            const attData = await attRes.json();
-            if (attData.success) {
-              // Normalize attendance: ensure id field is set to _id
-              const normalizedAtt = attData.data.map((att: any) => ({
-                ...att,
-                id: att._id || att.id,
-              }));
-              setAttendanceRecords(normalizedAtt);
+            try {
+              const attData = await attRes.json();
+              if (attData.success && attData.data) {
+                // Normalize attendance: ensure id field is set to _id
+                const normalizedAtt = attData.data.map((att: any) => ({
+                  ...att,
+                  id: att._id || att.id,
+                }));
+                setAttendanceRecords(normalizedAtt);
+              }
+            } catch (e) {
+              console.error("Failed to parse attendance response:", e);
             }
           }
         } catch (error) {
           console.error("Failed to load HR data from API:", error);
+          // Silently fail - app will continue to work with empty data
         }
       }
     };
@@ -799,16 +856,17 @@ export default function HRDashboard() {
       toast.error(`Missing required fields: ${missingFields.join(", ")}`);
       return;
     }
-    const used = new Set(
-      employees
-        .filter((e) => e.status === "active" && e.tableNumber)
-        .map((e) => parseInt(e.tableNumber, 10))
-        .filter((n) => !Number.isNaN(n)),
-    );
-    const chosen = parseInt(newEmployee.tableNumber, 10);
-    if (Number.isNaN(chosen) || chosen < 1 || chosen > 32 || used.has(chosen)) {
+    // Check if table number is already assigned to another active employee
+    const usedTableNumbers = employees
+      .filter(
+        (e) =>
+          e.status === "active" && e.tableNumber && e.id !== newEmployee.id,
+      )
+      .map((e) => e.tableNumber);
+
+    if (usedTableNumbers.includes(newEmployee.tableNumber)) {
       alert(
-        "Selected table number is invalid or already assigned to an active employee",
+        "Selected table/location is already assigned to an active employee",
       );
       return;
     }
@@ -836,8 +894,13 @@ export default function HRDashboard() {
       );
       await saveDepartments(updatedDepartments);
 
-      // TODO: Send notification to IT department via API
-      // This should be migrated to create a notification record in MongoDB
+      // Send notification to IT department
+      notifyNewEmployee(
+        employee.employeeId,
+        employee.fullName,
+        employee.department,
+        employee.tableNumber,
+      );
 
       // Reset form
       setNewEmployee({
@@ -1045,7 +1108,18 @@ export default function HRDashboard() {
         employeeStatusFilter === "all" || emp.status === employeeStatusFilter;
       const departmentMatch =
         departmentFilter === "all" || emp.department === departmentFilter;
-      return statusMatch && departmentMatch;
+
+      // Search filter - search by name, email, employee ID, phone, department
+      const searchLower = employeeSearchQuery.toLowerCase().trim();
+      const searchMatch =
+        !searchLower ||
+        emp.fullName.toLowerCase().includes(searchLower) ||
+        emp.email.toLowerCase().includes(searchLower) ||
+        emp.employeeId?.toLowerCase().includes(searchLower) ||
+        emp.mobileNumber?.includes(searchLower) ||
+        emp.department?.toLowerCase().includes(searchLower);
+
+      return statusMatch && departmentMatch && searchMatch;
     });
   };
 
@@ -1213,21 +1287,18 @@ Generated on: ${new Date().toLocaleString()}
       (employeeDetailModal.editForm.tableNumber as string) ??
       employeeDetailModal.employee.tableNumber;
     if (pendingTable) {
-      const n = parseInt(pendingTable, 10);
-      const taken = new Set(
-        employees
-          .filter(
-            (e) =>
-              e.status === "active" &&
-              e.id !== employeeDetailModal.employee!.id &&
-              e.tableNumber,
-          )
-          .map((e) => parseInt(e.tableNumber, 10))
-          .filter((x) => !Number.isNaN(x)),
-      );
-      if (Number.isNaN(n) || n < 1 || n > 32 || taken.has(n)) {
+      const takenTableNumbers = employees
+        .filter(
+          (e) =>
+            e.status === "active" &&
+            e.id !== employeeDetailModal.employee!.id &&
+            e.tableNumber,
+        )
+        .map((e) => e.tableNumber);
+
+      if (takenTableNumbers.includes(pendingTable)) {
         alert(
-          "Selected table number is invalid or already assigned to an active employee",
+          "Selected table/location is already assigned to an active employee",
         );
         return;
       }
@@ -1601,7 +1672,10 @@ Generated on: ${new Date().toLocaleString()}
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <Label htmlFor="hr-id" className="text-slate-300">
-                              HR ID {isManualHRId ? "(Manual Entry)" : "(Auto-generated)"}
+                              HR ID{" "}
+                              {isManualHRId
+                                ? "(Manual Entry)"
+                                : "(Auto-generated)"}
                             </Label>
                             <Button
                               type="button"
@@ -1967,9 +2041,16 @@ Generated on: ${new Date().toLocaleString()}
                             }
                           >
                             <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
-                              <SelectValue placeholder="Select table (1-32)" />
+                              <SelectValue placeholder="Select table or location" />
                             </SelectTrigger>
                             <SelectContent className="bg-slate-800 border-slate-700 text-white max-h-60 overflow-y-auto">
+                              {/* Room/Location options */}
+                              {["Room1", "Room2", "IT"].map((room) => (
+                                <SelectItem key={room} value={room}>
+                                  {room}
+                                </SelectItem>
+                              ))}
+                              {/* Numeric table options (1-32) */}
                               {Array.from({ length: 32 }, (_, i) => i + 1)
                                 .filter(
                                   (n) =>
@@ -1980,13 +2061,21 @@ Generated on: ${new Date().toLocaleString()}
                                             e.status === "active" &&
                                             e.tableNumber,
                                         )
-                                        .map((e) => parseInt(e.tableNumber, 10))
-                                        .filter((n) => !Number.isNaN(n)),
+                                        .map((e) => {
+                                          const num = parseInt(
+                                            e.tableNumber,
+                                            10,
+                                          );
+                                          return !Number.isNaN(num)
+                                            ? num
+                                            : null;
+                                        })
+                                        .filter((n) => n !== null),
                                     ).has(n),
                                 )
                                 .map((n) => (
                                   <SelectItem key={n} value={String(n)}>
-                                    {n}
+                                    Table {n}
                                   </SelectItem>
                                 ))}
                             </SelectContent>
@@ -2442,69 +2531,30 @@ Generated on: ${new Date().toLocaleString()}
                       {getFilteredEmployees().length} of {employees.length}
                     </Badge>
                   </CardTitle>
-                  {employees.length > 0 && (
-                    <div className="flex gap-2">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-slate-600 text-slate-300 hover:bg-slate-700"
-                          >
-                            <Download className="h-4 w-4 mr-2" />
-                            Export
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-slate-800 border-slate-700">
-                          <DropdownMenuItem
-                            key="export-csv"
-                            onClick={() =>
-                              exportToCSV(
-                                employees,
-                                departments,
-                                `hr-employees-${new Date().toISOString().split("T")[0]}.csv`,
-                              )
-                            }
-                            className="text-slate-300 focus:bg-slate-700 cursor-pointer"
-                          >
-                            <FileText className="h-4 w-4 mr-2" />
-                            Export as CSV
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            key="export-excel"
-                            onClick={() =>
-                              exportToExcel(
-                                employees,
-                                departments,
-                                `hr-employees-${new Date().toISOString().split("T")[0]}.xlsx`,
-                              )
-                            }
-                            className="text-slate-300 focus:bg-slate-700 cursor-pointer"
-                          >
-                            <FileText className="h-4 w-4 mr-2" />
-                            Export as Excel
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            key="export-dept-summary"
-                            onClick={() =>
-                              exportDepartmentSummary(
-                                employees,
-                                departments,
-                                `department-summary-${new Date().toISOString().split("T")[0]}.csv`,
-                              )
-                            }
-                            className="text-slate-300 focus:bg-slate-700 cursor-pointer"
-                          >
-                            <Building2 className="h-4 w-4 mr-2" />
-                            Department Summary
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  )}
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
+                {/* Search Input */}
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="text"
+                    placeholder="Search by name, email, ID, phone, or department..."
+                    value={employeeSearchQuery}
+                    onChange={(e) => setEmployeeSearchQuery(e.target.value)}
+                    className="flex-1 bg-slate-800/50 border-slate-700 text-white placeholder-slate-500"
+                  />
+                  {employeeSearchQuery && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setEmployeeSearchQuery("")}
+                      className="text-slate-400 hover:text-white"
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </div>
+
                 {getFilteredEmployees().length === 0 ? (
                   <div className="text-center py-8">
                     <User className="h-12 w-12 text-slate-600 mx-auto mb-4" />
@@ -2594,7 +2644,11 @@ Generated on: ${new Date().toLocaleString()}
                                     #
                                   </span>
                                   <span>
-                                    Table {employee.tableNumber || "-"}
+                                    {employee.tableNumber
+                                      ? isNaN(Number(employee.tableNumber))
+                                        ? employee.tableNumber
+                                        : `Table ${employee.tableNumber}`
+                                      : "-"}
                                   </span>
                                 </div>
                                 {employee.joiningDate && (
@@ -3838,9 +3892,29 @@ Generated on: ${new Date().toLocaleString()}
                           }
                         >
                           <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
-                            <SelectValue placeholder="Select table (1-32)" />
+                            <SelectValue placeholder="Select table or location" />
                           </SelectTrigger>
                           <SelectContent className="bg-slate-800 border-slate-700 text-white max-h-60 overflow-y-auto">
+                            {/* Room/Location options */}
+                            {["Room1", "Room2", "IT"].map((room) => {
+                              const isRoomTaken = employees.some(
+                                (e) =>
+                                  e.status === "active" &&
+                                  e.id !== employeeDetailModal.employee!.id &&
+                                  e.tableNumber === room,
+                              );
+                              return (
+                                <SelectItem
+                                  key={room}
+                                  value={room}
+                                  disabled={isRoomTaken}
+                                >
+                                  {room}
+                                  {isRoomTaken ? " (Assigned)" : ""}
+                                </SelectItem>
+                              );
+                            })}
+                            {/* Numeric table options (1-32) */}
                             {Array.from({ length: 32 }, (_, i) => i + 1)
                               .filter((n) => {
                                 const taken = new Set(
@@ -3852,14 +3926,17 @@ Generated on: ${new Date().toLocaleString()}
                                           employeeDetailModal.employee!.id &&
                                         e.tableNumber,
                                     )
-                                    .map((e) => parseInt(e.tableNumber, 10))
-                                    .filter((x) => !Number.isNaN(x)),
+                                    .map((e) => {
+                                      const num = parseInt(e.tableNumber, 10);
+                                      return !Number.isNaN(num) ? num : null;
+                                    })
+                                    .filter((x) => x !== null),
                                 );
                                 return !taken.has(n);
                               })
                               .map((n) => (
                                 <SelectItem key={n} value={String(n)}>
-                                  {n}
+                                  Table {n}
                                 </SelectItem>
                               ))}
                           </SelectContent>

@@ -31,6 +31,8 @@ import {
   Camera,
   Monitor,
   Phone,
+  Trash2,
+  Edit,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -153,6 +155,7 @@ export default function SystemInfoDetail() {
 
   const [assets, setAssets] = useState<Asset[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({
     id: "",
     serialNumber: "",
@@ -210,6 +213,44 @@ export default function SystemInfoDetail() {
       processorModel: "",
       storageType: "",
       storageCapacity: "",
+    });
+    setShowForm(true);
+  };
+
+  const deleteAsset = (id: string) => {
+    const password = prompt("Enter password to delete this item:");
+    if (password === "1") {
+      const updated = assets.filter((a) => a.id !== id);
+      setAssets(updated);
+
+      // Try to delete from API
+      fetch(`/api/system-assets/${id}`, { method: "DELETE" }).catch(
+        console.error,
+      );
+      alert("Item deleted successfully");
+    } else if (password !== null) {
+      alert("Incorrect password");
+    }
+  };
+
+  const editAsset = (asset: Asset) => {
+    setEditingId(asset.id);
+    setForm({
+      id: asset.id,
+      serialNumber: asset.serialNumber || "",
+      vendorName: asset.vendorName || "",
+      companyName: asset.companyName || "",
+      purchaseDate: asset.purchaseDate || "",
+      warrantyEndDate: asset.warrantyEndDate || "",
+      vonageNumber: asset.vonageNumber || "",
+      vonageExtCode: asset.vonageExtCode || "",
+      vonagePassword: asset.vonagePassword || "",
+      ramSize: (asset as any).ramSize || "",
+      ramType: (asset as any).ramType || "",
+      processorModel: (asset as any).processorModel || "",
+      storageType: (asset as any).storageType || "",
+      storageCapacity: (asset as any).storageCapacity || "",
+      quantity: "1",
     });
     setShowForm(true);
   };
@@ -277,8 +318,16 @@ export default function SystemInfoDetail() {
 
       const result = await response.json();
       if (result.success) {
-        const next = [record, ...assets];
-        setAssets(next);
+        if (editingId) {
+          // Update existing
+          const updated = assets.map((a) => (a.id === editingId ? record : a));
+          setAssets(updated);
+          setEditingId(null);
+        } else {
+          // Add new
+          const next = [record, ...assets];
+          setAssets(next);
+        }
         setShowForm(false);
         alert("Saved");
       } else {
@@ -286,7 +335,10 @@ export default function SystemInfoDetail() {
       }
     } catch (error) {
       console.error("Failed to save asset:", error);
-      alert("Error saving asset: " + (error instanceof Error ? error.message : "Unknown error"));
+      alert(
+        "Error saving asset: " +
+          (error instanceof Error ? error.message : "Unknown error"),
+      );
     }
   };
 
@@ -688,6 +740,7 @@ export default function SystemInfoDetail() {
                         <TableHead>Password</TableHead>
                         <TableHead>Purchase Date</TableHead>
                         <TableHead>Warranty End Date</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     ) : (
                       <TableRow>
@@ -712,6 +765,7 @@ export default function SystemInfoDetail() {
                         <TableHead>Vendor</TableHead>
                         <TableHead>Purchase Date</TableHead>
                         <TableHead>Warranty End Date</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     )}
                   </TableHeader>
@@ -726,6 +780,24 @@ export default function SystemInfoDetail() {
                           <TableCell>{a.vonagePassword}</TableCell>
                           <TableCell>{a.purchaseDate}</TableCell>
                           <TableCell>{a.warrantyEndDate}</TableCell>
+                          <TableCell className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-blue-600 text-blue-400 hover:bg-blue-500/10"
+                              onClick={() => editAsset(a)}
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-red-600 text-red-400 hover:bg-red-500/10"
+                              onClick={() => deleteAsset(a.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </TableCell>
                         </TableRow>
                       ) : (
                         <TableRow key={a.id}>
@@ -756,6 +828,24 @@ export default function SystemInfoDetail() {
                           <TableCell>{a.vendorName}</TableCell>
                           <TableCell>{a.purchaseDate}</TableCell>
                           <TableCell>{a.warrantyEndDate}</TableCell>
+                          <TableCell className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-blue-600 text-blue-400 hover:bg-blue-500/10"
+                              onClick={() => editAsset(a)}
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-red-600 text-red-400 hover:bg-red-500/10"
+                              onClick={() => deleteAsset(a.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </TableCell>
                         </TableRow>
                       ),
                     )}

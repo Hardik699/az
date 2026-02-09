@@ -47,7 +47,14 @@ import {
   Settings,
   Eye,
   Pencil,
+  AlertCircle,
+  X,
 } from "lucide-react";
+import {
+  getPendingNotifications,
+  markAsProcessed,
+  deleteNotification,
+} from "@/lib/notifications";
 
 interface ITRecord {
   id: string;
@@ -127,23 +134,53 @@ export default function ITDashboard() {
 
     const loadData = async () => {
       try {
-        const [itsRes, empsRes, deptsRes] = await Promise.all([
-          fetch("/api/it-accounts"),
-          fetch("/api/employees"),
-          fetch("/api/departments"),
-        ]);
+        const requests = [
+          fetch("/api/it-accounts").catch((err) => {
+            console.error("Failed to fetch IT accounts:", err);
+            return new Response(JSON.stringify({ success: false, data: [] }), {
+              status: 500,
+            });
+          }),
+          fetch("/api/employees").catch((err) => {
+            console.error("Failed to fetch employees:", err);
+            return new Response(JSON.stringify({ success: false, data: [] }), {
+              status: 500,
+            });
+          }),
+          fetch("/api/departments").catch((err) => {
+            console.error("Failed to fetch departments:", err);
+            return new Response(JSON.stringify({ success: false, data: [] }), {
+              status: 500,
+            });
+          }),
+        ];
+
+        const [itsRes, empsRes, deptsRes] = await Promise.all(requests);
 
         if (itsRes.ok) {
-          const itsData = await itsRes.json();
-          if (itsData.success) setRecords(itsData.data);
+          try {
+            const itsData = await itsRes.json();
+            if (itsData.success && itsData.data) setRecords(itsData.data);
+          } catch (e) {
+            console.error("Failed to parse IT accounts response:", e);
+          }
         }
         if (empsRes.ok) {
-          const empsData = await empsRes.json();
-          if (empsData.success) setEmployees(empsData.data);
+          try {
+            const empsData = await empsRes.json();
+            if (empsData.success && empsData.data) setEmployees(empsData.data);
+          } catch (e) {
+            console.error("Failed to parse employees response:", e);
+          }
         }
         if (deptsRes.ok) {
-          const deptsData = await deptsRes.json();
-          if (deptsData.success) setDepartments(deptsData.data);
+          try {
+            const deptsData = await deptsRes.json();
+            if (deptsData.success && deptsData.data)
+              setDepartments(deptsData.data);
+          } catch (e) {
+            console.error("Failed to parse departments response:", e);
+          }
         }
       } catch (error) {
         console.error("Failed to load IT dashboard data:", error);
@@ -152,8 +189,9 @@ export default function ITDashboard() {
 
     loadData();
 
-    // Notifications will be managed via API in the future
-    setPendingNotifications([]);
+    // Load pending notifications for new employees
+    const pending = getPendingNotifications();
+    setPendingNotifications(pending as any);
   }, [navigate]);
 
   const handleProcessEmployee = (notification: PendingITNotification) => {
@@ -246,8 +284,10 @@ export default function ITDashboard() {
                             </Badge>
                           </div>
                           <div className="text-xs text-slate-400">
-                            {notification.department} • Table{" "}
-                            {notification.tableNumber}
+                            {notification.department} •{" "}
+                            {isNaN(Number(notification.tableNumber))
+                              ? notification.tableNumber
+                              : `Table ${notification.tableNumber}`}
                           </div>
                           <div className="text-xs text-slate-500">
                             Created{" "}
@@ -309,9 +349,11 @@ export default function ITDashboard() {
                     <SelectValue placeholder="Department" />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-800 border-slate-700 text-white">
-                    <SelectItem key="all" value="all">All Departments</SelectItem>
+                    <SelectItem key="all" value="all">
+                      All Departments
+                    </SelectItem>
                     {departments.map((d) => (
-                      <SelectItem key={d.id} value={d.name}>
+                      <SelectItem key={d.id || d._id || d.name} value={d.name}>
                         {d.name}
                       </SelectItem>
                     ))}
@@ -517,7 +559,7 @@ export default function ITDashboard() {
                                     {(r.emails as any[]).map(
                                       (e: any, i: number) => (
                                         <div
-                                          key={i}
+                                          key={`email-${r.id}-${i}-${e.email}`}
                                           className="p-2 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs"
                                         >
                                           <div>

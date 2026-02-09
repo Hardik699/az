@@ -33,9 +33,9 @@ export default function Dashboard() {
                 </Button>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white mb-2">IT</h3>
+                <h3 className="text-lg font-semibold text-white mb-2">Users</h3>
                 <p className="text-slate-400 text-sm group-hover:text-slate-300 transition-colors duration-300">
-                  IT accounts and credentials management
+                  User accounts and credentials management
                 </p>
               </div>
             </CardContent>
@@ -57,10 +57,10 @@ export default function Dashboard() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-white mb-2">
-                  System Info
+                  Hardware
                 </h3>
                 <p className="text-slate-400 text-sm group-hover:text-slate-300 transition-colors duration-300">
-                  IT systems overview and records
+                  Hardware assets and inventory
                 </p>
               </div>
             </CardContent>
@@ -82,10 +82,10 @@ export default function Dashboard() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-white mb-2">
-                  PC/Laptop Info
+                  Systems
                 </h3>
                 <p className="text-slate-400 text-sm group-hover:text-slate-300 transition-colors duration-300">
-                  Track PC and laptop assets
+                  Track and manage system assets
                 </p>
               </div>
             </CardContent>

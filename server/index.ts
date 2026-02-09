@@ -9,7 +9,7 @@ import {
   syncToGoogleSheets,
   getSpreadsheetInfo,
 } from "./services/googleSheets";
-import { connectDB } from "./db";
+import { connectDB, getDBStatus } from "./db";
 import { employeesRouter } from "./routes/employees";
 import { departmentsRouter } from "./routes/departments";
 import { itAccountsRouter } from "./routes/it-accounts";
@@ -37,10 +37,26 @@ export function createServer() {
   // Static for uploaded files
   app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
 
+  // Health check endpoint
+  app.get("/api/health", (_req, res) => {
+    const dbStatus = getDBStatus();
+    res.json({
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      database: dbStatus,
+    });
+  });
+
   // Example API routes
   app.get("/api/ping", (_req, res) => {
     const ping = process.env.PING_MESSAGE ?? "ping";
     res.json({ message: ping });
+  });
+
+  // Database status endpoint
+  app.get("/api/db-status", (_req, res) => {
+    const status = getDBStatus();
+    res.json(status);
   });
 
   app.get("/api/demo", handleDemo);

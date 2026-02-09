@@ -8,23 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  User,
-  Shield,
-  Users,
-  ArrowRight,
-  Sparkles,
-  Zap,
-  BarChart3,
-  X,
-} from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import AppNav from "@/components/Navigation";
 
 export default function Index() {
@@ -32,8 +16,7 @@ export default function Index() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState("");
   const [currentUser, setCurrentUser] = useState("");
-  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
-  const [hasSeenWelcome, setHasSeenWelcome] = useState(false);
+  const [displayText, setDisplayText] = useState("");
 
   // Check authentication status
   useEffect(() => {
@@ -45,64 +28,27 @@ export default function Index() {
     setIsAuthenticated(!!auth);
     setUserRole(role || "");
     setCurrentUser(user || "");
-
-    // Show welcome modal only on new login
-    if (auth && user && user !== lastUser) {
-      setShowWelcomeModal(true);
-      localStorage.setItem("lastAuthenticatedUser", user);
-    }
-
-    setHasSeenWelcome(true);
   }, []);
 
-  // Get role-specific welcome data
-  const getRoleWelcomeData = () => {
-    switch (userRole) {
-      case "admin":
-        return {
-          title: "Welcome, Admin!",
-          subtitle: "You have full system access",
-          icon: Shield,
-          color: "purple",
-          gradient: "from-purple-400 via-purple-300 to-blue-300",
-          bgColor: "bg-gradient-to-br from-purple-50 via-blue-50 to-purple-100",
-          message: `All systems operational. You have ${isAuthenticated ? "administrative privileges" : "standard access"}.`,
-        };
-      case "hr":
-        return {
-          title: "Welcome, HR Manager!",
-          subtitle: "Ready to manage your team",
-          icon: Users,
-          color: "green",
-          gradient: "from-green-400 via-emerald-300 to-teal-300",
-          bgColor: "bg-gradient-to-br from-green-50 via-emerald-50 to-teal-100",
-          message: "All employee data is synced and ready. Start managing your team today!",
-        };
-      case "it":
-        return {
-          title: "Welcome, IT Specialist!",
-          subtitle: "System management ready",
-          icon: Zap,
-          color: "orange",
-          gradient: "from-orange-400 via-amber-300 to-yellow-300",
-          bgColor: "bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-100",
-          message: "All systems connected. You're ready to manage IT infrastructure.",
-        };
-      default:
-        return {
-          title: "Welcome Back!",
-          subtitle: "You're logged in",
-          icon: Sparkles,
-          color: "blue",
-          gradient: "from-blue-400 via-cyan-300 to-teal-300",
-          bgColor: "bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-100",
-          message: "Your account is active and ready to use.",
-        };
-    }
-  };
+  // Typing effect for welcome message
+  useEffect(() => {
+    if (!isAuthenticated || !currentUser) return;
 
-  const welcomeData = getRoleWelcomeData();
-  const WelcomeIcon = welcomeData.icon;
+    const welcomeText = `Welcome Back, ${currentUser}!`;
+    let index = 0;
+    setDisplayText("");
+
+    const timer = setInterval(() => {
+      if (index <= welcomeText.length) {
+        setDisplayText(welcomeText.substring(0, index));
+        index++;
+      } else {
+        clearInterval(timer);
+      }
+    }, 50);
+
+    return () => clearInterval(timer);
+  }, [isAuthenticated, currentUser]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900 overflow-hidden">
@@ -114,7 +60,11 @@ export default function Index() {
         <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-700"></div>
 
         {/* Animated Grid Background */}
-        <div className={"absolute inset-0 bg-[url('data:image/svg+xml;utf8,<svg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M0 0h60v60H0z\" fill=\"none\"/><path d=\"M0 0h60v1H0z\" stroke=\"rgba(100,116,139,0.1)\" stroke-width=\"1\"/><path d=\"M0 0v60h1V0z\" stroke=\"rgba(100,116,139,0.1)\" stroke-width=\"1\"/><circle cx=\"30\" cy=\"30\" r=\"1\" fill=\"rgba(100,116,139,0.1)\"/></svg>')] opacity-30"}></div>
+        <div
+          className={
+            'absolute inset-0 bg-[url(\'data:image/svg+xml;utf8,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h60v60H0z" fill="none"/><path d="M0 0h60v1H0z" stroke="rgba(100,116,139,0.1)" stroke-width="1"/><path d="M0 0v60h1V0z" stroke="rgba(100,116,139,0.1)" stroke-width="1"/><circle cx="30" cy="30" r="1" fill="rgba(100,116,139,0.1)"/></svg>\')] opacity-30'
+          }
+        ></div>
       </div>
 
       {/* Navigation */}
@@ -124,19 +74,90 @@ export default function Index() {
       <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 z-10">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-            User Management
-            <span className="block text-blue-400">System</span>
-          </h1>
-          {!isAuthenticated && (
+          {isAuthenticated && currentUser ? (
+            // Welcome Section for Authenticated Users
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <Sparkles className="h-8 w-8 text-blue-400 animate-spin" />
+                  <span className="text-lg text-blue-400 font-semibold">
+                    Welcome
+                  </span>
+                  <Sparkles className="h-8 w-8 text-blue-400 animate-spin" />
+                </div>
+                <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent min-h-20 flex items-center justify-center">
+                  {displayText}
+                  {displayText.length <
+                    `Welcome Back, ${currentUser}!`.length && (
+                    <span className="ml-1 animate-pulse">|</span>
+                  )}
+                </h1>
+              </div>
+
+              <div className="space-y-6">
+                <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+                  You're logged in as{" "}
+                  <span className="text-blue-400 font-semibold">
+                    {currentUser}
+                  </span>
+                  {userRole && (
+                    <span className="block text-base text-slate-400 mt-2">
+                      Role:{" "}
+                      <span className="text-cyan-400 capitalize">
+                        {userRole}
+                      </span>
+                    </span>
+                  )}
+                </p>
+
+                <div className="flex flex-wrap items-center justify-center gap-4">
+                  {userRole === "admin" && (
+                    <Button
+                      onClick={() => navigate("/admin")}
+                      className="bg-purple-500 hover:bg-purple-600 text-white"
+                    >
+                      Admin Dashboard <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  )}
+                  {userRole === "hr" && (
+                    <Button
+                      onClick={() => navigate("/hr")}
+                      className="bg-green-500 hover:bg-green-600 text-white"
+                    >
+                      HR Dashboard <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  )}
+                  {userRole === "it" && (
+                    <Button
+                      onClick={() => navigate("/it-dashboard")}
+                      className="bg-orange-500 hover:bg-orange-600 text-white"
+                    >
+                      Users Dashboard <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => navigate("/dashboard")}
+                    className="bg-slate-700 hover:bg-slate-600 text-white"
+                  >
+                    Dashboard <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            // Original Content for Non-Authenticated Users
             <>
+              <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+                User Management
+                <span className="block text-blue-400">System</span>
+              </h1>
               <p className="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
-                A modern solution for user authentication and management. Secure,
-                simple, and efficient.
+                A modern solution for user authentication and management.
+                Secure, simple, and efficient.
               </p>
               <p className="text-slate-400 text-lg">
-                Use the navigation above to login or contact an administrator for
-                access.
+                Use the navigation above to login or contact an administrator
+                for access.
               </p>
             </>
           )}
@@ -152,9 +173,7 @@ export default function Index() {
               <div className="space-y-3 text-slate-400 max-w-3xl mx-auto">
                 <p className="flex items-center justify-center space-x-2">
                   <ArrowRight className="h-4 w-4 text-blue-400" />
-                  <span>
-                    Click "Login" in the navigation above to sign in
-                  </span>
+                  <span>Click "Login" in the navigation above to sign in</span>
                 </p>
                 <p className="flex items-center justify-center space-x-2">
                   <ArrowRight className="h-4 w-4 text-blue-400" />
@@ -173,120 +192,6 @@ export default function Index() {
           </Card>
         )}
       </main>
-
-      {/* Beautiful Welcome Modal */}
-      <Dialog open={showWelcomeModal} onOpenChange={setShowWelcomeModal}>
-        <DialogContent className={`${welcomeData.bgColor} border-2 border-white/30 text-gray-800 shadow-2xl`}>
-          <div className="absolute inset-0 overflow-hidden rounded-lg">
-            <div className="absolute -top-20 -right-20 w-40 h-40 bg-white/20 rounded-full blur-2xl"></div>
-            <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-white/20 rounded-full blur-2xl"></div>
-          </div>
-
-          <DialogHeader className="relative z-10">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-20 h-20 bg-gradient-to-br ${welcomeData.gradient} rounded-full flex items-center justify-center backdrop-blur-md animate-bounce shadow-lg`}>
-                <WelcomeIcon className="w-10 h-10 text-white" />
-              </div>
-              <button
-                onClick={() => setShowWelcomeModal(false)}
-                className="text-gray-600 hover:text-gray-800 transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <DialogTitle className="text-3xl font-bold text-gray-900 text-left">
-              {welcomeData.title}
-            </DialogTitle>
-            <DialogDescription className="text-gray-700 text-lg text-left mt-2">
-              {welcomeData.subtitle}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="relative z-10 space-y-6 my-6">
-            <p className="text-gray-700 text-base leading-relaxed">
-              {welcomeData.message}
-            </p>
-
-            <div className="space-y-3">
-              {userRole === "admin" && (
-                <>
-                  <div className="flex items-center space-x-3 bg-purple-100/80 backdrop-blur-sm p-3 rounded-lg hover:bg-purple-200/80 transition-all border border-purple-200">
-                    <Sparkles className="h-5 w-5 text-purple-600" />
-                    <span className="text-sm text-gray-800">Full access to all dashboards</span>
-                  </div>
-                  <div className="flex items-center space-x-3 bg-blue-100/80 backdrop-blur-sm p-3 rounded-lg hover:bg-blue-200/80 transition-all border border-blue-200">
-                    <Users className="h-5 w-5 text-blue-600" />
-                    <span className="text-sm text-gray-800">Manage users and permissions</span>
-                  </div>
-                  <div className="flex items-center space-x-3 bg-indigo-100/80 backdrop-blur-sm p-3 rounded-lg hover:bg-indigo-200/80 transition-all border border-indigo-200">
-                    <BarChart3 className="h-5 w-5 text-indigo-600" />
-                    <span className="text-sm text-gray-800">View system analytics</span>
-                  </div>
-                </>
-              )}
-
-              {userRole === "hr" && (
-                <>
-                  <div className="flex items-center space-x-3 bg-emerald-100/80 backdrop-blur-sm p-3 rounded-lg hover:bg-emerald-200/80 transition-all border border-emerald-200">
-                    <Users className="h-5 w-5 text-emerald-600" />
-                    <span className="text-sm text-gray-800">Manage HR dashboard</span>
-                  </div>
-                  <div className="flex items-center space-x-3 bg-teal-100/80 backdrop-blur-sm p-3 rounded-lg hover:bg-teal-200/80 transition-all border border-teal-200">
-                    <BarChart3 className="h-5 w-5 text-teal-600" />
-                    <span className="text-sm text-gray-800">View employee analytics</span>
-                  </div>
-                  <div className="flex items-center space-x-3 bg-green-100/80 backdrop-blur-sm p-3 rounded-lg hover:bg-green-200/80 transition-all border border-green-200">
-                    <Sparkles className="h-5 w-5 text-green-600" />
-                    <span className="text-sm text-gray-800">Track attendance and leave</span>
-                  </div>
-                </>
-              )}
-
-              {userRole === "it" && (
-                <>
-                  <div className="flex items-center space-x-3 bg-amber-100/80 backdrop-blur-sm p-3 rounded-lg hover:bg-amber-200/80 transition-all border border-amber-200">
-                    <Zap className="h-5 w-5 text-amber-600" />
-                    <span className="text-sm text-gray-800">Manage IT systems</span>
-                  </div>
-                  <div className="flex items-center space-x-3 bg-orange-100/80 backdrop-blur-sm p-3 rounded-lg hover:bg-orange-200/80 transition-all border border-orange-200">
-                    <BarChart3 className="h-5 w-5 text-orange-600" />
-                    <span className="text-sm text-gray-800">Monitor system health</span>
-                  </div>
-                  <div className="flex items-center space-x-3 bg-yellow-100/80 backdrop-blur-sm p-3 rounded-lg hover:bg-yellow-200/80 transition-all border border-yellow-200">
-                    <Sparkles className="h-5 w-5 text-yellow-600" />
-                    <span className="text-sm text-gray-800">Manage assets and inventory</span>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className="relative z-10 flex gap-3 pt-4">
-            <Button
-              onClick={() => setShowWelcomeModal(false)}
-              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 border border-gray-300 rounded-lg transition-all font-medium"
-            >
-              Explore
-            </Button>
-            <Button
-              onClick={() => {
-                setShowWelcomeModal(false);
-                userRole === "admin"
-                  ? navigate("/admin")
-                  : userRole === "hr"
-                    ? navigate("/hr")
-                    : userRole === "it"
-                      ? navigate("/it-dashboard")
-                      : null;
-              }}
-              className={`flex-1 bg-gradient-to-r ${welcomeData.gradient} text-white hover:shadow-lg font-semibold rounded-lg transition-all`}
-            >
-              Go to Dashboard
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

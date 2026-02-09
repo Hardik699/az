@@ -107,10 +107,19 @@ export default function SystemInfo() {
   useEffect(() => {
     const fetchAssets = async () => {
       try {
-        const response = await fetch("/api/system-assets");
-        const result = await response.json();
-        if (result.success) {
-          setAssetCount(result.data.length);
+        const response = await fetch("/api/system-assets").catch(err => {
+          console.error("Failed to fetch assets:", err);
+          return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+        });
+
+        try {
+          const result = await response.json();
+          if (result.success && result.data) {
+            setAssetCount(result.data.length);
+          }
+        } catch (e) {
+          console.error("Failed to parse assets response:", e);
+          setAssetCount(0);
         }
       } catch (error) {
         console.error("Failed to fetch assets:", error);
@@ -133,16 +142,24 @@ export default function SystemInfo() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newAssets),
+        }).catch(err => {
+          console.error("Failed to load demo data:", err);
+          throw err;
         });
 
-        const result = await response.json();
-        if (result.success) {
-          setAssetCount((prev) => prev + result.data.length);
-          alert(
-            `Loaded ${result.data.length} demo system assets including mouse, keyboard, and other components!`,
-          );
-        } else {
-          alert("Demo data already exists in the system.");
+        try {
+          const result = await response.json();
+          if (result.success) {
+            setAssetCount((prev) => prev + result.data.length);
+            alert(
+              `Loaded ${result.data.length} demo system assets including mouse, keyboard, and other components!`,
+            );
+          } else {
+            alert("Demo data already exists in the system.");
+          }
+        } catch (e) {
+          console.error("Failed to parse demo data response:", e);
+          alert("Error loading demo data. Please try again.");
         }
       }
     } catch (error) {
@@ -155,9 +172,19 @@ export default function SystemInfo() {
   const exportSystemAssetsToExcel = async () => {
     try {
       // Get all data from API
-      const assetsResponse = await fetch("/api/system-assets");
-      const assetsResult = await assetsResponse.json();
-      const systemAssetsData = assetsResult.success ? assetsResult.data : [];
+      const assetsResponse = await fetch("/api/system-assets").catch(err => {
+        console.error("Failed to fetch assets for export:", err);
+        return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+      });
+
+      let assetsResult;
+      try {
+        assetsResult = await assetsResponse.json();
+      } catch (e) {
+        console.error("Failed to parse assets response:", e);
+        assetsResult = { success: false, data: [] };
+      }
+      const systemAssetsData = assetsResult.success && assetsResult.data ? assetsResult.data : [];
 
       // For now, keep pcLaptopData in localStorage (can be migrated separately)
       const pcLaptopData = JSON.parse(
