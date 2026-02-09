@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import SuccessModal from "@/components/SuccessModal";
+import { ResponsiveTable } from "@/components/ResponsiveTable";
+import AppNav from "@/components/Navigation";
 import {
   Table,
   TableBody,
