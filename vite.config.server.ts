@@ -32,6 +32,14 @@ export default defineConfig({
         // External dependencies that should not be bundled
         "express",
         "cors",
+        "mongoose",
+        "multer",
+        "googleapis",
+        "mime-types",
+        "dotenv",
+        "zod",
+        "nanoid",
+        "serverless-http",
       ],
       output: {
         format: "es",
