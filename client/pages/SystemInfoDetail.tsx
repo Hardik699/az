@@ -163,6 +163,7 @@ export default function SystemInfoDetail() {
     companyName: "",
     purchaseDate: "",
     warrantyEndDate: "",
+    modal: "",
     vonageNumber: "",
     vonageExtCode: "",
     vonagePassword: "",
@@ -205,6 +206,7 @@ export default function SystemInfoDetail() {
       companyName: "",
       purchaseDate: "",
       warrantyEndDate: "",
+      modal: "",
       vonageNumber: "",
       vonageExtCode: "",
       vonagePassword: "",
@@ -242,6 +244,7 @@ export default function SystemInfoDetail() {
       companyName: asset.companyName || "",
       purchaseDate: asset.purchaseDate || "",
       warrantyEndDate: asset.warrantyEndDate || "",
+      modal: asset.modal || "",
       vonageNumber: asset.vonageNumber || "",
       vonageExtCode: asset.vonageExtCode || "",
       vonagePassword: asset.vonagePassword || "",
@@ -292,6 +295,7 @@ export default function SystemInfoDetail() {
       purchaseDate: form.purchaseDate,
       warrantyEndDate: form.warrantyEndDate,
       createdAt: new Date().toISOString(),
+      modal: form.modal?.trim(),
       vonageNumber: form.vonageNumber?.trim(),
       vonageExtCode: form.vonageExtCode?.trim(),
       vonagePassword: form.vonagePassword,
@@ -310,8 +314,13 @@ export default function SystemInfoDetail() {
     };
 
     try {
-      const response = await fetch("/api/system-assets", {
-        method: "POST",
+      const method = editingId ? "PUT" : "POST";
+      const url = editingId
+        ? `/api/system-assets/${editingId}`
+        : "/api/system-assets";
+
+      const response = await fetch(url, {
+        method: method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(record),
       });
@@ -346,33 +355,33 @@ export default function SystemInfoDetail() {
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
       <AppNav />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <header className="flex items-center justify-between">
+        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
             {data ? (
               <span
-                className={`w-12 h-12 ${data.bg} rounded-lg flex items-center justify-center`}
+                className={`w-12 h-12 ${data.bg} rounded-lg flex items-center justify-center flex-shrink-0`}
               >
                 <data.Icon className={`h-6 w-6 ${data.color}`} />
               </span>
             ) : null}
             <div>
-              <h1 className="text-3xl font-bold text-white">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">
                 {data ? data.title : "Item"}
               </h1>
-              <p className="text-slate-400">Specifications and notes</p>
+              <p className="text-slate-400 text-sm">Specifications and notes</p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <Button
               onClick={() => navigate("/system-info")}
-              className="bg-slate-700 hover:bg-slate-600 text-white"
+              className="bg-slate-700 hover:bg-slate-600 text-white w-full sm:w-auto"
             >
               Back
             </Button>
             {data ? (
               <Button
                 onClick={openForm}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
+                className="bg-blue-500 hover:bg-blue-600 text-white w-full sm:w-auto"
               >
                 Add System Info
               </Button>
@@ -422,6 +431,20 @@ export default function SystemInfoDetail() {
                         }
                         className="bg-slate-800/50 border-slate-700 text-white"
                         placeholder="Enter company"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-slate-300">Modal</Label>
+                      <Input
+                        value={form.modal || ""}
+                        onChange={(e) =>
+                          setForm((s) => ({
+                            ...s,
+                            modal: e.target.value,
+                          }))
+                        }
+                        className="bg-slate-800/50 border-slate-700 text-white"
+                        placeholder="Enter modal"
                       />
                     </div>
                     <div className="space-y-2">
@@ -528,6 +551,20 @@ export default function SystemInfoDetail() {
                         placeholder="Enter serial"
                       />
                     </div>
+                    <div className="space-y-2">
+                      <Label className="text-slate-300">Modal</Label>
+                      <Input
+                        value={form.modal || ""}
+                        onChange={(e) =>
+                          setForm((s) => ({
+                            ...s,
+                            modal: e.target.value,
+                          }))
+                        }
+                        className="bg-slate-800/50 border-slate-700 text-white"
+                        placeholder="Enter modal"
+                      />
+                    </div>
 
                     {categoryKey === "ram" && (
                       <>
@@ -570,7 +607,7 @@ export default function SystemInfoDetail() {
                               <SelectValue placeholder="Select type" />
                             </SelectTrigger>
                             <SelectContent className="bg-slate-800 border-slate-700 text-white max-h-64">
-                              {["DDR2", "DDR3", "DDR4", "DDR5"].map((t) => (
+                              {["Desktop", "Laptop"].map((t) => (
                                 <SelectItem key={t} value={t}>
                                   {t}
                                 </SelectItem>
@@ -735,6 +772,7 @@ export default function SystemInfoDetail() {
                       <TableRow>
                         <TableHead>ID</TableHead>
                         <TableHead>Company</TableHead>
+                        <TableHead>Modal</TableHead>
                         <TableHead>Number</TableHead>
                         <TableHead>Ext Code</TableHead>
                         <TableHead>Password</TableHead>
@@ -747,6 +785,7 @@ export default function SystemInfoDetail() {
                         <TableHead>ID</TableHead>
                         <TableHead>Company</TableHead>
                         <TableHead>Serial Number</TableHead>
+                        <TableHead>Modal</TableHead>
                         {categoryKey === "ram" && (
                           <TableHead>RAM Size</TableHead>
                         )}
@@ -775,6 +814,7 @@ export default function SystemInfoDetail() {
                         <TableRow key={a.id}>
                           <TableCell className="font-medium">{a.id}</TableCell>
                           <TableCell>{a.companyName}</TableCell>
+                          <TableCell>{a.modal || "-"}</TableCell>
                           <TableCell>{a.vonageNumber}</TableCell>
                           <TableCell>{a.vonageExtCode}</TableCell>
                           <TableCell>{a.vonagePassword}</TableCell>
@@ -804,6 +844,7 @@ export default function SystemInfoDetail() {
                           <TableCell className="font-medium">{a.id}</TableCell>
                           <TableCell>{a.companyName}</TableCell>
                           <TableCell>{a.serialNumber}</TableCell>
+                          <TableCell>{a.modal || "-"}</TableCell>
                           {categoryKey === "ram" && (
                             <TableCell>{(a as any).ramSize || "-"}</TableCell>
                           )}

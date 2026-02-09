@@ -1474,15 +1474,17 @@ Generated on: ${new Date().toLocaleString()}
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">HR Dashboard</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+              HR Dashboard
+            </h1>
             <p className="text-slate-400">Human Resources Management System</p>
           </div>
           <Button
             onClick={() => navigate("/")}
             variant="outline"
-            className="border-slate-600 text-slate-300 hover:bg-slate-700"
+            className="border-slate-600 text-slate-300 hover:bg-slate-700 w-full sm:w-auto"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
@@ -1565,7 +1567,7 @@ Generated on: ${new Date().toLocaleString()}
           onValueChange={setActiveTab}
           className="space-y-6"
         >
-          <TabsList className="grid w-full grid-cols-5 bg-slate-800/50 border border-slate-700">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 bg-slate-800/50 border border-slate-700">
             <TabsTrigger
               value="employees"
               className="data-[state=active]:bg-blue-500 data-[state=active]:text-white"

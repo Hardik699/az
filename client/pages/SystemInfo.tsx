@@ -107,9 +107,11 @@ export default function SystemInfo() {
   useEffect(() => {
     const fetchAssets = async () => {
       try {
-        const response = await fetch("/api/system-assets").catch(err => {
+        const response = await fetch("/api/system-assets").catch((err) => {
           console.error("Failed to fetch assets:", err);
-          return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+          return new Response(JSON.stringify({ success: false, data: [] }), {
+            status: 500,
+          });
         });
 
         try {
@@ -142,7 +144,7 @@ export default function SystemInfo() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newAssets),
-        }).catch(err => {
+        }).catch((err) => {
           console.error("Failed to load demo data:", err);
           throw err;
         });
@@ -172,9 +174,11 @@ export default function SystemInfo() {
   const exportSystemAssetsToExcel = async () => {
     try {
       // Get all data from API
-      const assetsResponse = await fetch("/api/system-assets").catch(err => {
+      const assetsResponse = await fetch("/api/system-assets").catch((err) => {
         console.error("Failed to fetch assets for export:", err);
-        return new Response(JSON.stringify({ success: false, data: [] }), { status: 500 });
+        return new Response(JSON.stringify({ success: false, data: [] }), {
+          status: 500,
+        });
       });
 
       let assetsResult;
@@ -184,7 +188,8 @@ export default function SystemInfo() {
         console.error("Failed to parse assets response:", e);
         assetsResult = { success: false, data: [] };
       }
-      const systemAssetsData = assetsResult.success && assetsResult.data ? assetsResult.data : [];
+      const systemAssetsData =
+        assetsResult.success && assetsResult.data ? assetsResult.data : [];
 
       // For now, keep pcLaptopData in localStorage (can be migrated separately)
       const pcLaptopData = JSON.parse(
@@ -437,16 +442,18 @@ export default function SystemInfo() {
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
       <AppNav />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <header className="flex items-center justify-between">
+        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white">System Info</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">
+              System Info
+            </h1>
             <p className="text-slate-400">Hardware categories</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
             {assetCount > 0 && (
               <Button
                 onClick={() => navigate("/demo-data")}
-                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 w-full sm:w-auto"
               >
                 View Demo Data
               </Button>
@@ -454,7 +461,7 @@ export default function SystemInfo() {
             {assetCount > 0 && (
               <Button
                 onClick={exportSystemAssetsToExcel}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2 w-full sm:w-auto"
               >
                 <Download className="h-4 w-4" />
                 Export All Data
@@ -463,13 +470,16 @@ export default function SystemInfo() {
             {isGoogleSheetsConfigured && assetCount > 0 && (
               <Button
                 onClick={() => googleAppsScriptSync.manualSync()}
-                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 w-full sm:w-auto"
               >
                 <RefreshCw className="h-4 w-4" />
                 Sync to Sheets
               </Button>
             )}
-            <Badge variant="secondary" className="bg-slate-700 text-slate-300">
+            <Badge
+              variant="secondary"
+              className="bg-slate-700 text-slate-300 w-full sm:w-auto text-center sm:text-left"
+            >
               {assetCount} assets | {items.length} categories
             </Badge>
           </div>
