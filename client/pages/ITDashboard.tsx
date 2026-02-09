@@ -762,20 +762,12 @@ export default function ITDashboard() {
 
                               {(() => {
                                 if (!previewFull) return null;
-                                const pcRaw =
-                                  localStorage.getItem("pcLaptopAssets");
-                                const pcs = pcRaw ? JSON.parse(pcRaw) : [];
                                 const pc =
-                                  pcs.find((x: any) => x.id === r.systemId) ||
+                                  pcLaptops.find((x: any) => x.id === r.systemId) ||
                                   {};
-                                const assetsRaw2 =
-                                  localStorage.getItem("systemAssets");
-                                const assets2 = assetsRaw2
-                                  ? JSON.parse(assetsRaw2)
-                                  : [];
                                 const nameFor = (id: string) => {
                                   if (!id) return "-";
-                                  const a = assets2.find(
+                                  const a = systemAssets.find(
                                     (t: any) => t.id === id,
                                   );
                                   return a
