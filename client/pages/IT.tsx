@@ -293,7 +293,7 @@ export default function ITPage() {
       setIsPreFilled(true);
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [employees]);
+  }, [employees, records, systemAssets]);
 
   // Load and filter available PC/Laptop IDs from database
   const loadAvailableSystemIds = async () => {
