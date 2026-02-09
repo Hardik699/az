@@ -428,11 +428,9 @@ export default function ITPage() {
       setPcPreview(null);
       return;
     }
-    const raw = localStorage.getItem("pcLaptopAssets");
-    const list = raw ? (JSON.parse(raw) as any[]) : [];
-    const found = list.find((x) => x.id === systemId) || null;
+    const found = pcLaptops.find((x) => x.id === systemId) || null;
     setPcPreview(found);
-  }, [systemId]);
+  }, [systemId, pcLaptops]);
 
   // Auto-load provider details when provider ID changes
   useEffect(() => {
