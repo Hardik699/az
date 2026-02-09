@@ -9,15 +9,15 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
       <AppNav />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <header className="flex items-center justify-between">
+      <main className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 space-y-8">
+        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div>
-            <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-            <p className="text-slate-400">Overview and quick actions</p>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">Dashboard</h1>
+            <p className="text-slate-400 text-sm sm:text-base mt-1 sm:mt-2">Overview and quick actions</p>
           </div>
         </header>
 
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
           <Card className="group bg-slate-900/50 border-slate-700 backdrop-blur-sm hover:bg-slate-800/60 hover:border-orange-500/50 transition-all duration-300 cursor-pointer">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
