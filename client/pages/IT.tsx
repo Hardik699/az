@@ -701,7 +701,9 @@ export default function ITPage() {
 
         <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-white">Add IT Credentials</CardTitle>
+            <CardTitle className="text-white">
+              {editingId ? "Edit IT Credentials" : "Add IT Credentials"}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <form
@@ -1088,7 +1090,7 @@ export default function ITPage() {
                   type="submit"
                   className="bg-blue-500 hover:bg-blue-600 text-white"
                 >
-                  <Save className="h-4 w-4 mr-2" /> Save
+                  <Save className="h-4 w-4 mr-2" /> {editingId ? "Update" : "Save"}
                 </Button>
               </div>
             </form>
