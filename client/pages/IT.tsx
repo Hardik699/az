@@ -1080,8 +1080,8 @@ export default function ITPage() {
                       <TableHead>Dept</TableHead>
                       <TableHead>Table</TableHead>
                       <TableHead>Emails</TableHead>
-                      <TableHead>Telephony</TableHead>
-                      <TableHead>LM Player</TableHead>
+                      <TableHead>VG/VON</TableHead>
+                      <TableHead>LM ID</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
