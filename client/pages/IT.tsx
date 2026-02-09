@@ -551,7 +551,7 @@ export default function ITPage() {
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Label className="text-slate-300">System ID</Label>
                     <Badge
@@ -566,7 +566,7 @@ export default function ITPage() {
                     onClick={loadAvailableSystemIds}
                     size="sm"
                     variant="outline"
-                    className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                    className="border-slate-600 text-slate-300 hover:bg-slate-700 w-full sm:w-auto"
                     title="Refresh available IDs"
                   >
                     <RefreshCw className="h-3 w-3" />
