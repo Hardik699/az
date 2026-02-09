@@ -441,9 +441,8 @@ export default function PCLaptopInfo() {
       setEditingItem(null);
     }
 
-    // Refresh available assets before opening form
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const currentItems = raw ? JSON.parse(raw) : [];
+    // Use current items from state (which comes from database)
+    const currentItems = items;
 
     try {
       const response = await fetch("/api/system-assets");
