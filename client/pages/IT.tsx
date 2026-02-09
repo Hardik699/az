@@ -229,9 +229,7 @@ export default function ITPage() {
     if (preProvider === "vonage" || preProvider === "vitel") {
       setProvider(preProvider as any);
     } else if (preProviderId) {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      const assets = raw ? (JSON.parse(raw) as any[]) : [];
-      const isVonage = assets.some(
+      const isVonage = systemAssets.some(
         (a) =>
           a.category === "vonage" &&
           (a.vonageExtCode === preProviderId ||
