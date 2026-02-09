@@ -326,12 +326,12 @@ const deleteDoc: RequestHandler = async (req, res) => {
 export function salariesRouter() {
   const router = Router();
   router.get("/", list);
-  router.get("/:id", getOne);
   router.post("/", create);
-  router.put("/:id", requireAdmin, update);
-  router.delete("/:id", requireAdmin, remove);
   router.get("/:id/documents", listDocs);
   router.post("/:id/documents", upload.array("files", 5), uploadDocs);
   router.delete("/:id/documents/:docId", requireAdmin, deleteDoc);
+  router.get("/:id", getOne);
+  router.put("/:id", requireAdmin, update);
+  router.delete("/:id", requireAdmin, remove);
   return router;
 }

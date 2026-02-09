@@ -72,28 +72,28 @@ export default function AppNav() {
   return (
     <>
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-slate-900/90 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+        <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-14 sm:h-16">
             {/* Logo/Brand - Infoseum */}
             <div
               className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity duration-300 group"
               onClick={() => navigate("/")}
             >
               {/* Infoseum Cyan Dot */}
-              <div className="relative w-6 h-6">
+              <div className="relative w-5 h-5 sm:w-6 sm:h-6">
                 <div className="absolute inset-0 bg-cyan-400 rounded-full animate-pulse opacity-75 group-hover:opacity-100"></div>
                 <div className="absolute inset-1 bg-cyan-500 rounded-full"></div>
               </div>
               {/* Infoseum Text */}
-              <div className="hidden sm:block">
-                <h1 className="text-lg font-bold text-white tracking-tight">
+              <div className="hidden xs:block">
+                <h1 className="text-sm sm:text-lg font-bold text-white tracking-tight">
                   <span className="text-cyan-400">Infoseum</span>
                 </h1>
               </div>
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
               {isAuthenticated ? (
                 <>
                   {/* Admin Options - Show both dashboards */}

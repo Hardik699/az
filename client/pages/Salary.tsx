@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import SuccessModal from "@/components/SuccessModal";
+import { ResponsiveTable } from "@/components/ResponsiveTable";
+import AppNav from "@/components/Navigation";
 import {
   Table,
   TableBody,
@@ -93,142 +95,173 @@ export default function Salary() {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Salary Records</h1>
-        <div className="flex items-center gap-2">
-          <Label className="mr-2">Role</Label>
-          <select
-            className="rounded-md bg-secondary px-2 py-1"
-            value={role}
-            onChange={(e) => setRole(e.target.value as UserRole)}
-          >
-            <option value="user">user</option>
-            <option value="admin">admin</option>
-          </select>
-          <Label className="ml-4 mr-2">User ID</Label>
-          <Input
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            className="w-40"
+    <>
+      <AppNav />
+      <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
+        <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <h1 className="text-3xl sm:text-4xl font-bold text-white">
+              Salary Records
+            </h1>
+            <div className="w-full sm:w-auto flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+              <div className="w-full sm:w-auto flex items-center gap-2">
+                <Label className="text-sm whitespace-nowrap text-slate-300">
+                  Role
+                </Label>
+                <select
+                  className="flex-1 sm:flex-none rounded-md bg-slate-800 border border-slate-700 px-3 py-2 text-slate-300 text-sm"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value as UserRole)}
+                >
+                  <option value="user">user</option>
+                  <option value="admin">admin</option>
+                </select>
+              </div>
+              <div className="w-full sm:w-auto flex items-center gap-2">
+                <Label className="text-sm whitespace-nowrap text-slate-300">
+                  User ID
+                </Label>
+                <Input
+                  value={userId}
+                  onChange={(e) => setUserId(e.target.value)}
+                  className="flex-1 sm:w-40 bg-slate-800 border-slate-700 text-slate-300 text-sm"
+                />
+              </div>
+            </div>
+          </div>
+
+          <Card className="p-4 sm:p-6 bg-slate-900/50 border-slate-700">
+            <form
+              onSubmit={onSubmit}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4"
+            >
+              <div className="sm:col-span-2">
+                <Label className="text-slate-300">Employee Name</Label>
+                <Input
+                  value={form.employeeName}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, employeeName: e.target.value }))
+                  }
+                  className="bg-slate-800 border-slate-700 text-slate-300"
+                  required
+                />
+              </div>
+              <div>
+                <Label className="text-slate-300">Month</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={12}
+                  value={form.month}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, month: Number(e.target.value) }))
+                  }
+                  className="bg-slate-800 border-slate-700 text-slate-300"
+                  required
+                />
+              </div>
+              <div>
+                <Label className="text-slate-300">Year</Label>
+                <Input
+                  type="number"
+                  min={1900}
+                  max={3000}
+                  value={form.year}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, year: Number(e.target.value) }))
+                  }
+                  className="bg-slate-800 border-slate-700 text-slate-300"
+                  required
+                />
+              </div>
+              <div>
+                <Label className="text-slate-300">Amount</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={form.amount}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, amount: Number(e.target.value) }))
+                  }
+                  className="bg-slate-800 border-slate-700 text-slate-300"
+                  required
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label className="text-slate-300">Notes</Label>
+                <Textarea
+                  value={form.notes}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, notes: e.target.value }))
+                  }
+                  className="bg-slate-800 border-slate-700 text-slate-300"
+                />
+              </div>
+              <div className="sm:col-span-2 lg:col-span-6 flex justify-end">
+                <Button
+                  type="submit"
+                  disabled={create.isPending}
+                  className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+                >
+                  Add Salary
+                </Button>
+              </div>
+            </form>
+          </Card>
+
+          <Card className="p-3 sm:p-4 bg-slate-900/50 border-slate-700">
+            <ResponsiveTable>
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-slate-800">
+                    <TableHead className="text-slate-300">Employee</TableHead>
+                    <TableHead className="text-slate-300">Period</TableHead>
+                    <TableHead className="text-slate-300">Amount</TableHead>
+                    <TableHead className="text-slate-300 hidden sm:table-cell">
+                      Owner
+                    </TableHead>
+                    <TableHead className="text-slate-300 hidden md:table-cell">
+                      Documents
+                    </TableHead>
+                    <TableHead className="text-slate-300">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {list.data?.items.map((s) => (
+                    <SalaryRow
+                      key={s.id}
+                      s={s}
+                      headers={headers}
+                      canManage={role === "admin" || s.userId === userId}
+                      onChanged={() =>
+                        qc.invalidateQueries({ queryKey: ["salaries"] })
+                      }
+                      onUploadSuccess={() =>
+                        setSuccessModal({
+                          isOpen: true,
+                          title: "📄 Documents Uploaded!",
+                          message:
+                            "Your documents have been successfully uploaded.",
+                        })
+                      }
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </ResponsiveTable>
+          </Card>
+
+          {/* Success Modal */}
+          <SuccessModal
+            isOpen={successModal.isOpen}
+            title={successModal.title}
+            message={successModal.message}
+            onClose={() => setSuccessModal({ ...successModal, isOpen: false })}
+            autoClose={3000}
           />
         </div>
       </div>
-
-      <Card className="p-4">
-        <form
-          onSubmit={onSubmit}
-          className="grid grid-cols-1 md:grid-cols-6 gap-4"
-        >
-          <div className="md:col-span-2">
-            <Label>Employee Name</Label>
-            <Input
-              value={form.employeeName}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, employeeName: e.target.value }))
-              }
-              required
-            />
-          </div>
-          <div>
-            <Label>Month</Label>
-            <Input
-              type="number"
-              min={1}
-              max={12}
-              value={form.month}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, month: Number(e.target.value) }))
-              }
-              required
-            />
-          </div>
-          <div>
-            <Label>Year</Label>
-            <Input
-              type="number"
-              min={1900}
-              max={3000}
-              value={form.year}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, year: Number(e.target.value) }))
-              }
-              required
-            />
-          </div>
-          <div>
-            <Label>Amount</Label>
-            <Input
-              type="number"
-              min={0}
-              value={form.amount}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, amount: Number(e.target.value) }))
-              }
-              required
-            />
-          </div>
-          <div className="md:col-span-2">
-            <Label>Notes</Label>
-            <Textarea
-              value={form.notes}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, notes: e.target.value }))
-              }
-            />
-          </div>
-          <div className="md:col-span-6 flex justify-end">
-            <Button type="submit" disabled={create.isPending}>
-              Add Salary
-            </Button>
-          </div>
-        </form>
-      </Card>
-
-      <Card className="p-2">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Employee</TableHead>
-              <TableHead>Period</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Owner</TableHead>
-              <TableHead>Documents</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {list.data?.items.map((s) => (
-              <SalaryRow
-                key={s.id}
-                s={s}
-                headers={headers}
-                canManage={role === "admin" || s.userId === userId}
-                onChanged={() =>
-                  qc.invalidateQueries({ queryKey: ["salaries"] })
-                }
-                onUploadSuccess={() =>
-                  setSuccessModal({
-                    isOpen: true,
-                    title: "📄 Documents Uploaded!",
-                    message: "Your documents have been successfully uploaded.",
-                  })
-                }
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
-
-      {/* Success Modal */}
-      <SuccessModal
-        isOpen={successModal.isOpen}
-        title={successModal.title}
-        message={successModal.message}
-        onClose={() => setSuccessModal({ ...successModal, isOpen: false })}
-        autoClose={3000}
-      />
-    </div>
+    </>
   );
 }
 

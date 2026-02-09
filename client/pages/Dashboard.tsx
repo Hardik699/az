@@ -9,32 +9,38 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
       <AppNav />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <header className="flex items-center justify-between">
+      <main className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 space-y-8">
+        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div>
-            <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-            <p className="text-slate-400">Overview and quick actions</p>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
+              Dashboard
+            </h1>
+            <p className="text-slate-400 text-sm sm:text-base mt-1 sm:mt-2">
+              Overview and quick actions
+            </p>
           </div>
         </header>
 
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
           <Card className="group bg-slate-900/50 border-slate-700 backdrop-blur-sm hover:bg-slate-800/60 hover:border-orange-500/50 transition-all duration-300 cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center group-hover:bg-orange-500/30 transition-colors duration-300">
-                  <ServerCog className="h-6 w-6 text-orange-400" />
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-start sm:items-center justify-between gap-3 mb-3 sm:mb-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-500/20 rounded-xl flex items-center justify-center group-hover:bg-orange-500/30 transition-colors duration-300 flex-shrink-0">
+                  <ServerCog className="h-5 w-5 sm:h-6 sm:w-6 text-orange-400" />
                 </div>
                 <Button
                   onClick={() => navigate("/it-dashboard")}
                   size="sm"
-                  className="bg-orange-500 hover:bg-orange-600 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  className="bg-orange-500 hover:bg-orange-600 text-white opacity-0 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-xs sm:text-sm py-1 sm:py-2"
                 >
-                  Go <ArrowRight className="h-3 w-3 ml-1" />
+                  Go <ArrowRight className="h-3 w-3 ml-1 hidden sm:inline" />
                 </Button>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white mb-2">Users</h3>
-                <p className="text-slate-400 text-sm group-hover:text-slate-300 transition-colors duration-300">
+                <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">
+                  Users
+                </h3>
+                <p className="text-slate-400 text-xs sm:text-sm group-hover:text-slate-300 transition-colors duration-300">
                   User accounts and credentials management
                 </p>
               </div>
@@ -42,24 +48,24 @@ export default function Dashboard() {
           </Card>
 
           <Card className="group bg-slate-900/50 border-slate-700 backdrop-blur-sm hover:bg-slate-800/60 hover:border-green-500/50 transition-all duration-300 cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center group-hover:bg-green-500/30 transition-colors duration-300">
-                  <Building2 className="h-6 w-6 text-green-400" />
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-start sm:items-center justify-between gap-3 mb-3 sm:mb-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500/20 rounded-xl flex items-center justify-center group-hover:bg-green-500/30 transition-colors duration-300 flex-shrink-0">
+                  <Building2 className="h-5 w-5 sm:h-6 sm:w-6 text-green-400" />
                 </div>
                 <Button
                   onClick={() => navigate("/system-info")}
                   size="sm"
-                  className="bg-green-500 hover:bg-green-600 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  className="bg-green-500 hover:bg-green-600 text-white opacity-0 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-xs sm:text-sm py-1 sm:py-2"
                 >
-                  Go <ArrowRight className="h-3 w-3 ml-1" />
+                  Go <ArrowRight className="h-3 w-3 ml-1 hidden sm:inline" />
                 </Button>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white mb-2">
+                <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">
                   Hardware
                 </h3>
-                <p className="text-slate-400 text-sm group-hover:text-slate-300 transition-colors duration-300">
+                <p className="text-slate-400 text-xs sm:text-sm group-hover:text-slate-300 transition-colors duration-300">
                   Hardware assets and inventory
                 </p>
               </div>
@@ -67,24 +73,24 @@ export default function Dashboard() {
           </Card>
 
           <Card className="group bg-slate-900/50 border-slate-700 backdrop-blur-sm hover:bg-slate-800/60 hover:border-cyan-500/50 transition-all duration-300 cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-cyan-500/20 rounded-xl flex items-center justify-center group-hover:bg-cyan-500/30 transition-colors duration-300">
-                  <Users className="h-6 w-6 text-cyan-400" />
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex items-start sm:items-center justify-between gap-3 mb-3 sm:mb-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-cyan-500/20 rounded-xl flex items-center justify-center group-hover:bg-cyan-500/30 transition-colors duration-300 flex-shrink-0">
+                  <Users className="h-5 w-5 sm:h-6 sm:w-6 text-cyan-400" />
                 </div>
                 <Button
                   onClick={() => navigate("/pc-laptop-info")}
                   size="sm"
-                  className="bg-cyan-500 hover:bg-cyan-600 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  className="bg-cyan-500 hover:bg-cyan-600 text-white opacity-0 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-xs sm:text-sm py-1 sm:py-2"
                 >
-                  Go <ArrowRight className="h-3 w-3 ml-1" />
+                  Go <ArrowRight className="h-3 w-3 ml-1 hidden sm:inline" />
                 </Button>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white mb-2">
+                <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">
                   Systems
                 </h3>
-                <p className="text-slate-400 text-sm group-hover:text-slate-300 transition-colors duration-300">
+                <p className="text-slate-400 text-xs sm:text-sm group-hover:text-slate-300 transition-colors duration-300">
                   Track and manage system assets
                 </p>
               </div>

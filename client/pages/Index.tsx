@@ -71,21 +71,21 @@ export default function Index() {
       <AppNav />
 
       {/* Main Content */}
-      <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 z-10">
+      <main className="relative w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 z-10">
         {/* Hero Section */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-12 sm:mb-16">
           {isAuthenticated && currentUser ? (
             // Welcome Section for Authenticated Users
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <Sparkles className="h-8 w-8 text-blue-400 animate-spin" />
-                  <span className="text-lg text-blue-400 font-semibold">
+            <div className="space-y-6 sm:space-y-8">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                  <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400 animate-spin" />
+                  <span className="text-sm sm:text-lg text-blue-400 font-semibold">
                     Welcome
                   </span>
-                  <Sparkles className="h-8 w-8 text-blue-400 animate-spin" />
+                  <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400 animate-spin" />
                 </div>
-                <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent min-h-20 flex items-center justify-center">
+                <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent min-h-16 sm:min-h-20 flex items-center justify-center leading-tight">
                   {displayText}
                   {displayText.length <
                     `Welcome Back, ${currentUser}!`.length && (
@@ -94,8 +94,8 @@ export default function Index() {
                 </h1>
               </div>
 
-              <div className="space-y-6">
-                <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+              <div className="space-y-4 sm:space-y-6">
+                <p className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
                   You're logged in as{" "}
                   <span className="text-blue-400 font-semibold">
                     {currentUser}
