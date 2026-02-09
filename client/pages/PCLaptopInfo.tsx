@@ -127,6 +127,11 @@ export default function PCLaptopInfo() {
     return allAssets.filter((asset) => !usedIds.includes(asset.id));
   };
 
+  // Helper function to get asset details by ID
+  const getAssetById = (id: string): SysAsset | undefined => {
+    return allSystemAssets.find((asset) => asset.id === id);
+  };
+
   // Calculate total RAM whenever RAM selections change
   const calculateTotalRam = () => {
     let total = 0;
