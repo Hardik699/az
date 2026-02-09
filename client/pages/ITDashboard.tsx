@@ -113,6 +113,7 @@ export default function ITDashboard() {
   const [previewFull, setPreviewFull] = useState(false);
   const [systemAssets, setSystemAssets] = useState<any[]>([]);
   const [pcLaptops, setPcLaptops] = useState<any[]>([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const requirePreviewPasscode = () => {
     const code = prompt("Enter passcode to show passwords");
