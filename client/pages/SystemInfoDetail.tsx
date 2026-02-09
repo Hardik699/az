@@ -839,6 +839,7 @@ export default function SystemInfoDetail() {
                           <TableCell className="font-medium">{a.id}</TableCell>
                           <TableCell>{a.companyName}</TableCell>
                           <TableCell>{a.serialNumber}</TableCell>
+                          <TableCell>{a.modal || "-"}</TableCell>
                           {categoryKey === "ram" && (
                             <TableCell>{(a as any).ramSize || "-"}</TableCell>
                           )}
