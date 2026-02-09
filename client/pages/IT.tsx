@@ -72,7 +72,6 @@ export default function ITPage() {
   // Load local data
   useEffect(() => {
     const loadData = async () => {
-      setUserRole(localStorage.getItem("userRole") || "");
       try {
         const requests = [
           fetch("/api/employees").catch((err) => {
