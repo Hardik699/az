@@ -323,7 +323,7 @@ export default function ITPage() {
     }
 
     // Refresh available system IDs after saving
-    loadAvailableSystemIds();
+    await loadAvailableSystemIds();
   };
 
   // Form state
