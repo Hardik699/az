@@ -479,16 +479,16 @@ export default function ITPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
       <AppNav />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <header className="flex items-center justify-between">
+        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white flex items-center gap-2">
-              <ServerCog className="h-7 w-7 text-blue-400" /> IT Management
+            <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2">
+              <ServerCog className="h-7 w-7 text-blue-400 flex-shrink-0" /> IT Management
             </h1>
             <p className="text-slate-400">
               Create and store system credentials
             </p>
           </div>
-          <Badge variant="secondary" className="bg-slate-700 text-slate-300">
+          <Badge variant="secondary" className="bg-slate-700 text-slate-300 w-full sm:w-auto text-center sm:text-left">
             Role: {userRole || "guest"}
           </Badge>
         </header>
