@@ -191,16 +191,16 @@ export default function ITPreviewPage() {
           <Card className="bg-slate-900/50 border-slate-700">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
-                <Smartphone className="h-4 w-4" /> Telephony
+                <Smartphone className="h-4 w-4" /> VG/VON
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <div className="text-xs text-slate-500 uppercase tracking-wider">Provider</div>
+                <div className="text-xs text-slate-500 uppercase tracking-wider">VG/VON</div>
                 <div className="text-lg font-semibold capitalize">{record.vitelGlobal?.provider || "Vitel Global"}</div>
               </div>
               <div>
-                <div className="text-xs text-slate-500 uppercase tracking-wider">Extension / ID</div>
+                <div className="text-xs text-slate-500 uppercase tracking-wider">VG/VON ID</div>
                 <div className="text-lg font-semibold">{record.vitelGlobal?.id || "-"}</div>
               </div>
             </CardContent>
@@ -210,12 +210,12 @@ export default function ITPreviewPage() {
           <Card className="bg-slate-900/50 border-slate-700">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
-                <Shield className="h-4 w-4" /> LM Player
+                <Shield className="h-4 w-4" /> LM ID
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <div className="text-xs text-slate-500 uppercase tracking-wider">Player ID</div>
+                <div className="text-xs text-slate-500 uppercase tracking-wider">LM ID</div>
                 <div className="text-lg font-semibold">{record.lmPlayer?.id || "-"}</div>
               </div>
               <div>
