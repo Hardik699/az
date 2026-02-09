@@ -103,6 +103,7 @@ export default function PCLaptopInfo() {
   const [isGoogleSheetsConfigured, setIsGoogleSheetsConfigured] =
     useState(false);
   const [systemAssets, setSystemAssets] = useState<SysAsset[]>([]);
+  const [allSystemAssets, setAllSystemAssets] = useState<SysAsset[]>([]);
   const { triggerAutoSync } = useGoogleAppsScriptAutoSync();
 
   // Check Google Apps Script configuration on load
