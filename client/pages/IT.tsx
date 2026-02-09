@@ -63,10 +63,225 @@ interface ITRecord {
 }
 
 export default function ITPage() {
+  // --- STATE DECLARATIONS ---
   const [userRole, setUserRole] = useState("");
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [records, setRecords] = useState<ITRecord[]>([]);
+
+  // Form state
+  const [employeeId, setEmployeeId] = useState<string>("");
+  const [systemId, setSystemId] = useState("");
+  const [preSelectedSystemId, setPreSelectedSystemId] = useState<string>("");
+  const [tableNumber, setTableNumber] = useState<string>("");
+  const [department, setDepartment] = useState<string>("");
+  const [emails, setEmails] = useState<EmailCred[]>([
+    { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
+  ]);
+  const [provider, setProvider] = useState<"vitel" | "vonage">("vitel");
+  const [vitel, setVitel] = useState({ id: "" });
+  const [lm, setLm] = useState({ id: "", password: "", license: "standard" });
+  const [notes, setNotes] = useState("");
+  const [secretsVisible, setSecretsVisible] = useState(false);
+  const [availableSystemIds, setAvailableSystemIds] = useState<string[]>([]);
+  const [providerIds, setProviderIds] = useState<string[]>([]);
+  const [pcPreview, setPcPreview] = useState<any | null>(null);
+  const [providerPreview, setProviderPreview] = useState<any | null>(null);
+  const [preSelectedProviderId, setPreSelectedProviderId] =
+    useState<string>("");
+  const [isPreFilled, setIsPreFilled] = useState(false);
+  const [systemAssets, setSystemAssets] = useState<any[]>([]);
+  const [pcLaptops, setPcLaptops] = useState<any[]>([]);
+
+  // --- MEMOIZED VALUES ---
+  const employee = useMemo(
+    () => employees.find((e) => e.id === employeeId),
+    [employees, employeeId],
+  );
+
+  const availableTables = useMemo(
+    () => Array.from({ length: 32 }, (_, i) => String(i + 1)),
+    [],
+  );
+
+  const usedTables = useMemo(() => {
+    return new Set(
+      employees
+        .filter((e) => e.status === "active" && e.tableNumber)
+        .map((e) => String(e.tableNumber)),
+    );
+  }, [employees]);
+
+  const filteredTables = useMemo(() => {
+    const keep = String(employee?.tableNumber || "");
+    return availableTables.filter(
+      (n) => (keep && n === keep) || !usedTables.has(n),
+    );
+  }, [availableTables, usedTables, employee]);
+
+  const hasAssignedTable = useMemo(
+    () =>
+      !!(
+        (employee?.tableNumber && String(employee.tableNumber).trim()) ||
+        (tableNumber && String(tableNumber).trim())
+      ),
+    [employee, tableNumber],
+  );
+
+  // --- HELPER FUNCTIONS ---
+
+  // Load and filter available PC/Laptop IDs from database
+  const loadAvailableSystemIds = async () => {
+    try {
+      const response = await fetch("/api/pc-laptop");
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        const pcLaptops = result.data;
+        const pcLaptopIds = pcLaptops.map((item: any) => item.id);
+
+        // Get currently assigned system IDs from records
+        const assignedIds = records.map((record) => record.systemId);
+
+        // Filter out assigned IDs to show only available ones
+        let available = pcLaptopIds.filter(
+          (id: string) => !assignedIds.includes(id),
+        );
+        if (
+          preSelectedSystemId &&
+          !available.includes(preSelectedSystemId) &&
+          pcLaptopIds.includes(preSelectedSystemId)
+        ) {
+          available = [preSelectedSystemId, ...available];
+        }
+        setAvailableSystemIds(available);
+      } else {
+        setAvailableSystemIds([]);
+      }
+    } catch (error) {
+      console.error("Failed to load PC/Laptop IDs:", error);
+      setAvailableSystemIds([]);
+    }
+  };
+
+  const saveRecords = async (next: ITRecord[]) => {
+    setRecords(next);
+    const errors: string[] = [];
+
+    try {
+      for (const record of next) {
+        // If record has _id, it's an existing record from the database
+        if (record._id) {
+          const response = await fetch(`/api/it-accounts/${record._id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(record),
+          });
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            errors.push(
+              `Failed to update ${record.employeeName}: ${errData.error || response.statusText}`,
+            );
+          }
+        } else {
+          // New record - don't send _id or use id for creation
+          const { _id, ...recordData } = record;
+          const response = await fetch("/api/it-accounts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(recordData),
+          });
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            errors.push(
+              `Failed to create ${record.employeeName}: ${errData.error || response.statusText}`,
+            );
+          } else {
+            // Update the record in state with the new _id from server if possible
+            const result = await response.json();
+            if (result.success && result.data && result.data._id) {
+              setRecords((current) =>
+                current.map((r) =>
+                  r.id === record.id ? { ...r, _id: result.data._id } : r,
+                ),
+              );
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to save IT accounts:", error);
+      errors.push(error instanceof Error ? error.message : String(error));
+    }
+
+    if (errors.length > 0) {
+      alert("Some errors occurred while saving:\n" + errors.join("\n"));
+    }
+
+    // Refresh available system IDs after saving
+    await loadAvailableSystemIds();
+    return errors.length === 0;
+  };
+
+  const addEmailRow = () =>
+    setEmails((rows) => [
+      ...rows,
+      { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
+    ]);
+
+  const requirePasscode = () => {
+    const code = prompt("Enter passcode to view passwords");
+    if (code === "1111") {
+      setSecretsVisible(true);
+    } else if (code !== null) {
+      alert("Incorrect passcode");
+    }
+  };
+
+  const removeEmailRow = (idx: number) =>
+    setEmails((rows) => rows.filter((_, i) => i !== idx));
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!employeeId || !systemId || !department || !tableNumber) {
+      alert(
+        "Please fill required fields (Employee, System ID, Department, Table)",
+      );
+      return;
+    }
+    const cleanEmails = emails.filter((r) => r.email.trim());
+    const rec: ITRecord = {
+      id: `${Date.now()}`,
+      employeeId,
+      employeeName: employee?.fullName || "",
+      systemId: systemId.trim(),
+      tableNumber,
+      department,
+      emails: cleanEmails,
+      vitelGlobal: { id: vitel.id.trim(), provider },
+      lmPlayer: { ...lm },
+      notes: notes.trim() || undefined,
+      createdAt: new Date().toISOString(),
+    };
+    const success = await saveRecords([rec, ...records]);
+
+    if (success) {
+      // TODO: Mark related notification as processed via API
+
+      // reset minimal
+      setSystemId("");
+      setEmails([
+        { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
+      ]);
+      setProvider("vitel");
+      setVitel({ id: "" });
+      setLm({ id: "", password: "", license: "standard" });
+      setNotes("");
+      alert("Saved Successfully");
+    }
+  };
+
+  // --- EFFECTS ---
 
   // Load local data
   useEffect(() => {
@@ -295,127 +510,6 @@ export default function ITPage() {
     }
   }, [employees, records, systemAssets]);
 
-  // Load and filter available PC/Laptop IDs from database
-  const loadAvailableSystemIds = async () => {
-    try {
-      const response = await fetch("/api/pc-laptop");
-      const result = await response.json();
-
-      if (result.success && result.data) {
-        const pcLaptops = result.data;
-        const pcLaptopIds = pcLaptops.map((item: any) => item.id);
-
-        // Get currently assigned system IDs from records
-        const assignedIds = records.map((record) => record.systemId);
-
-        // Filter out assigned IDs to show only available ones
-        let available = pcLaptopIds.filter(
-          (id: string) => !assignedIds.includes(id),
-        );
-        if (
-          preSelectedSystemId &&
-          !available.includes(preSelectedSystemId) &&
-          pcLaptopIds.includes(preSelectedSystemId)
-        ) {
-          available = [preSelectedSystemId, ...available];
-        }
-        setAvailableSystemIds(available);
-      } else {
-        setAvailableSystemIds([]);
-      }
-    } catch (error) {
-      console.error("Failed to load PC/Laptop IDs:", error);
-      setAvailableSystemIds([]);
-    }
-  };
-
-  const saveRecords = async (next: ITRecord[]) => {
-    setRecords(next);
-    const errors: string[] = [];
-
-    try {
-      for (const record of next) {
-        // If record has _id, it's an existing record from the database
-        if (record._id) {
-          const response = await fetch(`/api/it-accounts/${record._id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(record),
-          });
-          if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            errors.push(
-              `Failed to update ${record.employeeName}: ${errData.error || response.statusText}`,
-            );
-          }
-        } else {
-          // New record - don't send _id or use id for creation
-          const { _id, ...recordData } = record;
-          const response = await fetch("/api/it-accounts", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(recordData),
-          });
-          if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            errors.push(
-              `Failed to create ${record.employeeName}: ${errData.error || response.statusText}`,
-            );
-          } else {
-            // Update the record in state with the new _id from server if possible
-            const result = await response.json();
-            if (result.success && result.data && result.data._id) {
-              setRecords((current) =>
-                current.map((r) =>
-                  r.id === record.id ? { ...r, _id: result.data._id } : r,
-                ),
-              );
-            }
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Failed to save IT accounts:", error);
-      errors.push(error instanceof Error ? error.message : String(error));
-    }
-
-    if (errors.length > 0) {
-      alert("Some errors occurred while saving:\n" + errors.join("\n"));
-    }
-
-    // Refresh available system IDs after saving
-    await loadAvailableSystemIds();
-    return errors.length === 0;
-  };
-
-  // Form state
-  const [employeeId, setEmployeeId] = useState<string>("");
-  const employee = useMemo(
-    () => employees.find((e) => e.id === employeeId),
-    [employees, employeeId],
-  );
-  const [systemId, setSystemId] = useState("");
-  const [preSelectedSystemId, setPreSelectedSystemId] = useState<string>("");
-  const [tableNumber, setTableNumber] = useState<string>("");
-  const [department, setDepartment] = useState<string>("");
-  const [emails, setEmails] = useState<EmailCred[]>([
-    { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
-  ]);
-  const [provider, setProvider] = useState<"vitel" | "vonage">("vitel");
-  const [vitel, setVitel] = useState({ id: "" });
-  const [lm, setLm] = useState({ id: "", password: "", license: "standard" });
-  const [notes, setNotes] = useState("");
-  const [secretsVisible, setSecretsVisible] = useState(false);
-  const [availableSystemIds, setAvailableSystemIds] = useState<string[]>([]);
-  const [providerIds, setProviderIds] = useState<string[]>([]);
-  const [pcPreview, setPcPreview] = useState<any | null>(null);
-  const [providerPreview, setProviderPreview] = useState<any | null>(null);
-  const [preSelectedProviderId, setPreSelectedProviderId] =
-    useState<string>("");
-  const [isPreFilled, setIsPreFilled] = useState(false);
-  const [systemAssets, setSystemAssets] = useState<any[]>([]);
-  const [pcLaptops, setPcLaptops] = useState<any[]>([]);
-
   useEffect(() => {
     if (employee) {
       setDepartment(employee.department || "");
@@ -486,91 +580,7 @@ export default function ITPage() {
     }
   }, [provider, vitel.id, systemAssets]);
 
-  const availableTables = useMemo(
-    () => Array.from({ length: 32 }, (_, i) => String(i + 1)),
-    [],
-  );
-
-  const usedTables = useMemo(() => {
-    return new Set(
-      employees
-        .filter((e) => e.status === "active" && e.tableNumber)
-        .map((e) => String(e.tableNumber)),
-    );
-  }, [employees]);
-
-  const filteredTables = useMemo(() => {
-    const keep = String(employee?.tableNumber || "");
-    return availableTables.filter(
-      (n) => (keep && n === keep) || !usedTables.has(n),
-    );
-  }, [availableTables, usedTables, employee]);
-
-  const hasAssignedTable = useMemo(
-    () =>
-      !!(
-        (employee?.tableNumber && String(employee.tableNumber).trim()) ||
-        (tableNumber && String(tableNumber).trim())
-      ),
-    [employee, tableNumber],
-  );
-
-  const addEmailRow = () =>
-    setEmails((rows) => [
-      ...rows,
-      { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
-    ]);
-
-  const requirePasscode = () => {
-    const code = prompt("Enter passcode to view passwords");
-    if (code === "1111") {
-      setSecretsVisible(true);
-    } else if (code !== null) {
-      alert("Incorrect passcode");
-    }
-  };
-  const removeEmailRow = (idx: number) =>
-    setEmails((rows) => rows.filter((_, i) => i !== idx));
-
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!employeeId || !systemId || !department || !tableNumber) {
-      alert(
-        "Please fill required fields (Employee, System ID, Department, Table)",
-      );
-      return;
-    }
-    const cleanEmails = emails.filter((r) => r.email.trim());
-    const rec: ITRecord = {
-      id: `${Date.now()}`,
-      employeeId,
-      employeeName: employee?.fullName || "",
-      systemId: systemId.trim(),
-      tableNumber,
-      department,
-      emails: cleanEmails,
-      vitelGlobal: { id: vitel.id.trim(), provider },
-      lmPlayer: { ...lm },
-      notes: notes.trim() || undefined,
-      createdAt: new Date().toISOString(),
-    };
-    const success = await saveRecords([rec, ...records]);
-
-    if (success) {
-      // TODO: Mark related notification as processed via API
-
-      // reset minimal
-      setSystemId("");
-      setEmails([
-        { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
-      ]);
-      setProvider("vitel");
-      setVitel({ id: "" });
-      setLm({ id: "", password: "", license: "standard" });
-      setNotes("");
-      alert("Saved Successfully");
-    }
-  };
+  // --- RENDER ---
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
