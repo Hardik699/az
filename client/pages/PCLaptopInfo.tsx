@@ -154,7 +154,7 @@ export default function PCLaptopInfo() {
   // Update total RAM when RAM selections change
   useEffect(() => {
     setTotalRam(calculateTotalRam());
-  }, [form.ramId, form.ramId2]);
+  }, [form.ramId, form.ramId2, ramAssets]);
 
   // Export to Excel function
   const exportToExcel = () => {
