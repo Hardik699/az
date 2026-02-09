@@ -326,13 +326,17 @@ export default function ITDashboard() {
               variant="outline"
               size="sm"
               className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition-all duration-300"
-              onClick={() => {
+              onClick={async () => {
+                setIsRefreshing(true);
+                await loadITRecords();
                 const freshPending = getPendingNotifications();
                 setPendingNotifications(freshPending as any);
+                setIsRefreshing(false);
               }}
-              title="Refresh notifications"
+              disabled={isRefreshing}
+              title="Refresh IT records and notifications"
             >
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
