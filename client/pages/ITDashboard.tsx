@@ -46,7 +46,6 @@ import {
   Bell,
   Settings,
   Eye,
-  Pencil,
   AlertCircle,
   X,
   RefreshCw,
