@@ -446,7 +446,7 @@ export default function SystemInfo() {
             {assetCount > 0 && (
               <Button
                 onClick={() => navigate("/demo-data")}
-                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 w-full sm:w-auto"
               >
                 View Demo Data
               </Button>
@@ -454,7 +454,7 @@ export default function SystemInfo() {
             {assetCount > 0 && (
               <Button
                 onClick={exportSystemAssetsToExcel}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2 w-full sm:w-auto"
               >
                 <Download className="h-4 w-4" />
                 Export All Data
@@ -463,13 +463,13 @@ export default function SystemInfo() {
             {isGoogleSheetsConfigured && assetCount > 0 && (
               <Button
                 onClick={() => googleAppsScriptSync.manualSync()}
-                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 w-full sm:w-auto"
               >
                 <RefreshCw className="h-4 w-4" />
                 Sync to Sheets
               </Button>
             )}
-            <Badge variant="secondary" className="bg-slate-700 text-slate-300">
+            <Badge variant="secondary" className="bg-slate-700 text-slate-300 w-full sm:w-auto text-center sm:text-left">
               {assetCount} assets | {items.length} categories
             </Badge>
           </div>
