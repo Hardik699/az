@@ -49,7 +49,7 @@ const itAccountSchema = new Schema<IITAccount>(
     },
     notes: String,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Force model re-registration in development to pick up schema changes

@@ -149,10 +149,7 @@ export default function ITPage() {
         let available = pcLaptopIds.filter(
           (id: string) => !assignedIds.includes(id),
         );
-        if (
-          preSelectedSystemId &&
-          !available.includes(preSelectedSystemId)
-        ) {
+        if (preSelectedSystemId && !available.includes(preSelectedSystemId)) {
           available = [preSelectedSystemId, ...available];
         }
         setAvailableSystemIds(available);
@@ -254,7 +251,9 @@ export default function ITPage() {
 
     // If editing, update existing record in state
     if (editingId) {
-      const existingRec = records.find(r => r._id === editingId || r.id === editingId);
+      const existingRec = records.find(
+        (r) => r._id === editingId || r.id === editingId,
+      );
       if (existingRec) {
         const updatedRec: ITRecord = {
           ...existingRec,
@@ -270,7 +269,9 @@ export default function ITPage() {
         };
 
         const success = await saveRecords(
-          records.map(r => (r._id === editingId || r.id === editingId) ? updatedRec : r)
+          records.map((r) =>
+            r._id === editingId || r.id === editingId ? updatedRec : r,
+          ),
         );
 
         if (success) {
@@ -470,8 +471,8 @@ export default function ITPage() {
         setPreSelectedSystemId(rec.systemId);
 
         // Ensure the systemId is in availableSystemIds immediately
-        setAvailableSystemIds(prev =>
-          prev.includes(rec.systemId) ? prev : [rec.systemId, ...prev]
+        setAvailableSystemIds((prev) =>
+          prev.includes(rec.systemId) ? prev : [rec.systemId, ...prev],
         );
 
         setEmails(
@@ -495,8 +496,10 @@ export default function ITPage() {
 
         // Ensure the vitel ID is in providerIds immediately
         if (rec.vitelGlobal?.id) {
-          setProviderIds(prev =>
-            prev.includes(rec.vitelGlobal.id) ? prev : [rec.vitelGlobal.id, ...prev]
+          setProviderIds((prev) =>
+            prev.includes(rec.vitelGlobal.id)
+              ? prev
+              : [rec.vitelGlobal.id, ...prev],
           );
         }
 
@@ -1099,7 +1102,12 @@ export default function ITPage() {
                       setDepartment("");
                       setTableNumber("");
                       setEmails([
-                        { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
+                        {
+                          provider: "CUSTOM",
+                          providerCustom: "",
+                          email: "",
+                          password: "",
+                        },
                       ]);
                       setProvider("vitel");
                       setVitel({ id: "" });
@@ -1114,7 +1122,8 @@ export default function ITPage() {
                   type="submit"
                   className="bg-blue-500 hover:bg-blue-600 text-white"
                 >
-                  <Save className="h-4 w-4 mr-2" /> {editingId ? "Update" : "Save"}
+                  <Save className="h-4 w-4 mr-2" />{" "}
+                  {editingId ? "Update" : "Save"}
                 </Button>
               </div>
             </form>

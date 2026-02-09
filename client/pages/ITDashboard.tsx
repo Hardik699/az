@@ -150,7 +150,9 @@ export default function ITDashboard() {
       if (error instanceof Error && error.message.includes("fetch")) {
         setLastError("Network error: Server might be restarting...");
       } else {
-        setLastError(error instanceof Error ? error.message : "Failed to load IT records");
+        setLastError(
+          error instanceof Error ? error.message : "Failed to load IT records",
+        );
       }
     }
   };
@@ -165,7 +167,9 @@ export default function ITDashboard() {
           if (res.ok) {
             const data = await res.json();
             if (data.success && data.data) {
-              setEmployees(data.data.map((emp: any) => ({ ...emp, id: emp._id })));
+              setEmployees(
+                data.data.map((emp: any) => ({ ...emp, id: emp._id })),
+              );
             }
           }
         })(),
@@ -174,7 +178,9 @@ export default function ITDashboard() {
           if (res.ok) {
             const data = await res.json();
             if (data.success && data.data) {
-              setDepartments(data.data.map((dept: any) => ({ ...dept, id: dept._id })));
+              setDepartments(
+                data.data.map((dept: any) => ({ ...dept, id: dept._id })),
+              );
             }
           }
         })(),
@@ -295,7 +301,10 @@ export default function ITDashboard() {
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full sm:w-auto">
             {lastError && (
-              <Badge variant="outline" className="border-red-500/50 text-red-400 bg-red-500/10 flex items-center gap-1">
+              <Badge
+                variant="outline"
+                className="border-red-500/50 text-red-400 bg-red-500/10 flex items-center gap-1"
+              >
                 <AlertCircle className="h-3 w-3" /> {lastError}
               </Badge>
             )}
