@@ -93,7 +93,6 @@ export default function ITPage() {
   const [systemAssets, setSystemAssets] = useState<any[]>([]);
   const [pcLaptops, setPcLaptops] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [editingId, setEditingId] = useState<string | null>(null);
 
   // --- MEMOIZED VALUES ---
   const employee = useMemo(
@@ -149,7 +148,10 @@ export default function ITPage() {
         let available = pcLaptopIds.filter(
           (id: string) => !assignedIds.includes(id),
         );
-        if (preSelectedSystemId && !available.includes(preSelectedSystemId)) {
+        if (
+          preSelectedSystemId &&
+          !available.includes(preSelectedSystemId)
+        ) {
           available = [preSelectedSystemId, ...available];
         }
         setAvailableSystemIds(available);
@@ -249,48 +251,6 @@ export default function ITPage() {
     }
     const cleanEmails = emails.filter((r) => r.email.trim());
 
-    // If editing, update existing record in state
-    if (editingId) {
-      const existingRec = records.find(
-        (r) => r._id === editingId || r.id === editingId,
-      );
-      if (existingRec) {
-        const updatedRec: ITRecord = {
-          ...existingRec,
-          employeeId,
-          employeeName: employee?.fullName || existingRec.employeeName,
-          systemId: systemId.trim(),
-          tableNumber,
-          department,
-          emails: cleanEmails,
-          vitelGlobal: { id: vitel.id.trim(), provider },
-          lmPlayer: { ...lm },
-          notes: notes.trim() || undefined,
-        };
-
-        const success = await saveRecords(
-          records.map((r) =>
-            r._id === editingId || r.id === editingId ? updatedRec : r,
-          ),
-        );
-
-        if (success) {
-          setEditingId(null);
-          // reset minimal
-          setSystemId("");
-          setEmails([
-            { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
-          ]);
-          setProvider("vitel");
-          setVitel({ id: "" });
-          setLm({ id: "", password: "", license: "standard" });
-          setNotes("");
-          alert("Updated Successfully");
-        }
-        return;
-      }
-    }
-
     const rec: ITRecord = {
       id: `${Date.now()}`,
       employeeId,
@@ -307,8 +267,6 @@ export default function ITPage() {
     const success = await saveRecords([rec, ...records]);
 
     if (success) {
-      // TODO: Mark related notification as processed via API
-
       // reset minimal
       setSystemId("");
       setEmails([
@@ -445,87 +403,12 @@ export default function ITPage() {
     loadPcLaptops();
   }, []);
 
-  // Handle URL parameters
+  // Handle URL parameters (Prefill from HR notification only)
   useEffect(() => {
-    // If we're already editing or pre-filled, don't process URL params again
-    // unless it's a fresh load (which it is here)
     const urlParams = new URLSearchParams(window.location.search);
-    const preItId = urlParams.get("itId") || "";
-
-    // IMPORTANT: If itId is present, we MUST wait for records to load
-    if (preItId) {
-      if (records.length === 0) {
-        console.log("itId present but records not loaded yet, waiting...");
-        return;
-      }
-
-      console.log("Found itId in URL, searching records...");
-      const rec = records.find((x) => x.id === preItId || x._id === preItId);
-      if (rec) {
-        console.log("Record found:", rec);
-        setEditingId(rec._id || rec.id);
-        setEmployeeId(rec.employeeId);
-        setDepartment(rec.department);
-        setTableNumber(rec.tableNumber);
-        setSystemId(rec.systemId);
-        setPreSelectedSystemId(rec.systemId);
-
-        // Ensure the systemId is in availableSystemIds immediately
-        setAvailableSystemIds((prev) =>
-          prev.includes(rec.systemId) ? prev : [rec.systemId, ...prev],
-        );
-
-        setEmails(
-          rec.emails && rec.emails.length
-            ? rec.emails.map((e: any) => ({
-                ...e,
-                provider: e.provider || "CUSTOM",
-              }))
-            : [
-                {
-                  provider: "CUSTOM",
-                  providerCustom: "",
-                  email: "",
-                  password: "",
-                },
-              ],
-        );
-        setProvider((rec.vitelGlobal?.provider as any) || "vitel");
-        setVitel({ id: rec.vitelGlobal?.id || "" });
-        setPreSelectedProviderId(rec.vitelGlobal?.id || "");
-
-        // Ensure the vitel ID is in providerIds immediately
-        if (rec.vitelGlobal?.id) {
-          setProviderIds((prev) =>
-            prev.includes(rec.vitelGlobal.id)
-              ? prev
-              : [rec.vitelGlobal.id, ...prev],
-          );
-        }
-
-        setLm({
-          id: rec.lmPlayer?.id || "",
-          password: rec.lmPlayer?.password || "",
-          license: rec.lmPlayer?.license || "standard",
-        });
-        setNotes(rec.notes || "");
-        setIsPreFilled(true);
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname,
-        );
-        return;
-      } else {
-        console.warn("Record not found for itId:", preItId);
-        // If we have itId but can't find it even after records loaded,
-        // maybe it's a deleted record? We'll fall through to HR logic just in case.
-      }
-    }
-
-    // HR Prefill logic (only if not already editing an IT record)
+    
+    // Only pre-fill from HR notification params
     const preEmployeeId = urlParams.get("employeeId") || "";
-    // ... rest same ...
     const preDepartment = urlParams.get("department") || "";
     const preTableNumber = urlParams.get("tableNumber") || "";
     const preSystemId = urlParams.get("systemId") || "";
@@ -584,10 +467,10 @@ export default function ITPage() {
       setIsPreFilled(true);
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [employees, records, systemAssets]);
+  }, [employees, systemAssets]);
 
   useEffect(() => {
-    // Only auto-fill from employee if NOT in edit mode (isPreFilled is false)
+    // Only auto-fill from employee if NOT pre-filled from URL
     if (employee && !isPreFilled) {
       setDepartment(employee.department || "");
       if (employee.tableNumber) setTableNumber(String(employee.tableNumber));
@@ -704,9 +587,7 @@ export default function ITPage() {
 
         <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-white">
-              {editingId ? "Edit IT Credentials" : "Add IT Credentials"}
-            </CardTitle>
+            <CardTitle className="text-white">Add IT Credentials</CardTitle>
           </CardHeader>
           <CardContent>
             <form
@@ -1089,41 +970,11 @@ export default function ITPage() {
               </div>
 
               <div className="md:col-span-3 flex justify-end gap-2">
-                {(editingId || isPreFilled) && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="border-slate-600 text-slate-300 hover:bg-slate-700"
-                    onClick={() => {
-                      setEditingId(null);
-                      setIsPreFilled(false);
-                      setEmployeeId("");
-                      setSystemId("");
-                      setDepartment("");
-                      setTableNumber("");
-                      setEmails([
-                        {
-                          provider: "CUSTOM",
-                          providerCustom: "",
-                          email: "",
-                          password: "",
-                        },
-                      ]);
-                      setProvider("vitel");
-                      setVitel({ id: "" });
-                      setLm({ id: "", password: "", license: "standard" });
-                      setNotes("");
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                )}
                 <Button
                   type="submit"
                   className="bg-blue-500 hover:bg-blue-600 text-white"
                 >
-                  <Save className="h-4 w-4 mr-2" />{" "}
-                  {editingId ? "Update" : "Save"}
+                  <Save className="h-4 w-4 mr-2" /> Save
                 </Button>
               </div>
             </form>
