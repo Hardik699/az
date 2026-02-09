@@ -80,13 +80,13 @@ export default function AppNav() {
               onClick={() => navigate("/")}
             >
               {/* Infoseum Cyan Dot */}
-              <div className="relative w-6 h-6">
+              <div className="relative w-5 h-5 sm:w-6 sm:h-6">
                 <div className="absolute inset-0 bg-cyan-400 rounded-full animate-pulse opacity-75 group-hover:opacity-100"></div>
                 <div className="absolute inset-1 bg-cyan-500 rounded-full"></div>
               </div>
               {/* Infoseum Text */}
-              <div className="hidden sm:block">
-                <h1 className="text-lg font-bold text-white tracking-tight">
+              <div className="hidden xs:block">
+                <h1 className="text-sm sm:text-lg font-bold text-white tracking-tight">
                   <span className="text-cyan-400">Infoseum</span>
                 </h1>
               </div>
