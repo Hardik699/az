@@ -128,14 +128,11 @@ export default function PCLaptopInfo() {
 
   // Calculate total RAM whenever RAM selections change
   const calculateTotalRam = () => {
-    const sysRaw = localStorage.getItem("systemAssets");
-    const sysList = sysRaw ? JSON.parse(sysRaw) : [];
-
     let total = 0;
 
     // Get RAM 1 size
     if (form.ramId && form.ramId !== "none") {
-      const ram1Details = sysList.find((item: any) => item.id === form.ramId);
+      const ram1Details = ramAssets.find((item: any) => item.id === form.ramId);
       if (ram1Details?.ramSize) {
         const size1 = parseInt(ram1Details.ramSize.replace(/[^0-9]/g, "")) || 0;
         total += size1;
@@ -144,7 +141,7 @@ export default function PCLaptopInfo() {
 
     // Get RAM 2 size
     if (form.ramId2 && form.ramId2 !== "none") {
-      const ram2Details = sysList.find((item: any) => item.id === form.ramId2);
+      const ram2Details = ramAssets.find((item: any) => item.id === form.ramId2);
       if (ram2Details?.ramSize) {
         const size2 = parseInt(ram2Details.ramSize.replace(/[^0-9]/g, "")) || 0;
         total += size2;
