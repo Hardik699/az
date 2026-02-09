@@ -130,6 +130,7 @@ export default function EmployeeDetailsPage() {
   const { employeeId } = useParams<{ employeeId: string }>();
   const navigate = useNavigate();
   const [employee, setEmployee] = useState<Employee | null>(null);
+  const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [salaryRecords, setSalaryRecords] = useState<SalaryRecord[]>([]);
   const [isEditing, setIsEditing] = useState(false);
