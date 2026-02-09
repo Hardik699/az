@@ -13,7 +13,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -93,15 +92,12 @@ interface PendingITNotification {
 export default function ITDashboard() {
   const navigate = useNavigate();
   const [records, setRecords] = useState<ITRecord[]>([]);
-  const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [query, setQuery] = useState("");
   const [deptFilter, setDeptFilter] = useState("all");
   const [pendingNotifications, setPendingNotifications] = useState<
     PendingITNotification[]
   >([]);
-  const [systemAssets, setSystemAssets] = useState<any[]>([]);
-  const [pcLaptops, setPcLaptops] = useState<any[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -146,17 +142,6 @@ export default function ITDashboard() {
       await Promise.all([
         loadITRecords(false),
         (async () => {
-          const res = await fetch("/api/employees");
-          if (res.ok) {
-            const data = await res.json();
-            if (data.success && data.data) {
-              setEmployees(
-                data.data.map((emp: any) => ({ ...emp, id: emp._id })),
-              );
-            }
-          }
-        })(),
-        (async () => {
           const res = await fetch("/api/departments");
           if (res.ok) {
             const data = await res.json();
@@ -165,20 +150,6 @@ export default function ITDashboard() {
                 data.data.map((dept: any) => ({ ...dept, id: dept._id })),
               );
             }
-          }
-        })(),
-        (async () => {
-          const res = await fetch("/api/system-assets");
-          if (res.ok) {
-            const data = await res.json();
-            if (data.success && data.data) setSystemAssets(data.data);
-          }
-        })(),
-        (async () => {
-          const res = await fetch("/api/pc-laptop");
-          if (res.ok) {
-            const data = await res.json();
-            if (data.success && data.data) setPcLaptops(data.data);
           }
         })(),
       ]);
