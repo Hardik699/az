@@ -114,6 +114,8 @@ export default function ITDashboard() {
   const [systemAssets, setSystemAssets] = useState<any[]>([]);
   const [pcLaptops, setPcLaptops] = useState<any[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastError, setLastError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const requirePreviewPasscode = () => {
     const code = prompt("Enter passcode to show passwords");
@@ -122,10 +124,13 @@ export default function ITDashboard() {
   };
 
   // Function to load IT records from database
-  const loadITRecords = async () => {
+  const loadITRecords = async (showError = true) => {
     try {
       const response = await fetch("/api/it-accounts");
-      if (!response.ok) throw new Error("Failed to fetch");
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || "Failed to fetch IT accounts");
+      }
       const itsData = await response.json();
       if (itsData.success && itsData.data) {
         // Map MongoDB _id to id for consistency
@@ -134,9 +139,64 @@ export default function ITDashboard() {
           id: rec._id,
         }));
         setRecords(mappedRecords);
+        setLastError(null);
+        setLastUpdated(new Date());
       }
     } catch (error) {
-      console.error("Failed to load IT records:", error);
+      if (showError) {
+        console.error("Failed to load IT records:", error);
+      }
+      // Only set last error if it's a persistent issue
+      if (error instanceof Error && error.message.includes("fetch")) {
+        setLastError("Network error: Server might be restarting...");
+      } else {
+        setLastError(error instanceof Error ? error.message : "Failed to load IT records");
+      }
+    }
+  };
+
+  const loadAllData = async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([
+        loadITRecords(false),
+        (async () => {
+          const res = await fetch("/api/employees");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.data) {
+              setEmployees(data.data.map((emp: any) => ({ ...emp, id: emp._id })));
+            }
+          }
+        })(),
+        (async () => {
+          const res = await fetch("/api/departments");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.data) {
+              setDepartments(data.data.map((dept: any) => ({ ...dept, id: dept._id })));
+            }
+          }
+        })(),
+        (async () => {
+          const res = await fetch("/api/system-assets");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.data) setSystemAssets(data.data);
+          }
+        })(),
+        (async () => {
+          const res = await fetch("/api/pc-laptop");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.data) setPcLaptops(data.data);
+          }
+        })(),
+      ]);
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -156,80 +216,26 @@ export default function ITDashboard() {
       return;
     }
 
-    const loadData = async () => {
-      try {
-        // Load IT records
-        await loadITRecords();
-
-        // Load employees
-        const empsRes = await fetch("/api/employees").catch((err) => {
-          console.error("Failed to fetch employees:", err);
-          return new Response(JSON.stringify({ success: false, data: [] }), {
-            status: 500,
-          });
-        });
-
-        if (empsRes.ok) {
-          try {
-            const empsData = await empsRes.json();
-            if (empsData.success && empsData.data) {
-              // Map MongoDB _id to id for consistency
-              const mappedEmployees = empsData.data.map((emp: any) => ({
-                ...emp,
-                id: emp._id,
-              }));
-              setEmployees(mappedEmployees);
-            }
-          } catch (e) {
-            console.error("Failed to parse employees response:", e);
-          }
-        }
-
-        // Load departments
-        const deptsRes = await fetch("/api/departments").catch((err) => {
-          console.error("Failed to fetch departments:", err);
-          return new Response(JSON.stringify({ success: false, data: [] }), {
-            status: 500,
-          });
-        });
-
-        if (deptsRes.ok) {
-          try {
-            const deptsData = await deptsRes.json();
-            if (deptsData.success && deptsData.data) {
-              // Map MongoDB _id to id for consistency
-              const mappedDepts = deptsData.data.map((dept: any) => ({
-                ...dept,
-                id: dept._id,
-              }));
-              setDepartments(mappedDepts);
-            }
-          } catch (e) {
-            console.error("Failed to parse departments response:", e);
-          }
-        }
-      } catch (error) {
-        console.error("Failed to load IT dashboard data:", error);
-      }
-    };
-
-    loadData();
+    loadAllData();
 
     // Load pending notifications for new employees
     const pending = getPendingNotifications();
     setPendingNotifications(pending as any);
 
-    // Polling mechanism - check for new IT records and notifications every 5 seconds
+    // Polling mechanism - check for new IT records and notifications every 10 seconds (increased from 5s)
     const refreshInterval = setInterval(() => {
-      loadITRecords(); // Reload IT records
-      const freshPending = getPendingNotifications();
-      setPendingNotifications(freshPending as any);
-    }, 5000);
+      // Don't poll if the page is hidden to save resources and avoid noise
+      if (!document.hidden) {
+        loadITRecords(false);
+        const freshPending = getPendingNotifications();
+        setPendingNotifications(freshPending as any);
+      }
+    }, 10000);
 
     // Also reload when page becomes visible (tab focus)
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        loadITRecords(); // Reload IT records
+        loadITRecords(false);
         const freshPending = getPendingNotifications();
         setPendingNotifications(freshPending as any);
       }
@@ -244,41 +250,7 @@ export default function ITDashboard() {
     };
   }, [navigate]);
 
-  // Load system assets from database
-  useEffect(() => {
-    const loadSystemAssets = async () => {
-      try {
-        const response = await fetch("/api/system-assets");
-        const result = await response.json();
-        if (result.success && result.data) {
-          setSystemAssets(result.data);
-        }
-      } catch (error) {
-        console.error("Failed to load system assets:", error);
-        setSystemAssets([]);
-      }
-    };
-
-    loadSystemAssets();
-  }, []);
-
-  // Load PC/Laptop data from database
-  useEffect(() => {
-    const loadPcLaptops = async () => {
-      try {
-        const response = await fetch("/api/pc-laptop");
-        const result = await response.json();
-        if (result.success && result.data) {
-          setPcLaptops(result.data);
-        }
-      } catch (error) {
-        console.error("Failed to load PC/Laptop data:", error);
-        setPcLaptops([]);
-      }
-    };
-
-    loadPcLaptops();
-  }, []);
+  // Remove the separate useEffects for assets and pc-laptops as they are now in loadAllData
 
   const handleProcessEmployee = (notification: PendingITNotification) => {
     // Do NOT mark processed here. Keep notification until IT record is created.
@@ -322,17 +294,21 @@ export default function ITDashboard() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full sm:w-auto">
+            {lastError && (
+              <Badge variant="outline" className="border-red-500/50 text-red-400 bg-red-500/10 flex items-center gap-1">
+                <AlertCircle className="h-3 w-3" /> {lastError}
+              </Badge>
+            )}
+            {lastUpdated && !lastError && (
+              <span className="text-slate-500 text-xs hidden sm:inline">
+                Last updated: {lastUpdated.toLocaleTimeString()}
+              </span>
+            )}
             <Button
               variant="outline"
               size="sm"
               className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition-all duration-300"
-              onClick={async () => {
-                setIsRefreshing(true);
-                await loadITRecords();
-                const freshPending = getPendingNotifications();
-                setPendingNotifications(freshPending as any);
-                setIsRefreshing(false);
-              }}
+              onClick={loadAllData}
               disabled={isRefreshing}
               title="Refresh IT records and notifications"
             >
