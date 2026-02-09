@@ -323,7 +323,7 @@ export default function PCLaptopInfo() {
     setEditingItem(null);
     setShowForm(false);
 
-    // Fetch PC/Laptop data from database API
+    // Fetch PC/Laptop data from database API ONLY
     const fetchPCLaptopData = async () => {
       try {
         const response = await fetch("/api/pc-laptop");
@@ -338,27 +338,15 @@ export default function PCLaptopInfo() {
           }));
         }
 
-        // Also load from localStorage as fallback/merge
-        const localRaw = localStorage.getItem(STORAGE_KEY);
-        if (localRaw) {
-          const localItems = JSON.parse(localRaw);
-          // Merge: local items that aren't in database
-          const dbIds = new Set(currentItems.map((item) => item.id));
-          const localOnlyItems = localItems.filter((item: Asset) => !dbIds.has(item.id));
-          currentItems = [...currentItems, ...localOnlyItems];
-        }
-
         setItems(currentItems);
 
         // Fetch system assets from API
         fetchSystemAssetsData(currentItems);
       } catch (error) {
         console.error("Failed to fetch PC/Laptop data from database:", error);
-        // Fallback to localStorage
-        const raw = localStorage.getItem(STORAGE_KEY);
-        const currentItems = raw ? JSON.parse(raw) : [];
-        setItems(currentItems);
-        fetchSystemAssetsData(currentItems);
+        // No fallback - show empty if database fails
+        setItems([]);
+        fetchSystemAssetsData([]);
       }
     };
 
