@@ -103,8 +103,6 @@ export default function SystemInfo() {
   const [assetCount, setAssetCount] = useState(0);
   const [isGoogleSheetsConfigured, setIsGoogleSheetsConfigured] =
     useState(false);
-  const [ramType, setRamType] = useState("");
-  const [manualName, setManualName] = useState("");
 
   useEffect(() => {
     const fetchAssets = async () => {
