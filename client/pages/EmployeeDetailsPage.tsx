@@ -246,6 +246,7 @@ export default function EmployeeDetailsPage() {
           }
         }
 
+        setAllEmployees(employees);
         setDepartments(dept);
         setSalaryRecords(salary);
 
