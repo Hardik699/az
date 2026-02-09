@@ -61,39 +61,31 @@ export default function ChangePasswordModal({
       return;
     }
 
-    // Get stored users from localStorage
-    const storedUsersJson = localStorage.getItem("appUsers");
-    let users: Record<string, { password: string; role: string }> = {
-      admin: { password: "123", role: "admin" },
-      it: { password: "123", role: "it" },
-      hr: { password: "123", role: "hr" },
-    };
-
-    if (storedUsersJson) {
-      try {
-        users = JSON.parse(storedUsersJson);
-      } catch (error) {
-        console.error("Error parsing stored users:", error);
-      }
-    }
-
-    // Verify current password
-    if (!users[currentUser] || users[currentUser].password !== currentPassword) {
-      toast.error("Current password is incorrect");
-      setIsLoading(false);
-      return;
-    }
-
     // Update password
     try {
-      users[currentUser].password = newPassword;
-      localStorage.setItem("appUsers", JSON.stringify(users));
+      const response = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: currentUser,
+          oldPassword: currentPassword,
+          newPassword: newPassword,
+        }),
+      });
 
-      toast.success("Password changed successfully!");
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      onOpenChange(false);
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success("Password changed successfully!");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+        onOpenChange(false);
+      } else {
+        toast.error(result.error || "Failed to change password");
+      }
     } catch (error) {
       console.error("Error changing password:", error);
       toast.error("Failed to change password");
