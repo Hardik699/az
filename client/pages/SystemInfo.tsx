@@ -6,8 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { loadDemoData } from "@/lib/createDemoData";
 import { STORAGE_KEY } from "@/lib/systemAssets";
 import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Mouse,
   Keyboard,
