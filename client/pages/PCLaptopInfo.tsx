@@ -637,10 +637,7 @@ export default function PCLaptopInfo() {
       next = [record, ...items];
     }
 
-    setItems(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-
-    // Save to database API
+    // Save to database API ONLY (no localStorage)
     try {
       if (editingItem) {
         // Update existing record in database
@@ -657,9 +654,12 @@ export default function PCLaptopInfo() {
           body: JSON.stringify(record),
         });
       }
+      // Only update state after successful database save
+      setItems(next);
     } catch (error) {
       console.error("Failed to save to database:", error);
-      alert("Saved locally, but failed to sync with database. Please try again.");
+      alert("Failed to save to database. Please try again.");
+      return; // Don't update state if save fails
     }
 
     // Refresh available assets after saving from API
