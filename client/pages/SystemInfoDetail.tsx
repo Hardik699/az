@@ -163,6 +163,7 @@ export default function SystemInfoDetail() {
     companyName: "",
     purchaseDate: "",
     warrantyEndDate: "",
+    modal: "",
     vonageNumber: "",
     vonageExtCode: "",
     vonagePassword: "",
