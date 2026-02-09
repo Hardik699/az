@@ -72,8 +72,8 @@ export default function AppNav() {
   return (
     <>
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-slate-900/90 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+        <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-14 sm:h-16">
             {/* Logo/Brand - Infoseum */}
             <div
               className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity duration-300 group"
