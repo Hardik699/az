@@ -134,17 +134,6 @@ export default function SystemInfo() {
     setIsGoogleSheetsConfigured(configured);
   }, []);
 
-  const handleRamFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (ramType && manualName) {
-      alert(`RAM Type: ${ramType}\nManual Name: ${manualName}`);
-      setRamType("");
-      setManualName("");
-    } else {
-      alert("Please fill in all fields");
-    }
-  };
-
   const handleLoadDemo = async () => {
     try {
       const newAssets = loadDemoData();
