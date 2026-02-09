@@ -216,9 +216,9 @@ const getEmployeesByStatus: RequestHandler = async (req, res) => {
 };
 
 router.get("/", getEmployees);
-router.get("/:id", getEmployeeById);
 router.get("/department/:department", getEmployeesByDepartment);
 router.get("/status/:status", getEmployeesByStatus);
+router.get("/:id", getEmployeeById);
 router.post("/", createEmployee);
 router.put("/:id", updateEmployee);
 router.delete("/:id", deleteEmployee);
