@@ -353,23 +353,23 @@ export default function SystemInfoDetail() {
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
       <AppNav />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <header className="flex items-center justify-between">
+        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
             {data ? (
               <span
-                className={`w-12 h-12 ${data.bg} rounded-lg flex items-center justify-center`}
+                className={`w-12 h-12 ${data.bg} rounded-lg flex items-center justify-center flex-shrink-0`}
               >
                 <data.Icon className={`h-6 w-6 ${data.color}`} />
               </span>
             ) : null}
             <div>
-              <h1 className="text-3xl font-bold text-white">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">
                 {data ? data.title : "Item"}
               </h1>
-              <p className="text-slate-400">Specifications and notes</p>
+              <p className="text-slate-400 text-sm">Specifications and notes</p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <Button
               onClick={() => navigate("/system-info")}
               className="bg-slate-700 hover:bg-slate-600 text-white"
