@@ -93,6 +93,7 @@ export default function ITPage() {
   const [systemAssets, setSystemAssets] = useState<any[]>([]);
   const [pcLaptops, setPcLaptops] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   // --- MEMOIZED VALUES ---
   const employee = useMemo(
@@ -250,6 +251,45 @@ export default function ITPage() {
       return;
     }
     const cleanEmails = emails.filter((r) => r.email.trim());
+
+    // If editing, update existing record in state
+    if (editingId) {
+      const existingRec = records.find(r => r._id === editingId || r.id === editingId);
+      if (existingRec) {
+        const updatedRec: ITRecord = {
+          ...existingRec,
+          employeeId,
+          employeeName: employee?.fullName || existingRec.employeeName,
+          systemId: systemId.trim(),
+          tableNumber,
+          department,
+          emails: cleanEmails,
+          vitelGlobal: { id: vitel.id.trim(), provider },
+          lmPlayer: { ...lm },
+          notes: notes.trim() || undefined,
+        };
+
+        const success = await saveRecords(
+          records.map(r => (r._id === editingId || r.id === editingId) ? updatedRec : r)
+        );
+
+        if (success) {
+          setEditingId(null);
+          // reset minimal
+          setSystemId("");
+          setEmails([
+            { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
+          ]);
+          setProvider("vitel");
+          setVitel({ id: "" });
+          setLm({ id: "", password: "", license: "standard" });
+          setNotes("");
+          alert("Updated Successfully");
+        }
+        return;
+      }
+    }
+
     const rec: ITRecord = {
       id: `${Date.now()}`,
       employeeId,
@@ -415,6 +455,7 @@ export default function ITPage() {
       const rec = records.find((x) => x.id === preItId);
       if (rec) {
         console.log("Record found:", rec);
+        setEditingId(rec._id || rec.id);
         setEmployeeId(rec.employeeId);
         setDepartment(rec.department);
         setTableNumber(rec.tableNumber);
