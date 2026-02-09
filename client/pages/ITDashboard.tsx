@@ -337,15 +337,15 @@ export default function ITDashboard() {
                 </Badge>
                 <span className="text-slate-400">results</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
                 <Input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search name, system, email"
-                  className="bg-slate-800/50 border-slate-700 text-white w-64"
+                  className="bg-slate-800/50 border-slate-700 text-white w-full sm:w-64"
                 />
                 <Select value={deptFilter} onValueChange={setDeptFilter}>
-                  <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white w-48">
+                  <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white w-full sm:w-48">
                     <SelectValue placeholder="Department" />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-800 border-slate-700 text-white">
@@ -361,7 +361,7 @@ export default function ITDashboard() {
                 </Select>
                 <Button
                   variant="outline"
-                  className="border-slate-600 text-slate-300"
+                  className="border-slate-600 text-slate-300 w-full sm:w-auto"
                   onClick={() => {
                     setQuery("");
                     setDeptFilter("all");
