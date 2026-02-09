@@ -214,11 +214,14 @@ export default function Login() {
         </div>
 
         {/* Error Dialog */}
-        <Dialog open={errorDialog.isOpen} onOpenChange={(open) => {
-          if (!open) {
-            setErrorDialog({ isOpen: false, message: "" });
-          }
-        }}>
+        <Dialog
+          open={errorDialog.isOpen}
+          onOpenChange={(open) => {
+            if (!open) {
+              setErrorDialog({ isOpen: false, message: "" });
+            }
+          }}
+        >
           <DialogContent className="bg-gradient-to-br from-slate-900 to-slate-800 border-red-500/30 text-white">
             <DialogHeader>
               <div className="flex items-center space-x-3">

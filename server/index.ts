@@ -25,12 +25,14 @@ export function createServer() {
   const app = express();
 
   // Initialize MongoDB connection
-  connectDB().then(() => {
-    seedUsers();
-  }).catch((error) => {
-    console.error("Failed to initialize MongoDB:", error);
-    // Continue running even if MongoDB fails to connect
-  });
+  connectDB()
+    .then(() => {
+      seedUsers();
+    })
+    .catch((error) => {
+      console.error("Failed to initialize MongoDB:", error);
+      // Continue running even if MongoDB fails to connect
+    });
 
   // Middleware
   app.use(cors());

@@ -21,7 +21,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Trash2, Save, Shield, ServerCog, RefreshCw, ArrowLeft } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Save,
+  Shield,
+  ServerCog,
+  RefreshCw,
+  ArrowLeft,
+} from "lucide-react";
 
 interface Employee {
   id: string;
@@ -156,10 +164,7 @@ export default function ITPage() {
         let available = pcLaptopIds.filter(
           (id: string) => !assignedIds.includes(id),
         );
-        if (
-          preSelectedSystemId &&
-          !available.includes(preSelectedSystemId)
-        ) {
+        if (preSelectedSystemId && !available.includes(preSelectedSystemId)) {
           available = [preSelectedSystemId, ...available];
         }
         setAvailableSystemIds(available);
@@ -273,9 +278,7 @@ export default function ITPage() {
       notes: notes.trim() || undefined,
       createdAt: new Date().toISOString(),
     };
-    const success = await saveRecords(
-      editingId ? [rec] : [rec, ...records],
-    );
+    const success = await saveRecords(editingId ? [rec] : [rec, ...records]);
 
     if (success) {
       // reset minimal
@@ -421,7 +424,7 @@ export default function ITPage() {
   // Handle URL parameters (Prefill from HR notification only)
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    
+
     // Only pre-fill from HR notification params
     const preEmployeeId = urlParams.get("employeeId") || "";
     const preDepartment = urlParams.get("department") || "";
@@ -1069,7 +1072,8 @@ export default function ITPage() {
                   type="submit"
                   className="bg-blue-500 hover:bg-blue-600 text-white"
                 >
-                  <Save className="h-4 w-4 mr-2" /> {editingId ? "Update" : "Save"}
+                  <Save className="h-4 w-4 mr-2" />{" "}
+                  {editingId ? "Update" : "Save"}
                 </Button>
               </div>
             </form>
