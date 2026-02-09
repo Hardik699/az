@@ -153,6 +153,42 @@ export default function ITPage() {
     loadData();
   }, []);
 
+  // Load system assets from database
+  useEffect(() => {
+    const loadSystemAssets = async () => {
+      try {
+        const response = await fetch("/api/system-assets");
+        const result = await response.json();
+        if (result.success && result.data) {
+          setSystemAssets(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to load system assets:", error);
+        setSystemAssets([]);
+      }
+    };
+
+    loadSystemAssets();
+  }, []);
+
+  // Load PC/Laptop data from database
+  useEffect(() => {
+    const loadPcLaptops = async () => {
+      try {
+        const response = await fetch("/api/pc-laptop");
+        const result = await response.json();
+        if (result.success && result.data) {
+          setPcLaptops(result.data);
+        }
+      } catch (error) {
+        console.error("Failed to load PC/Laptop data:", error);
+        setPcLaptops([]);
+      }
+    };
+
+    loadPcLaptops();
+  }, []);
+
   // Handle URL parameters after employees are loaded
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
