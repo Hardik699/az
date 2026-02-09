@@ -294,6 +294,7 @@ export default function SystemInfoDetail() {
       purchaseDate: form.purchaseDate,
       warrantyEndDate: form.warrantyEndDate,
       createdAt: new Date().toISOString(),
+      modal: form.modal?.trim(),
       vonageNumber: form.vonageNumber?.trim(),
       vonageExtCode: form.vonageExtCode?.trim(),
       vonagePassword: form.vonagePassword,
