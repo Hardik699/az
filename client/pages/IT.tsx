@@ -908,7 +908,7 @@ export default function ITPage() {
               {/* Telephony Provider */}
               <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-slate-300">Provider</Label>
+                  <Label className="text-slate-300">VG/VON</Label>
                   <Select
                     value={provider}
                     onValueChange={(v) => setProvider(v as any)}
@@ -990,7 +990,7 @@ export default function ITPage() {
               {/* LM Player */}
               <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-slate-300">LM Player ID</Label>
+                  <Label className="text-slate-300">LM ID</Label>
                   <Input
                     value={lm.id}
                     onChange={(e) =>
@@ -1000,7 +1000,7 @@ export default function ITPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-slate-300">LM Player Password</Label>
+                  <Label className="text-slate-300">Lm password</Label>
                   <Input
                     type={secretsVisible ? "text" : "password"}
                     value={lm.password}
