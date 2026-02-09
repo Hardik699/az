@@ -426,9 +426,9 @@ export default function ITDashboard() {
                     <TableHead>System ID</TableHead>
                     <TableHead>Table</TableHead>
                     <TableHead>Emails</TableHead>
-                    <TableHead>Provider</TableHead>
-                    <TableHead>Provider ID</TableHead>
-                    <TableHead>LM Player</TableHead>
+                    <TableHead>VG/VON</TableHead>
+                    <TableHead>VG/VON ID</TableHead>
+                    <TableHead>LM ID</TableHead>
                     <TableHead>Preview</TableHead>
                   </TableRow>
                 </TableHeader>
