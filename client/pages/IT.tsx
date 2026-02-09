@@ -68,6 +68,7 @@ export default function ITPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [records, setRecords] = useState<ITRecord[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   // Form state
   const [employeeId, setEmployeeId] = useState<string>("");
@@ -252,7 +253,8 @@ export default function ITPage() {
     const cleanEmails = emails.filter((r) => r.email.trim());
 
     const rec: ITRecord = {
-      id: `${Date.now()}`,
+      id: editingId || `${Date.now()}`,
+      _id: editingId || undefined,
       employeeId,
       employeeName: employee?.fullName || "",
       systemId: systemId.trim(),
@@ -264,10 +266,13 @@ export default function ITPage() {
       notes: notes.trim() || undefined,
       createdAt: new Date().toISOString(),
     };
-    const success = await saveRecords([rec, ...records]);
+    const success = await saveRecords(
+      editingId ? [rec] : [rec, ...records],
+    );
 
     if (success) {
       // reset minimal
+      setEditingId(null);
       setSystemId("");
       setEmails([
         { provider: "CUSTOM", providerCustom: "", email: "", password: "" },
@@ -276,7 +281,10 @@ export default function ITPage() {
       setVitel({ id: "" });
       setLm({ id: "", password: "", license: "standard" });
       setNotes("");
-      alert("Saved Successfully");
+      alert(editingId ? "Updated Successfully" : "Saved Successfully");
+      if (editingId) {
+        window.location.href = "/it-dashboard";
+      }
     }
   };
 
@@ -416,6 +424,42 @@ export default function ITPage() {
     const preProviderId = urlParams.get("providerId") || "";
     const preLmId = urlParams.get("lmId") || "";
     const preLmPassword = urlParams.get("lmPassword") || "";
+    const editId = urlParams.get("editId") || "";
+
+    if (editId) {
+      setEditingId(editId);
+      fetch(`/api/it-accounts/${editId}`)
+        .then((res) => res.json())
+        .then((result) => {
+          if (result.success && result.data) {
+            const r = result.data;
+            setEmployeeId(r.employeeId);
+            setSystemId(r.systemId);
+            setPreSelectedSystemId(r.systemId);
+            setTableNumber(r.tableNumber);
+            setDepartment(r.department);
+            setEmails(
+              r.emails && r.emails.length
+                ? r.emails
+                : [
+                    {
+                      provider: "CUSTOM",
+                      providerCustom: "",
+                      email: "",
+                      password: "",
+                    },
+                  ],
+            );
+            setProvider(r.vitelGlobal?.provider || "vitel");
+            setVitel({ id: r.vitelGlobal?.id || "" });
+            setPreSelectedProviderId(r.vitelGlobal?.id || "");
+            setLm(r.lmPlayer || { id: "", password: "", license: "standard" });
+            setNotes(r.notes || "");
+            setIsPreFilled(true);
+          }
+        })
+        .catch((err) => console.error("Error fetching record for edit:", err));
+    }
 
     if (preEmployeeId) setEmployeeId(preEmployeeId);
     if (preDepartment) setDepartment(preDepartment);
@@ -587,7 +631,9 @@ export default function ITPage() {
 
         <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-white">Add IT Credentials</CardTitle>
+            <CardTitle className="text-white">
+              {editingId ? "Edit IT Credentials" : "Add IT Credentials"}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <form
@@ -970,11 +1016,40 @@ export default function ITPage() {
               </div>
 
               <div className="md:col-span-3 flex justify-end gap-2">
+                {editingId && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="border-slate-600 text-slate-300"
+                    onClick={() => {
+                      setEditingId(null);
+                      setEmployeeId("");
+                      setSystemId("");
+                      setEmails([
+                        {
+                          provider: "CUSTOM",
+                          providerCustom: "",
+                          email: "",
+                          password: "",
+                        },
+                      ]);
+                      setVitel({ id: "" });
+                      setLm({
+                        id: "",
+                        password: "",
+                        license: "standard",
+                      });
+                      setNotes("");
+                    }}
+                  >
+                    Cancel Edit
+                  </Button>
+                )}
                 <Button
                   type="submit"
                   className="bg-blue-500 hover:bg-blue-600 text-white"
                 >
-                  <Save className="h-4 w-4 mr-2" /> Save
+                  <Save className="h-4 w-4 mr-2" /> {editingId ? "Update" : "Save"}
                 </Button>
               </div>
             </form>
