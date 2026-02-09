@@ -30,7 +30,7 @@ const itAccountSchema = new Schema<IITAccount>(
     emails: [
       {
         email: { type: String, required: true },
-        password: { type: String, required: true },
+        password: { type: String },
       },
     ],
     vitelGlobal: {
@@ -41,8 +41,8 @@ const itAccountSchema = new Schema<IITAccount>(
       password: String,
     },
     lmPlayer: {
-      id: { type: String, required: true },
-      password: { type: String, required: true },
+      id: { type: String },
+      password: { type: String },
       license: String,
     },
     notes: String,
