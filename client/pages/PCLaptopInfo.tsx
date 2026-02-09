@@ -1302,16 +1302,11 @@ export default function PCLaptopInfo() {
                         <TableCell>
                           {(() => {
                             // Calculate total RAM from both slots
-                            const sysRaw = localStorage.getItem("systemAssets");
-                            const sysList = sysRaw ? JSON.parse(sysRaw) : [];
-
                             let total = 0;
 
                             // Get RAM 1 size
                             if (a.ramId) {
-                              const ram1Details = sysList.find(
-                                (item: any) => item.id === a.ramId,
-                              );
+                              const ram1Details = getAssetById(a.ramId);
                               if (ram1Details?.ramSize) {
                                 const size1 =
                                   parseInt(
@@ -1323,9 +1318,7 @@ export default function PCLaptopInfo() {
 
                             // Get RAM 2 size
                             if ((a as any).ramId2) {
-                              const ram2Details = sysList.find(
-                                (item: any) => item.id === (a as any).ramId2,
-                              );
+                              const ram2Details = getAssetById((a as any).ramId2);
                               if (ram2Details?.ramSize) {
                                 const size2 =
                                   parseInt(
