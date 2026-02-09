@@ -427,6 +427,20 @@ export default function SystemInfoDetail() {
                       />
                     </div>
                     <div className="space-y-2">
+                      <Label className="text-slate-300">Modal</Label>
+                      <Input
+                        value={form.modal || ""}
+                        onChange={(e) =>
+                          setForm((s) => ({
+                            ...s,
+                            modal: e.target.value,
+                          }))
+                        }
+                        className="bg-slate-800/50 border-slate-700 text-white"
+                        placeholder="Enter modal"
+                      />
+                    </div>
+                    <div className="space-y-2">
                       <Label className="text-slate-300">Vonage Number</Label>
                       <Input
                         value={form.vonageNumber || ""}
