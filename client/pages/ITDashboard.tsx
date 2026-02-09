@@ -121,6 +121,25 @@ export default function ITDashboard() {
     else if (code !== null) alert("Incorrect passcode");
   };
 
+  // Function to load IT records from database
+  const loadITRecords = async () => {
+    try {
+      const response = await fetch("/api/it-accounts");
+      if (!response.ok) throw new Error("Failed to fetch");
+      const itsData = await response.json();
+      if (itsData.success && itsData.data) {
+        // Map MongoDB _id to id for consistency
+        const mappedRecords = itsData.data.map((rec: any) => ({
+          ...rec,
+          id: rec._id,
+        }));
+        setRecords(mappedRecords);
+      }
+    } catch (error) {
+      console.error("Failed to load IT records:", error);
+    }
+  };
+
   useEffect(() => {
     // Check access control
     const isAuthenticated = localStorage.getItem("isAuthenticated");
