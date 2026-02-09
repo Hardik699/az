@@ -9,6 +9,7 @@ export type Asset = {
   purchaseDate: string;
   warrantyEndDate: string;
   createdAt: string;
+  modal?: string; // Modal field for all categories
   vonageNumber?: string;
   vonageExtCode?: string;
   vonagePassword?: string;
