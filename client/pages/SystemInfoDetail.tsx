@@ -243,6 +243,7 @@ export default function SystemInfoDetail() {
       companyName: asset.companyName || "",
       purchaseDate: asset.purchaseDate || "",
       warrantyEndDate: asset.warrantyEndDate || "",
+      modal: asset.modal || "",
       vonageNumber: asset.vonageNumber || "",
       vonageExtCode: asset.vonageExtCode || "",
       vonagePassword: asset.vonagePassword || "",
