@@ -490,6 +490,59 @@ export default function SystemInfo() {
           </div>
         </header>
 
+        <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="text-white">RAM Configuration</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleRamFormSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-slate-300">
+                  RAM Type
+                </label>
+                <Select value={ramType} onValueChange={setRamType}>
+                  <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
+                    <SelectValue placeholder="Select RAM type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-600">
+                    <SelectItem value="desktop">Desktop</SelectItem>
+                    <SelectItem value="mouse">Mouse</SelectItem>
+                    <SelectItem value="keyboard">Keyboard</SelectItem>
+                    <SelectItem value="motherboard">Motherboard</SelectItem>
+                    <SelectItem value="ram">RAM</SelectItem>
+                    <SelectItem value="ssd">SSD</SelectItem>
+                    <SelectItem value="power-supply">Power Supply</SelectItem>
+                    <SelectItem value="headphone">Headphone</SelectItem>
+                    <SelectItem value="camera">Camera</SelectItem>
+                    <SelectItem value="monitor">Monitor</SelectItem>
+                    <SelectItem value="vonage">Vonage</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-slate-300">
+                  Manual Name
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Enter manual name"
+                  value={manualName}
+                  onChange={(e) => setManualName(e.target.value)}
+                  className="bg-slate-800 border-slate-600 text-white placeholder-slate-500"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-700 text-white w-full"
+              >
+                Submit
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {items.map(({ name, slug, Icon, color, bg }) => (
             <Card
