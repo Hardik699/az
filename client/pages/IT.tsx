@@ -99,7 +99,14 @@ export default function ITPage() {
         if (empRes.ok) {
           try {
             const empData = await empRes.json();
-            if (empData.success && empData.data) setEmployees(empData.data);
+            if (empData.success && empData.data) {
+              // Map MongoDB _id to id for consistency
+              const mappedEmployees = empData.data.map((emp: any) => ({
+                ...emp,
+                id: emp._id,
+              }));
+              setEmployees(mappedEmployees);
+            }
           } catch (e) {
             console.error("Failed to parse employees response:", e);
           }
@@ -107,8 +114,14 @@ export default function ITPage() {
         if (deptRes.ok) {
           try {
             const deptData = await deptRes.json();
-            if (deptData.success && deptData.data)
-              setDepartments(deptData.data);
+            if (deptData.success && deptData.data) {
+              // Map MongoDB _id to id for consistency
+              const mappedDepts = deptData.data.map((dept: any) => ({
+                ...dept,
+                id: dept._id,
+              }));
+              setDepartments(mappedDepts);
+            }
           } catch (e) {
             console.error("Failed to parse departments response:", e);
           }
@@ -116,7 +129,14 @@ export default function ITPage() {
         if (itsRes.ok) {
           try {
             const itsData = await itsRes.json();
-            if (itsData.success && itsData.data) setRecords(itsData.data);
+            if (itsData.success && itsData.data) {
+              // Map MongoDB _id to id for consistency
+              const mappedRecords = itsData.data.map((rec: any) => ({
+                ...rec,
+                id: rec._id,
+              }));
+              setRecords(mappedRecords);
+            }
           } catch (e) {
             console.error("Failed to parse IT accounts response:", e);
           }
