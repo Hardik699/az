@@ -278,6 +278,18 @@ export default function ITDashboard() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full sm:w-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition-all duration-300"
+              onClick={() => {
+                const freshPending = getPendingNotifications();
+                setPendingNotifications(freshPending as any);
+              }}
+              title="Refresh notifications"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
