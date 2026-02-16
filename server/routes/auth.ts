@@ -9,6 +9,7 @@ export const seedUsers = async () => {
     console.log("Checking and seeding users...");
     const defaultUsers = [
       { username: "admin", password: "123", role: "admin" },
+      { username: "superadmin", password: "123", role: "admin" },
       { username: "it", password: "123", role: "it" },
       { username: "hr", password: "123", role: "hr" },
       { username: "it1", password: "123", role: "it" },
@@ -18,11 +19,16 @@ export const seedUsers = async () => {
       const existingUser = await User.findOne({ username: userData.username });
       if (!existingUser) {
         await User.create(userData);
-        console.log(`Created user: ${userData.username}`);
+        console.log(`Created user: ${userData.username} (role: ${userData.role})`);
       }
     }
-    console.log("User seeding complete.");
-    console.log("Available users: admin, it, it1, hr (all with password: 123)");
+    console.log("\n=== User seeding complete ===");
+    console.log("Available users:");
+    console.log("  - admin (password: 123) - Can see HR & IT dashboards");
+    console.log("  - superadmin (password: 123) - Can see HR & IT dashboards");
+    console.log("  - it (password: 123) - IT dashboard only");
+    console.log("  - it1 (password: 123) - IT dashboard only");
+    console.log("  - hr (password: 123) - HR dashboard only");
   } catch (error) {
     console.error("Error seeding users:", error);
   }
