@@ -37,6 +37,17 @@ export function createServer() {
   // Middleware - IMPORTANT: Body parsers MUST be first
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+
+  // Debug middleware to log request details
+  app.use((req, res, next) => {
+    if (req.path.startsWith("/api/")) {
+      console.log(`\n[${req.method}] ${req.path}`);
+      console.log("Body parsed:", !!req.body);
+      console.log("Body content:", req.body);
+    }
+    next();
+  });
+
   app.use(cors());
   app.use(attachIdentity);
 
