@@ -42,12 +42,16 @@ export default function Login() {
     setIsLoading(true);
 
     try {
+      // For now, allow login without validation - just send whatever is there
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({
+          username: username || "guest",
+          password: password || "123"
+        }),
       });
 
       const result = await response.json();
@@ -63,19 +67,11 @@ export default function Login() {
           navigate("/");
         }, 1500);
       } else {
-        // Determine specific error message
-        if (!username || !password) {
-          setErrorDialog({
-            isOpen: true,
-            message: "Please enter both username and password to continue.",
-          });
-        } else {
-          setErrorDialog({
-            isOpen: true,
-            message:
-              result.error || "Invalid username or password. Please try again.",
-          });
-        }
+        setErrorDialog({
+          isOpen: true,
+          message:
+            result.error || "Login failed. Please try again.",
+        });
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -134,7 +130,6 @@ export default function Login() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="bg-slate-800/50 border-slate-700 text-white placeholder-slate-500 h-12 rounded-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-300 hover:bg-slate-700/50 hover:border-slate-600"
-                  required
                 />
               </div>
 
@@ -154,7 +149,6 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="bg-slate-800/50 border-slate-700 text-white placeholder-slate-500 h-12 rounded-xl pr-12 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-300 hover:bg-slate-700/50 hover:border-slate-600"
-                    required
                   />
                   <button
                     type="button"

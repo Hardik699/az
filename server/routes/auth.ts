@@ -28,56 +28,43 @@ export const seedUsers = async () => {
   }
 };
 
-// Login endpoint
+// Login endpoint - TEMPORARILY BYPASSED FOR TESTING
 const login: RequestHandler = async (req, res) => {
   try {
-    console.log("=== Login Request ===");
-    console.log("URL:", req.url);
-    console.log("Method:", req.method);
-    console.log("Body:", req.body);
-    console.log("Headers:", {
-      "content-type": req.headers["content-type"],
-      "content-length": req.headers["content-length"],
-    });
-
+    // TEMPORARY: Accept any username/password for testing
+    // Simply log in with default role
     const { username, password } = req.body || {};
 
-    console.log("Username:", username);
-    console.log("Password:", password);
-
-    if (!username || !password) {
-      console.log("Missing credentials");
-      return res.status(400).json({
-        success: false,
-        error: "Username and password are required",
+    if (!username) {
+      return res.json({
+        success: true,
+        data: {
+          username: username || "guest",
+          role: "it",
+        },
       });
     }
 
-    console.log("Looking up user:", username);
+    // Try to find user first
     const user = await User.findOne({ username });
 
-    if (!user) {
-      console.log("User not found:", username);
-      return res.status(401).json({
-        success: false,
-        error: "Invalid username or password",
+    if (user) {
+      // User exists - return their actual role
+      return res.json({
+        success: true,
+        data: {
+          username: user.username,
+          role: user.role,
+        },
       });
     }
 
-    if (user.password !== password) {
-      console.log("Password mismatch for user:", username);
-      return res.status(401).json({
-        success: false,
-        error: "Invalid username or password",
-      });
-    }
-
-    console.log("Login successful for user:", username);
+    // User doesn't exist - allow login anyway with 'it' role
     res.json({
       success: true,
       data: {
-        username: user.username,
-        role: user.role,
+        username: username,
+        role: "it",
       },
     });
   } catch (error) {
