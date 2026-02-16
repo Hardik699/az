@@ -25,22 +25,7 @@ export const seedUsers = async () => {
 // Login endpoint
 const login: RequestHandler = async (req, res) => {
   try {
-    // Debug logging
-    console.log("Login request received");
-    console.log("Content-Type:", req.headers["content-type"]);
-    console.log("req.body:", req.body);
-    console.log("req.body type:", typeof req.body);
-
-    // Defensive check for request body
-    if (!req.body) {
-      console.error("Request body is undefined");
-      return res.status(400).json({
-        success: false,
-        error: "Request body is missing",
-      });
-    }
-
-    const { username, password } = req.body;
+    const { username, password } = req.body || {};
 
     if (!username || !password) {
       return res.status(400).json({
@@ -49,7 +34,6 @@ const login: RequestHandler = async (req, res) => {
       });
     }
 
-    console.log(`Login attempt for user: ${username}`);
     const user = await User.findOne({ username });
 
     if (!user || user.password !== password) {
@@ -59,7 +43,6 @@ const login: RequestHandler = async (req, res) => {
       });
     }
 
-    console.log(`User ${username} logged in successfully`);
     res.json({
       success: true,
       data: {
@@ -79,14 +62,7 @@ const login: RequestHandler = async (req, res) => {
 // Change password endpoint
 const changePassword: RequestHandler = async (req, res) => {
   try {
-    if (!req.body) {
-      return res.status(400).json({
-        success: false,
-        error: "Request body is missing",
-      });
-    }
-
-    const { username, oldPassword, newPassword } = req.body;
+    const { username, oldPassword, newPassword } = req.body || {};
 
     if (!username || !oldPassword || !newPassword) {
       return res.status(400).json({
