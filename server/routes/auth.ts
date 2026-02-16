@@ -25,7 +25,24 @@ export const seedUsers = async () => {
 // Login endpoint
 const login: RequestHandler = async (req, res) => {
   try {
+    // Defensive check for request body
+    if (!req.body) {
+      console.error("Request body is undefined");
+      return res.status(400).json({
+        success: false,
+        error: "Request body is missing",
+      });
+    }
+
     const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({
+        success: false,
+        error: "Username and password are required",
+      });
+    }
+
     const user = await User.findOne({ username });
 
     if (!user || user.password !== password) {
@@ -43,6 +60,7 @@ const login: RequestHandler = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("Login error:", error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : "Internal server error",
@@ -53,7 +71,22 @@ const login: RequestHandler = async (req, res) => {
 // Change password endpoint
 const changePassword: RequestHandler = async (req, res) => {
   try {
+    if (!req.body) {
+      return res.status(400).json({
+        success: false,
+        error: "Request body is missing",
+      });
+    }
+
     const { username, oldPassword, newPassword } = req.body;
+
+    if (!username || !oldPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        error: "Username, old password, and new password are required",
+      });
+    }
+
     const user = await User.findOne({ username });
 
     if (!user || user.password !== oldPassword) {
@@ -71,6 +104,7 @@ const changePassword: RequestHandler = async (req, res) => {
       message: "Password updated successfully",
     });
   } catch (error) {
+    console.error("Change password error:", error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : "Internal server error",
