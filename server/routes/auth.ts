@@ -25,24 +25,48 @@ export const seedUsers = async () => {
 // Login endpoint
 const login: RequestHandler = async (req, res) => {
   try {
+    console.log("=== Login Request ===");
+    console.log("URL:", req.url);
+    console.log("Method:", req.method);
+    console.log("Body:", req.body);
+    console.log("Headers:", {
+      "content-type": req.headers["content-type"],
+      "content-length": req.headers["content-length"],
+    });
+
     const { username, password } = req.body || {};
 
+    console.log("Username:", username);
+    console.log("Password:", password);
+
     if (!username || !password) {
+      console.log("Missing credentials");
       return res.status(400).json({
         success: false,
         error: "Username and password are required",
       });
     }
 
+    console.log("Looking up user:", username);
     const user = await User.findOne({ username });
 
-    if (!user || user.password !== password) {
+    if (!user) {
+      console.log("User not found:", username);
       return res.status(401).json({
         success: false,
         error: "Invalid username or password",
       });
     }
 
+    if (user.password !== password) {
+      console.log("Password mismatch for user:", username);
+      return res.status(401).json({
+        success: false,
+        error: "Invalid username or password",
+      });
+    }
+
+    console.log("Login successful for user:", username);
     res.json({
       success: true,
       data: {
