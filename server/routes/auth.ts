@@ -37,17 +37,21 @@ export const seedUsers = async () => {
 // Login endpoint - TEMPORARILY BYPASSED FOR TESTING
 const login: RequestHandler = async (req, res) => {
   try {
+    console.log("\n=== LOGIN REQUEST ===");
+    console.log("Full body:", JSON.stringify(req.body));
+
     const { username, password } = req.body || {};
     const loginUsername = username?.trim() || "admin";
 
-    console.log(`Login attempt: ${loginUsername}`);
+    console.log(`Extracted username: "${loginUsername}"`);
+    console.log(`Extracted password: "${password}"`);
 
     // Try to find user first
     const user = await User.findOne({ username: loginUsername });
 
     if (user) {
       // User exists - return their actual role
-      console.log(`Login successful for user: ${loginUsername} (role: ${user.role})`);
+      console.log(`✅ Login successful for user: "${loginUsername}" (role: "${user.role}")`);
       return res.json({
         success: true,
         data: {
@@ -58,7 +62,7 @@ const login: RequestHandler = async (req, res) => {
     }
 
     // User doesn't exist - allow login anyway with 'it' role and actual username
-    console.log(`User ${loginUsername} not found - logging in with 'it' role`);
+    console.log(`⚠️ User "${loginUsername}" not found - logging in with 'it' role`);
     res.json({
       success: true,
       data: {
@@ -67,7 +71,7 @@ const login: RequestHandler = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Login error:", error);
+    console.error("❌ Login error:", error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : "Internal server error",
