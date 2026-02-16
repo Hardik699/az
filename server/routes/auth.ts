@@ -41,7 +41,7 @@ const login: RequestHandler = async (req, res) => {
     console.log("Full body:", JSON.stringify(req.body));
 
     const { username, password } = req.body || {};
-    const loginUsername = username?.trim() || "hr";
+    const loginUsername = username?.trim() || "it";
 
     console.log(`Extracted username: "${loginUsername}"`);
     console.log(`Extracted password: "${password}"`);

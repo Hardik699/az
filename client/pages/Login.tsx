@@ -23,7 +23,7 @@ import AppNav from "@/components/Navigation";
 
 export default function Login() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("hr");
+  const [username, setUsername] = useState("it");
   const [password, setPassword] = useState("123");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -48,7 +48,7 @@ export default function Login() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: username.trim() || "hr",
+          username: username.trim() || "it",
           password: password.trim() || "123"
         }),
       });
