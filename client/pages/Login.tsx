@@ -23,8 +23,8 @@ import AppNav from "@/components/Navigation";
 
 export default function Login() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("admin");
+  const [password, setPassword] = useState("123");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -42,15 +42,14 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      // For now, allow login without validation - just send whatever is there
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: username || "guest",
-          password: password || "123"
+          username: username.trim() || "admin",
+          password: password.trim() || "123"
         }),
       });
 

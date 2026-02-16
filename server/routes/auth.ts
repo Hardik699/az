@@ -37,25 +37,17 @@ export const seedUsers = async () => {
 // Login endpoint - TEMPORARILY BYPASSED FOR TESTING
 const login: RequestHandler = async (req, res) => {
   try {
-    // TEMPORARY: Accept any username/password for testing
-    // Simply log in with default role
     const { username, password } = req.body || {};
+    const loginUsername = username?.trim() || "admin";
 
-    if (!username) {
-      return res.json({
-        success: true,
-        data: {
-          username: username || "guest",
-          role: "it",
-        },
-      });
-    }
+    console.log(`Login attempt: ${loginUsername}`);
 
     // Try to find user first
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ username: loginUsername });
 
     if (user) {
       // User exists - return their actual role
+      console.log(`Login successful for user: ${loginUsername} (role: ${user.role})`);
       return res.json({
         success: true,
         data: {
@@ -65,11 +57,12 @@ const login: RequestHandler = async (req, res) => {
       });
     }
 
-    // User doesn't exist - allow login anyway with 'it' role
+    // User doesn't exist - allow login anyway with 'it' role and actual username
+    console.log(`User ${loginUsername} not found - logging in with 'it' role`);
     res.json({
       success: true,
       data: {
-        username: username,
+        username: loginUsername,
         role: "it",
       },
     });
