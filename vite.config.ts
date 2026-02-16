@@ -34,19 +34,17 @@ function expressPlugin(): Plugin {
       // Create Express app
       const app = createServer();
 
-      // Use return value to set up middleware AFTER Vite's default middleware
-      return () => {
-        // For API and uploads routes, use Express app directly as middleware
-        server.middlewares.use((req, res, next) => {
-          // Intercept /api and /uploads requests
-          if (req.url.startsWith("/api") || req.url.startsWith("/uploads")) {
-            // Use the Express app as middleware
-            return app(req, res, next);
-          }
-          // For other requests, continue with Vite's default handling
-          next();
-        });
-      };
+      // Add middleware DIRECTLY (not in return) to run BEFORE Vite's default handlers
+      server.middlewares.use((req, res, next) => {
+        // Check if this is an API or uploads request
+        if (req.url.startsWith("/api") || req.url.startsWith("/uploads")) {
+          console.log(`[Express] ${req.method} ${req.url}`);
+          // Intercept and handle with Express
+          return app(req, res, next);
+        }
+        // Let Vite handle other requests
+        next();
+      });
     },
   };
 }
