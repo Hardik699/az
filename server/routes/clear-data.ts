@@ -8,6 +8,8 @@ import { ITAccount } from "../models/ITAccount";
 import { SystemAsset } from "../models/SystemAsset";
 import { Salary } from "../models/Salary";
 import { SalaryDocument } from "../models/SalaryDocument";
+import { User } from "../models/User";
+import { seedUsers } from "./auth";
 
 const router = Router();
 
@@ -24,6 +26,7 @@ const clearAllData: RequestHandler = async (_req, res) => {
       SystemAsset.deleteMany({}).exec(),
       Salary.deleteMany({}).exec(),
       SalaryDocument.deleteMany({}).exec(),
+      User.deleteMany({}).exec(),
     ]);
 
     const failed = results.filter((r) => r.status === "rejected");
@@ -36,9 +39,12 @@ const clearAllData: RequestHandler = async (_req, res) => {
       });
     }
 
+    // Reseed users after clearing
+    await seedUsers();
+
     res.json({
       success: true,
-      message: "All data cleared successfully",
+      message: "All data cleared successfully and users reseeded",
     });
   } catch (error) {
     res.status(500).json({
