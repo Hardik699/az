@@ -1,7 +1,6 @@
 import { defineConfig, Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import express from "express";
 import { createServer } from "./server";
 
 // https://vitejs.dev/config/
@@ -31,14 +30,13 @@ function expressPlugin(): Plugin {
     name: "express-plugin",
     apply: "serve", // Only apply during development (serve mode)
     configureServer(server) {
-      // Add body parser middleware BEFORE Express app
-      server.middlewares.use(express.json({ limit: "50mb" }));
-      server.middlewares.use(express.urlencoded({ extended: true, limit: "50mb" }));
-
       const app = createServer();
 
-      // Add Express app as middleware to Vite dev server
+      // Add Express app as middleware - it will handle all requests
       server.middlewares.use(app);
+
+      // Return undefined - don't return middleware function
+      return undefined;
     },
   };
 }

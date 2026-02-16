@@ -34,10 +34,16 @@ export function createServer() {
       // Continue running even if MongoDB fails to connect
     });
 
-  // Middleware
-  app.use(cors());
+  // Middleware - IMPORTANT: Body parsers MUST be first
+  app.use((req, res, next) => {
+    console.log(`[${req.method}] ${req.path}`);
+    console.log("Headers:", req.headers);
+    next();
+  });
+
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+  app.use(cors());
   app.use(attachIdentity);
 
   // Static for uploaded files
