@@ -111,36 +111,59 @@ export default function Index() {
                 </p>
 
                 <div className="flex flex-wrap items-center justify-center gap-4">
+                  {/* Admin - Show all dashboards */}
                   {userRole === "admin" && (
-                    <Button
-                      onClick={() => navigate("/admin")}
-                      className="bg-purple-500 hover:bg-purple-600 text-white"
-                    >
-                      Admin Dashboard <ArrowRight className="h-4 w-4 ml-2" />
-                    </Button>
+                    <>
+                      <Button
+                        onClick={() => navigate("/admin")}
+                        className="bg-purple-500 hover:bg-purple-600 text-white"
+                      >
+                        Admin Dashboard <ArrowRight className="h-4 w-4 ml-2" />
+                      </Button>
+                      <Button
+                        onClick={() => navigate("/hr")}
+                        className="bg-green-500 hover:bg-green-600 text-white"
+                      >
+                        HR Dashboard <ArrowRight className="h-4 w-4 ml-2" />
+                      </Button>
+                      <Button
+                        onClick={() => navigate("/it-dashboard")}
+                        className="bg-orange-500 hover:bg-orange-600 text-white"
+                      >
+                        IT Dashboard <ArrowRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </>
                   )}
+
+                  {/* HR Users - Only HR Dashboard */}
                   {userRole === "hr" && (
                     <Button
                       onClick={() => navigate("/hr")}
-                      className="bg-green-500 hover:bg-green-600 text-white"
+                      className="bg-green-500 hover:bg-green-600 text-white text-lg px-8 py-6"
                     >
                       HR Dashboard <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>
                   )}
+
+                  {/* IT Users - Only IT Dashboard */}
                   {userRole === "it" && (
                     <Button
                       onClick={() => navigate("/it-dashboard")}
-                      className="bg-orange-500 hover:bg-orange-600 text-white"
+                      className="bg-orange-500 hover:bg-orange-600 text-white text-lg px-8 py-6"
                     >
-                      Users Dashboard <ArrowRight className="h-4 w-4 ml-2" />
+                      IT Dashboard <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>
                   )}
-                  <Button
-                    onClick={() => navigate("/dashboard")}
-                    className="bg-slate-700 hover:bg-slate-600 text-white"
-                  >
-                    Dashboard <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
+
+                  {/* Show general Dashboard only for non-admin users */}
+                  {userRole !== "admin" && (
+                    <Button
+                      onClick={() => navigate("/dashboard")}
+                      className="bg-slate-700 hover:bg-slate-600 text-white"
+                    >
+                      Dashboard <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
