@@ -25,6 +25,12 @@ export const seedUsers = async () => {
 // Login endpoint
 const login: RequestHandler = async (req, res) => {
   try {
+    // Debug logging
+    console.log("Login request received");
+    console.log("Content-Type:", req.headers["content-type"]);
+    console.log("req.body:", req.body);
+    console.log("req.body type:", typeof req.body);
+
     // Defensive check for request body
     if (!req.body) {
       console.error("Request body is undefined");
@@ -43,6 +49,7 @@ const login: RequestHandler = async (req, res) => {
       });
     }
 
+    console.log(`Login attempt for user: ${username}`);
     const user = await User.findOne({ username });
 
     if (!user || user.password !== password) {
@@ -52,6 +59,7 @@ const login: RequestHandler = async (req, res) => {
       });
     }
 
+    console.log(`User ${username} logged in successfully`);
     res.json({
       success: true,
       data: {
