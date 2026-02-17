@@ -150,6 +150,66 @@ export default function PCLaptopInfo() {
     return allSystemAssets.find((asset) => asset.id === id);
   };
 
+  // Helper function to get available assets for a specific component type
+  // This dynamically computes what's available based on current state
+  const getAvailableForComponent = (
+    category: string,
+    currentAssignedId?: string
+  ): SysAsset[] => {
+    // Get all items to check (excluding current if editing)
+    const itemsToCheck = editingItem
+      ? items.filter((item) => item.id !== editingItem.id)
+      : items;
+
+    // Get all assets of this category
+    const allAssetsOfType = allSystemAssets.filter(
+      (asset) => asset.category === category
+    );
+
+    // Get used IDs for this category
+    let usedIds: string[] = [];
+
+    switch (category) {
+      case "mouse":
+        usedIds = getUsedIds(itemsToCheck, "mouseId");
+        break;
+      case "keyboard":
+        usedIds = getUsedIds(itemsToCheck, "keyboardId");
+        break;
+      case "motherboard":
+        usedIds = getUsedIds(itemsToCheck, "motherboardId");
+        break;
+      case "camera":
+        usedIds = getUsedIds(itemsToCheck, "cameraId");
+        break;
+      case "headphone":
+        usedIds = getUsedIds(itemsToCheck, "headphoneId");
+        break;
+      case "power-supply":
+        usedIds = getUsedIds(itemsToCheck, "powerSupplyId");
+        break;
+      case "storage":
+        usedIds = getUsedIds(itemsToCheck as any, "storageId" as any);
+        break;
+      case "ram":
+        usedIds = Array.from(
+          new Set([
+            ...getUsedIds(itemsToCheck, "ramId"),
+            ...getUsedIds(itemsToCheck as any, "ramId2" as any),
+          ])
+        );
+        break;
+    }
+
+    // Remove the current assignment from the used list (so it can be kept)
+    if (currentAssignedId && currentAssignedId !== "none") {
+      usedIds = usedIds.filter((id) => id !== currentAssignedId);
+    }
+
+    // Return only available assets
+    return allAssetsOfType.filter((asset) => !usedIds.includes(asset.id));
+  };
+
   // Calculate total RAM whenever RAM selections change
   const calculateTotalRam = () => {
     let total = 0;
@@ -1026,7 +1086,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          mouseAssets.length
+                          getAvailableForComponent("mouse", form.mouseId).length
                             ? "Select available mouse"
                             : "No available mouse"
                         }
@@ -1036,12 +1096,12 @@ export default function PCLaptopInfo() {
                       <SelectItem value="none">
                         <span className="text-slate-400">-- No Mouse --</span>
                       </SelectItem>
-                      {mouseAssets.length === 0 ? (
+                      {getAvailableForComponent("mouse", form.mouseId).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available mouse items
                         </div>
                       ) : (
-                        mouseAssets.map((m) => (
+                        getAvailableForComponent("mouse", form.mouseId).map((m) => (
                           <SelectItem key={m.id} value={m.id}>
                             {m.id}
                           </SelectItem>
@@ -1061,7 +1121,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          keyboardAssets.length
+                          getAvailableForComponent("keyboard", form.keyboardId).length
                             ? "Select available keyboard"
                             : "No available keyboard"
                         }
@@ -1073,12 +1133,12 @@ export default function PCLaptopInfo() {
                           -- No Keyboard --
                         </span>
                       </SelectItem>
-                      {keyboardAssets.length === 0 ? (
+                      {getAvailableForComponent("keyboard", form.keyboardId).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available keyboard items
                         </div>
                       ) : (
-                        keyboardAssets.map((m) => (
+                        getAvailableForComponent("keyboard", form.keyboardId).map((m) => (
                           <SelectItem key={m.id} value={m.id}>
                             {m.id}
                           </SelectItem>
@@ -1098,7 +1158,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          motherboardAssets.length
+                          getAvailableForComponent("motherboard", form.motherboardId).length
                             ? "Select available motherboard"
                             : "No available motherboard"
                         }
@@ -1110,12 +1170,12 @@ export default function PCLaptopInfo() {
                           -- No Motherboard --
                         </span>
                       </SelectItem>
-                      {motherboardAssets.length === 0 ? (
+                      {getAvailableForComponent("motherboard", form.motherboardId).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available motherboard items
                         </div>
                       ) : (
-                        motherboardAssets.map((m) => (
+                        getAvailableForComponent("motherboard", form.motherboardId).map((m) => (
                           <SelectItem key={m.id} value={m.id}>
                             {m.id}
                           </SelectItem>
@@ -1135,7 +1195,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          cameraAssets.length
+                          getAvailableForComponent("camera", form.cameraId).length
                             ? "Select available camera"
                             : "No available camera"
                         }
@@ -1145,12 +1205,12 @@ export default function PCLaptopInfo() {
                       <SelectItem value="none">
                         <span className="text-slate-400">-- No Camera --</span>
                       </SelectItem>
-                      {cameraAssets.length === 0 ? (
+                      {getAvailableForComponent("camera", form.cameraId).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available camera items
                         </div>
                       ) : (
-                        cameraAssets.map((m) => (
+                        getAvailableForComponent("camera", form.cameraId).map((m) => (
                           <SelectItem key={m.id} value={m.id}>
                             {m.id}
                           </SelectItem>
@@ -1170,7 +1230,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          headphoneAssets.length
+                          getAvailableForComponent("headphone", form.headphoneId).length
                             ? "Select available headphone"
                             : "No available headphone"
                         }
@@ -1182,12 +1242,12 @@ export default function PCLaptopInfo() {
                           -- No Headphone --
                         </span>
                       </SelectItem>
-                      {headphoneAssets.length === 0 ? (
+                      {getAvailableForComponent("headphone", form.headphoneId).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available headphone items
                         </div>
                       ) : (
-                        headphoneAssets.map((m) => (
+                        getAvailableForComponent("headphone", form.headphoneId).map((m) => (
                           <SelectItem key={m.id} value={m.id}>
                             {m.id}
                           </SelectItem>
@@ -1207,7 +1267,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          powerSupplyAssets.length
+                          getAvailableForComponent("power-supply", form.powerSupplyId).length
                             ? "Select available power supply"
                             : "No available power supply"
                         }
@@ -1219,12 +1279,12 @@ export default function PCLaptopInfo() {
                           -- No Power Supply --
                         </span>
                       </SelectItem>
-                      {powerSupplyAssets.length === 0 ? (
+                      {getAvailableForComponent("power-supply", form.powerSupplyId).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available power supply items
                         </div>
                       ) : (
-                        powerSupplyAssets.map((m) => (
+                        getAvailableForComponent("power-supply", form.powerSupplyId).map((m) => (
                           <SelectItem key={m.id} value={m.id}>
                             {m.id}
                           </SelectItem>
@@ -1242,7 +1302,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          ramAssets.length
+                          getAvailableForComponent("ram", form.ramId).length
                             ? "Select available RAM"
                             : "No available RAM"
                         }
@@ -1252,12 +1312,12 @@ export default function PCLaptopInfo() {
                       <SelectItem value="none">
                         <span className="text-slate-400">-- No RAM --</span>
                       </SelectItem>
-                      {ramAssets.length === 0 ? (
+                      {getAvailableForComponent("ram", form.ramId).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available RAM items
                         </div>
                       ) : (
-                        ramAssets.map((m) => {
+                        getAvailableForComponent("ram", form.ramId).map((m) => {
                           const ramDetails = getAssetById(m.id);
 
                           return (
@@ -1281,7 +1341,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          storageAssets.length
+                          getAvailableForComponent("storage", (form as any).storageId).length
                             ? "Select available storage"
                             : "No available storage"
                         }
@@ -1291,12 +1351,12 @@ export default function PCLaptopInfo() {
                       <SelectItem value="none">
                         <span className="text-slate-400">-- No Storage --</span>
                       </SelectItem>
-                      {storageAssets.length === 0 ? (
+                      {getAvailableForComponent("storage", (form as any).storageId).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available storage items
                         </div>
                       ) : (
-                        storageAssets.map((s) => {
+                        getAvailableForComponent("storage", (form as any).storageId).map((s) => {
                           const storageDetails = getAssetById(s.id);
 
                           return (
@@ -1319,7 +1379,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          ramAssets.length
+                          getAvailableForComponent("ram", form.ramId2).length
                             ? "Select available RAM"
                             : "No available RAM"
                         }
@@ -1329,12 +1389,12 @@ export default function PCLaptopInfo() {
                       <SelectItem value="none">
                         <span className="text-slate-400">-- No RAM --</span>
                       </SelectItem>
-                      {ramAssets.length === 0 ? (
+                      {getAvailableForComponent("ram", form.ramId2).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available RAM items
                         </div>
                       ) : (
-                        ramAssets.map((m) => {
+                        getAvailableForComponent("ram", form.ramId2).map((m) => {
                           const ramDetails = getAssetById(m.id);
 
                           return (
