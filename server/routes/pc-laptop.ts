@@ -90,7 +90,7 @@ const updatePCLaptop: RequestHandler = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    const pcLaptop = await PCLaptop.findByIdAndUpdate(id, updateData, {
+    const pcLaptop = await PCLaptop.findOneAndUpdate({ id }, updateData, {
       new: true,
       runValidators: true,
     });
@@ -123,7 +123,7 @@ const deletePCLaptop: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const pcLaptop = await PCLaptop.findByIdAndDelete(id);
+    const pcLaptop = await PCLaptop.findOneAndDelete({ id });
 
     if (!pcLaptop) {
       return res.status(404).json({
