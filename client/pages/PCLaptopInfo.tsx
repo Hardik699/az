@@ -26,6 +26,7 @@ import {
   RefreshCw,
   ExternalLink,
   Settings,
+  Trash2,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
@@ -783,6 +784,115 @@ export default function PCLaptopInfo() {
     alert(editingItem ? "Updated successfully!" : "Saved successfully!");
   };
 
+  const deleteItem = async (itemToDelete: Asset) => {
+    // Confirm deletion
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${itemToDelete.id}? This action cannot be undone.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      // Delete from database
+      await fetch(`/api/pc-laptop/${itemToDelete.id}`, {
+        method: "DELETE",
+      });
+
+      // Remove from state
+      const updatedItems = items.filter((item) => item.id !== itemToDelete.id);
+      setItems(updatedItems);
+
+      // Refresh available assets after deletion
+      try {
+        const response = await fetch("/api/system-assets");
+        const result = await response.json();
+        const sysList: SysAsset[] = result.success ? result.data : [];
+
+        // Get all used IDs from remaining items
+        const usedMouseIds = getUsedIds(updatedItems, "mouseId");
+        const usedKeyboardIds = getUsedIds(updatedItems, "keyboardId");
+        const usedMotherboardIds = getUsedIds(
+          updatedItems,
+          "motherboardId"
+        );
+        const usedCameraIds = getUsedIds(updatedItems, "cameraId");
+        const usedHeadphoneIds = getUsedIds(updatedItems, "headphoneId");
+        const usedPowerSupplyIds = getUsedIds(updatedItems, "powerSupplyId");
+        const usedStorageIds = getUsedIds(updatedItems as any, "storageId" as any);
+        const usedRamIds = Array.from(
+          new Set([
+            ...getUsedIds(updatedItems, "ramId"),
+            ...getUsedIds(updatedItems as any, "ramId2" as any),
+          ]),
+        );
+
+        // Update available assets
+        setMouseAssets(
+          getAvailableAssets(
+            sysList.filter((s) => s.category === "mouse"),
+            usedMouseIds,
+          ),
+        );
+        setKeyboardAssets(
+          getAvailableAssets(
+            sysList.filter((s) => s.category === "keyboard"),
+            usedKeyboardIds,
+          ),
+        );
+        setMotherboardAssets(
+          getAvailableAssets(
+            sysList.filter((s) => s.category === "motherboard"),
+            usedMotherboardIds,
+          ),
+        );
+        setCameraAssets(
+          getAvailableAssets(
+            sysList.filter((s) => s.category === "camera"),
+            usedCameraIds,
+          ),
+        );
+        setHeadphoneAssets(
+          getAvailableAssets(
+            sysList.filter((s) => s.category === "headphone"),
+            usedHeadphoneIds,
+          ),
+        );
+        setPowerSupplyAssets(
+          getAvailableAssets(
+            sysList.filter((s) => s.category === "power-supply"),
+            usedPowerSupplyIds,
+          ),
+        );
+        setStorageAssets(
+          getAvailableAssets(
+            sysList.filter((s) => s.category === "storage"),
+            usedStorageIds,
+          ),
+        );
+        setRamAssets(
+          getAvailableAssets(
+            sysList.filter((s) => s.category === "ram"),
+            usedRamIds,
+          ),
+        );
+      } catch (error) {
+        console.error("Failed to refresh system assets:", error);
+      }
+
+      // Auto-sync to Google Sheets if configured
+      if (isGoogleSheetsConfigured) {
+        triggerAutoSync();
+      }
+
+      alert("Deleted successfully!");
+    } catch (error) {
+      console.error("Failed to delete:", error);
+      alert("Failed to delete. Please try again.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
       <AppNav />
@@ -1364,14 +1474,24 @@ export default function PCLaptopInfo() {
                           })()}
                         </TableCell>
                         <TableCell>
-                          <Button
-                            onClick={() => openForm(a)}
-                            size="sm"
-                            className="bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-1"
-                          >
-                            <Edit className="h-3 w-3" />
-                            Edit
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => openForm(a)}
+                              size="sm"
+                              className="bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-1"
+                            >
+                              <Edit className="h-3 w-3" />
+                              Edit
+                            </Button>
+                            <Button
+                              onClick={() => deleteItem(a)}
+                              size="sm"
+                              className="bg-red-500 hover:bg-red-600 text-white flex items-center gap-1"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              Delete
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
