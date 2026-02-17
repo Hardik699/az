@@ -785,12 +785,19 @@ export default function PCLaptopInfo() {
   };
 
   const deleteItem = async (itemToDelete: Asset) => {
-    // Confirm deletion
-    const confirmed = window.confirm(
-      `Are you sure you want to delete ${itemToDelete.id}? This action cannot be undone.`
+    // Ask for password confirmation
+    const password = window.prompt(
+      `Enter password to delete ${itemToDelete.id}:\n(This action cannot be undone)`
     );
 
-    if (!confirmed) {
+    // If user cancelled or didn't enter anything
+    if (password === null) {
+      return;
+    }
+
+    // Check password (using "1" as the password)
+    if (password !== "1") {
+      alert("Incorrect password!");
       return;
     }
 
