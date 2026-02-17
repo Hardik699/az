@@ -26,6 +26,7 @@ import {
   RefreshCw,
   ExternalLink,
   Settings,
+  Trash2,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
@@ -59,17 +60,34 @@ type SysAsset = {
 const STORAGE_KEY = "pcLaptopAssets";
 const SYS_STORAGE_KEY = "systemAssets";
 
-function nextWxId(list: Asset[]): string {
+function getDeviceTypeCode(systemType: string): string {
+  switch (systemType) {
+    case "Laptop":
+      return "L";
+    case "Desktop PC":
+      return "D";
+    case "All In One PC":
+      return "A";
+    default:
+      return "X"; // Default code for unknown types
+  }
+}
+
+function nextWxId(list: Asset[], systemType?: string): string {
+  const code = systemType ? getDeviceTypeCode(systemType) : "X";
   let max = 0;
+
   for (const a of list) {
-    const m = a.id.match(/^WX-(\d+)$/);
-    if (m) {
-      const n = parseInt(m[1], 10);
+    // Match both old format (WX-001) and new format (WX-L-001)
+    const newFormatMatch = a.id.match(new RegExp(`^WX-${code}-(\\d+)$`));
+    if (newFormatMatch) {
+      const n = parseInt(newFormatMatch[1], 10);
       if (!Number.isNaN(n)) max = Math.max(max, n);
     }
   }
+
   const next = String(max + 1).padStart(3, "0");
-  return `WX-${next}`;
+  return `WX-${code}-${next}`;
 }
 
 export default function PCLaptopInfo() {
@@ -130,6 +148,66 @@ export default function PCLaptopInfo() {
   // Helper function to get asset details by ID
   const getAssetById = (id: string): SysAsset | undefined => {
     return allSystemAssets.find((asset) => asset.id === id);
+  };
+
+  // Helper function to get available assets for a specific component type
+  // This dynamically computes what's available based on current state
+  const getAvailableForComponent = (
+    category: string,
+    currentAssignedId?: string
+  ): SysAsset[] => {
+    // Get all items to check (excluding current if editing)
+    const itemsToCheck = editingItem
+      ? items.filter((item) => item.id !== editingItem.id)
+      : items;
+
+    // Get all assets of this category
+    const allAssetsOfType = allSystemAssets.filter(
+      (asset) => asset.category === category
+    );
+
+    // Get used IDs for this category
+    let usedIds: string[] = [];
+
+    switch (category) {
+      case "mouse":
+        usedIds = getUsedIds(itemsToCheck, "mouseId");
+        break;
+      case "keyboard":
+        usedIds = getUsedIds(itemsToCheck, "keyboardId");
+        break;
+      case "motherboard":
+        usedIds = getUsedIds(itemsToCheck, "motherboardId");
+        break;
+      case "camera":
+        usedIds = getUsedIds(itemsToCheck, "cameraId");
+        break;
+      case "headphone":
+        usedIds = getUsedIds(itemsToCheck, "headphoneId");
+        break;
+      case "power-supply":
+        usedIds = getUsedIds(itemsToCheck, "powerSupplyId");
+        break;
+      case "storage":
+        usedIds = getUsedIds(itemsToCheck as any, "storageId" as any);
+        break;
+      case "ram":
+        usedIds = Array.from(
+          new Set([
+            ...getUsedIds(itemsToCheck, "ramId"),
+            ...getUsedIds(itemsToCheck as any, "ramId2" as any),
+          ])
+        );
+        break;
+    }
+
+    // Remove the current assignment from the used list (so it can be kept)
+    if (currentAssignedId && currentAssignedId !== "none") {
+      usedIds = usedIds.filter((id) => id !== currentAssignedId);
+    }
+
+    // Return only available assets
+    return allAssetsOfType.filter((asset) => !usedIds.includes(asset.id));
   };
 
   // Calculate total RAM whenever RAM selections change
@@ -557,7 +635,8 @@ export default function PCLaptopInfo() {
       });
     } else {
       // Add mode - generate new ID and set defaults
-      const id = nextWxId(currentItems);
+      // Generate ID with default code for now, will be updated when user selects system type
+      const id = nextWxId(currentItems, "");
       setEditingItem(null);
       setForm({
         id,
@@ -587,8 +666,12 @@ export default function PCLaptopInfo() {
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // In edit mode, always keep the original ID. In add mode, use form.id (which was generated)
+    const recordId = editingItem ? editingItem.id : form.id;
+
     const record: Asset = {
-      id: form.id || nextWxId(items),
+      id: recordId,
       createdAt: editingItem ? editingItem.createdAt : new Date().toISOString(),
       systemType: form.systemType ? form.systemType.trim() : undefined,
       totalRam: form.totalRam ? form.totalRam.trim() : undefined,
@@ -761,6 +844,129 @@ export default function PCLaptopInfo() {
     alert(editingItem ? "Updated successfully!" : "Saved successfully!");
   };
 
+  const deleteItem = async (itemToDelete: Asset) => {
+    // Ask for password confirmation
+    const password = window.prompt(
+      `Enter password to delete ${itemToDelete.id}:\n(This action cannot be undone)`
+    );
+
+    // If user cancelled or didn't enter anything
+    if (password === null) {
+      return;
+    }
+
+    // Check password (using "1" as the password)
+    if (password !== "1") {
+      alert("Incorrect password!");
+      return;
+    }
+
+    try {
+      // Delete from database
+      const deleteResponse = await fetch(`/api/pc-laptop/${itemToDelete.id}`, {
+        method: "DELETE",
+      });
+
+      // Check if deletion was successful
+      if (!deleteResponse.ok) {
+        const errorData = await deleteResponse.json();
+        const errorMessage = errorData.error || `Delete failed with status ${deleteResponse.status}`;
+        throw new Error(errorMessage);
+      }
+
+      const result = await deleteResponse.json();
+      if (!result.success) {
+        throw new Error(result.error || "Delete failed");
+      }
+
+      // Remove from state ONLY after successful deletion
+      const updatedItems = items.filter((item) => item.id !== itemToDelete.id);
+      setItems(updatedItems);
+
+      // Refresh available assets after deletion
+      try {
+        const response = await fetch("/api/system-assets");
+        const result = await response.json();
+        const sysList: SysAsset[] = result.success ? result.data : [];
+
+        // Get all used IDs from remaining items
+        const usedMouseIds = getUsedIds(updatedItems, "mouseId");
+        const usedKeyboardIds = getUsedIds(updatedItems, "keyboardId");
+        const usedMotherboardIds = getUsedIds(
+          updatedItems,
+          "motherboardId"
+        );
+        const usedCameraIds = getUsedIds(updatedItems, "cameraId");
+        const usedHeadphoneIds = getUsedIds(updatedItems, "headphoneId");
+        const usedPowerSupplyIds = getUsedIds(updatedItems, "powerSupplyId");
+        const usedStorageIds = getUsedIds(updatedItems as any, "storageId" as any);
+        const usedRamIds = Array.from(
+          new Set([
+            ...getUsedIds(updatedItems, "ramId"),
+            ...getUsedIds(updatedItems as any, "ramId2" as any),
+          ]),
+        );
+
+        // Update available assets
+        setMouseAssets(
+          getAvailableAssets(
+            sysList.filter((s) => s.category === "mouse"),
+            usedMouseIds,
+          ),
+        );
+        setKeyboardAssets(
+          getAvailableAssets(
+            sysList.filter((s) => s.category === "keyboard"),
+            usedKeyboardIds,
+          ),
+        );
+        setMotherboardAssets(
+          getAvailableAssets(
+            sysList.filter((s) => s.category === "motherboard"),
+            usedMotherboardIds,
+          ),
+        );
+        setCameraAssets(
+          getAvailableAssets(
+            sysList.filter((s) => s.category === "camera"),
+            usedCameraIds,
+          ),
+        );
+        setHeadphoneAssets(
+          getAvailableAssets(
+            sysList.filter((s) => s.category === "headphone"),
+            usedHeadphoneIds,
+          ),
+        );
+        setPowerSupplyAssets(
+          getAvailableAssets(
+            sysList.filter((s) => s.category === "power-supply"),
+            usedPowerSupplyIds,
+          ),
+        );
+        setStorageAssets(
+          getAvailableAssets(
+            sysList.filter((s) => s.category === "storage"),
+            usedStorageIds,
+          ),
+        );
+        setRamAssets(
+          getAvailableAssets(
+            sysList.filter((s) => s.category === "ram"),
+            usedRamIds,
+          ),
+        );
+      } catch (error) {
+        console.error("Failed to refresh system assets:", error);
+      }
+
+      alert("Deleted successfully!");
+    } catch (error) {
+      console.error("Failed to delete:", error);
+      alert("Failed to delete. Please try again.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
       <AppNav />
@@ -843,9 +1049,15 @@ export default function PCLaptopInfo() {
                   <Label className="text-slate-300">System Type</Label>
                   <Select
                     value={form.systemType}
-                    onValueChange={(v) =>
-                      setForm((s) => ({ ...s, systemType: v }))
-                    }
+                    onValueChange={(v) => {
+                      // Update system type and regenerate ID if in add mode
+                      if (!editingItem) {
+                        const newId = nextWxId(items, v);
+                        setForm((s) => ({ ...s, systemType: v, id: newId }));
+                      } else {
+                        setForm((s) => ({ ...s, systemType: v }));
+                      }
+                    }}
                   >
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue placeholder="Select system type" />
@@ -881,7 +1093,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          mouseAssets.length
+                          getAvailableForComponent("mouse", form.mouseId).length
                             ? "Select available mouse"
                             : "No available mouse"
                         }
@@ -891,12 +1103,12 @@ export default function PCLaptopInfo() {
                       <SelectItem value="none">
                         <span className="text-slate-400">-- No Mouse --</span>
                       </SelectItem>
-                      {mouseAssets.length === 0 ? (
+                      {getAvailableForComponent("mouse", form.mouseId).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available mouse items
                         </div>
                       ) : (
-                        mouseAssets.map((m) => (
+                        getAvailableForComponent("mouse", form.mouseId).map((m) => (
                           <SelectItem key={m.id} value={m.id}>
                             {m.id}
                           </SelectItem>
@@ -916,7 +1128,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          keyboardAssets.length
+                          getAvailableForComponent("keyboard", form.keyboardId).length
                             ? "Select available keyboard"
                             : "No available keyboard"
                         }
@@ -928,12 +1140,12 @@ export default function PCLaptopInfo() {
                           -- No Keyboard --
                         </span>
                       </SelectItem>
-                      {keyboardAssets.length === 0 ? (
+                      {getAvailableForComponent("keyboard", form.keyboardId).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available keyboard items
                         </div>
                       ) : (
-                        keyboardAssets.map((m) => (
+                        getAvailableForComponent("keyboard", form.keyboardId).map((m) => (
                           <SelectItem key={m.id} value={m.id}>
                             {m.id}
                           </SelectItem>
@@ -953,7 +1165,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          motherboardAssets.length
+                          getAvailableForComponent("motherboard", form.motherboardId).length
                             ? "Select available motherboard"
                             : "No available motherboard"
                         }
@@ -965,12 +1177,12 @@ export default function PCLaptopInfo() {
                           -- No Motherboard --
                         </span>
                       </SelectItem>
-                      {motherboardAssets.length === 0 ? (
+                      {getAvailableForComponent("motherboard", form.motherboardId).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available motherboard items
                         </div>
                       ) : (
-                        motherboardAssets.map((m) => (
+                        getAvailableForComponent("motherboard", form.motherboardId).map((m) => (
                           <SelectItem key={m.id} value={m.id}>
                             {m.id}
                           </SelectItem>
@@ -990,7 +1202,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          cameraAssets.length
+                          getAvailableForComponent("camera", form.cameraId).length
                             ? "Select available camera"
                             : "No available camera"
                         }
@@ -1000,12 +1212,12 @@ export default function PCLaptopInfo() {
                       <SelectItem value="none">
                         <span className="text-slate-400">-- No Camera --</span>
                       </SelectItem>
-                      {cameraAssets.length === 0 ? (
+                      {getAvailableForComponent("camera", form.cameraId).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available camera items
                         </div>
                       ) : (
-                        cameraAssets.map((m) => (
+                        getAvailableForComponent("camera", form.cameraId).map((m) => (
                           <SelectItem key={m.id} value={m.id}>
                             {m.id}
                           </SelectItem>
@@ -1025,7 +1237,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          headphoneAssets.length
+                          getAvailableForComponent("headphone", form.headphoneId).length
                             ? "Select available headphone"
                             : "No available headphone"
                         }
@@ -1037,12 +1249,12 @@ export default function PCLaptopInfo() {
                           -- No Headphone --
                         </span>
                       </SelectItem>
-                      {headphoneAssets.length === 0 ? (
+                      {getAvailableForComponent("headphone", form.headphoneId).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available headphone items
                         </div>
                       ) : (
-                        headphoneAssets.map((m) => (
+                        getAvailableForComponent("headphone", form.headphoneId).map((m) => (
                           <SelectItem key={m.id} value={m.id}>
                             {m.id}
                           </SelectItem>
@@ -1062,7 +1274,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          powerSupplyAssets.length
+                          getAvailableForComponent("power-supply", form.powerSupplyId).length
                             ? "Select available power supply"
                             : "No available power supply"
                         }
@@ -1074,12 +1286,12 @@ export default function PCLaptopInfo() {
                           -- No Power Supply --
                         </span>
                       </SelectItem>
-                      {powerSupplyAssets.length === 0 ? (
+                      {getAvailableForComponent("power-supply", form.powerSupplyId).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available power supply items
                         </div>
                       ) : (
-                        powerSupplyAssets.map((m) => (
+                        getAvailableForComponent("power-supply", form.powerSupplyId).map((m) => (
                           <SelectItem key={m.id} value={m.id}>
                             {m.id}
                           </SelectItem>
@@ -1097,7 +1309,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          ramAssets.length
+                          getAvailableForComponent("ram", form.ramId).length
                             ? "Select available RAM"
                             : "No available RAM"
                         }
@@ -1107,12 +1319,12 @@ export default function PCLaptopInfo() {
                       <SelectItem value="none">
                         <span className="text-slate-400">-- No RAM --</span>
                       </SelectItem>
-                      {ramAssets.length === 0 ? (
+                      {getAvailableForComponent("ram", form.ramId).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available RAM items
                         </div>
                       ) : (
-                        ramAssets.map((m) => {
+                        getAvailableForComponent("ram", form.ramId).map((m) => {
                           const ramDetails = getAssetById(m.id);
 
                           return (
@@ -1136,7 +1348,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          storageAssets.length
+                          getAvailableForComponent("storage", (form as any).storageId).length
                             ? "Select available storage"
                             : "No available storage"
                         }
@@ -1146,12 +1358,12 @@ export default function PCLaptopInfo() {
                       <SelectItem value="none">
                         <span className="text-slate-400">-- No Storage --</span>
                       </SelectItem>
-                      {storageAssets.length === 0 ? (
+                      {getAvailableForComponent("storage", (form as any).storageId).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available storage items
                         </div>
                       ) : (
-                        storageAssets.map((s) => {
+                        getAvailableForComponent("storage", (form as any).storageId).map((s) => {
                           const storageDetails = getAssetById(s.id);
 
                           return (
@@ -1174,7 +1386,7 @@ export default function PCLaptopInfo() {
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue
                         placeholder={
-                          ramAssets.length
+                          getAvailableForComponent("ram", form.ramId2).length
                             ? "Select available RAM"
                             : "No available RAM"
                         }
@@ -1184,12 +1396,12 @@ export default function PCLaptopInfo() {
                       <SelectItem value="none">
                         <span className="text-slate-400">-- No RAM --</span>
                       </SelectItem>
-                      {ramAssets.length === 0 ? (
+                      {getAvailableForComponent("ram", form.ramId2).length === 0 ? (
                         <div className="px-3 py-2 text-slate-400">
                           No available RAM items
                         </div>
                       ) : (
-                        ramAssets.map((m) => {
+                        getAvailableForComponent("ram", form.ramId2).map((m) => {
                           const ramDetails = getAssetById(m.id);
 
                           return (
@@ -1336,14 +1548,24 @@ export default function PCLaptopInfo() {
                           })()}
                         </TableCell>
                         <TableCell>
-                          <Button
-                            onClick={() => openForm(a)}
-                            size="sm"
-                            className="bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-1"
-                          >
-                            <Edit className="h-3 w-3" />
-                            Edit
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => openForm(a)}
+                              size="sm"
+                              className="bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-1"
+                            >
+                              <Edit className="h-3 w-3" />
+                              Edit
+                            </Button>
+                            <Button
+                              onClick={() => deleteItem(a)}
+                              size="sm"
+                              className="bg-red-500 hover:bg-red-600 text-white flex items-center gap-1"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                              Delete
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
