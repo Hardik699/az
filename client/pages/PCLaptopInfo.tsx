@@ -59,17 +59,34 @@ type SysAsset = {
 const STORAGE_KEY = "pcLaptopAssets";
 const SYS_STORAGE_KEY = "systemAssets";
 
-function nextWxId(list: Asset[]): string {
+function getDeviceTypeCode(systemType: string): string {
+  switch (systemType) {
+    case "Laptop":
+      return "L";
+    case "Desktop PC":
+      return "D";
+    case "All In One PC":
+      return "A";
+    default:
+      return "X"; // Default code for unknown types
+  }
+}
+
+function nextWxId(list: Asset[], systemType?: string): string {
+  const code = systemType ? getDeviceTypeCode(systemType) : "X";
   let max = 0;
+
   for (const a of list) {
-    const m = a.id.match(/^WX-(\d+)$/);
-    if (m) {
-      const n = parseInt(m[1], 10);
+    // Match both old format (WX-001) and new format (WX-L-001)
+    const newFormatMatch = a.id.match(new RegExp(`^WX-${code}-(\\d+)$`));
+    if (newFormatMatch) {
+      const n = parseInt(newFormatMatch[1], 10);
       if (!Number.isNaN(n)) max = Math.max(max, n);
     }
   }
+
   const next = String(max + 1).padStart(3, "0");
-  return `WX-${next}`;
+  return `WX-${code}-${next}`;
 }
 
 export default function PCLaptopInfo() {
@@ -557,7 +574,8 @@ export default function PCLaptopInfo() {
       });
     } else {
       // Add mode - generate new ID and set defaults
-      const id = nextWxId(currentItems);
+      // Generate ID with default code for now, will be updated when user selects system type
+      const id = nextWxId(currentItems, "");
       setEditingItem(null);
       setForm({
         id,
@@ -588,7 +606,7 @@ export default function PCLaptopInfo() {
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     const record: Asset = {
-      id: form.id || nextWxId(items),
+      id: form.id || nextWxId(items, form.systemType),
       createdAt: editingItem ? editingItem.createdAt : new Date().toISOString(),
       systemType: form.systemType ? form.systemType.trim() : undefined,
       totalRam: form.totalRam ? form.totalRam.trim() : undefined,
@@ -843,9 +861,15 @@ export default function PCLaptopInfo() {
                   <Label className="text-slate-300">System Type</Label>
                   <Select
                     value={form.systemType}
-                    onValueChange={(v) =>
-                      setForm((s) => ({ ...s, systemType: v }))
-                    }
+                    onValueChange={(v) => {
+                      // Update system type and regenerate ID if in add mode
+                      if (!editingItem) {
+                        const newId = nextWxId(items, v);
+                        setForm((s) => ({ ...s, systemType: v, id: newId }));
+                      } else {
+                        setForm((s) => ({ ...s, systemType: v }));
+                      }
+                    }}
                   >
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
                       <SelectValue placeholder="Select system type" />
