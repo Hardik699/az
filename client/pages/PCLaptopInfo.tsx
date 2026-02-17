@@ -605,8 +605,12 @@ export default function PCLaptopInfo() {
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // In edit mode, always keep the original ID. In add mode, use form.id (which was generated)
+    const recordId = editingItem ? editingItem.id : form.id;
+
     const record: Asset = {
-      id: form.id || nextWxId(items, form.systemType),
+      id: recordId,
       createdAt: editingItem ? editingItem.createdAt : new Date().toISOString(),
       systemType: form.systemType ? form.systemType.trim() : undefined,
       totalRam: form.totalRam ? form.totalRam.trim() : undefined,
