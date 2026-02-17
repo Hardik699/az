@@ -869,7 +869,14 @@ export default function PCLaptopInfo() {
 
       // Check if deletion was successful
       if (!deleteResponse.ok) {
-        throw new Error(`Delete failed with status ${deleteResponse.status}`);
+        const errorData = await deleteResponse.json();
+        const errorMessage = errorData.error || `Delete failed with status ${deleteResponse.status}`;
+        throw new Error(errorMessage);
+      }
+
+      const result = await deleteResponse.json();
+      if (!result.success) {
+        throw new Error(result.error || "Delete failed");
       }
 
       // Remove from state ONLY after successful deletion

@@ -122,22 +122,26 @@ const updatePCLaptop: RequestHandler = async (req, res) => {
 const deletePCLaptop: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(`Attempting to delete PC/Laptop with id: ${id}`);
 
     const pcLaptop = await PCLaptop.findOneAndDelete({ id });
 
     if (!pcLaptop) {
+      console.log(`PC/Laptop with id ${id} not found`);
       return res.status(404).json({
         success: false,
         error: "PC/Laptop record not found",
       });
     }
 
+    console.log(`Successfully deleted PC/Laptop with id: ${id}`);
     res.json({
       success: true,
       data: pcLaptop,
       message: "PC/Laptop record deleted successfully",
     });
   } catch (error) {
+    console.error(`Error deleting PC/Laptop:`, error);
     res.status(500).json({
       success: false,
       error:
