@@ -863,11 +863,16 @@ export default function PCLaptopInfo() {
 
     try {
       // Delete from database
-      await fetch(`/api/pc-laptop/${itemToDelete.id}`, {
+      const deleteResponse = await fetch(`/api/pc-laptop/${itemToDelete.id}`, {
         method: "DELETE",
       });
 
-      // Remove from state
+      // Check if deletion was successful
+      if (!deleteResponse.ok) {
+        throw new Error(`Delete failed with status ${deleteResponse.status}`);
+      }
+
+      // Remove from state ONLY after successful deletion
       const updatedItems = items.filter((item) => item.id !== itemToDelete.id);
       setItems(updatedItems);
 
@@ -946,11 +951,6 @@ export default function PCLaptopInfo() {
         );
       } catch (error) {
         console.error("Failed to refresh system assets:", error);
-      }
-
-      // Auto-sync to Google Sheets if configured
-      if (isGoogleSheetsConfigured) {
-        triggerAutoSync();
       }
 
       alert("Deleted successfully!");
