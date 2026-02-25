@@ -27,6 +27,7 @@ import {
   ExternalLink,
   Settings,
   Trash2,
+  ArrowLeft,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
@@ -972,11 +973,22 @@ export default function PCLaptopInfo() {
       <AppNav />
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">
-              PC/Laptop Info
-            </h1>
-            <p className="text-slate-400">Manage PCs and laptops</p>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(-1)}
+              className="text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-300 self-start"
+              title="Go back to previous page"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                PC/Laptop Info
+              </h1>
+              <p className="text-slate-400">Manage PCs and laptops</p>
+            </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center w-full sm:w-auto">
             <Button

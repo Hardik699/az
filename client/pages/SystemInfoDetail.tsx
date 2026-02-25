@@ -373,8 +373,9 @@ export default function SystemInfoDetail() {
           </div>
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
             <Button
-              onClick={() => navigate("/system-info")}
+              onClick={() => navigate(-1)}
               className="bg-slate-700 hover:bg-slate-600 text-white w-full sm:w-auto"
+              title="Go back to previous page"
             >
               Back
             </Button>

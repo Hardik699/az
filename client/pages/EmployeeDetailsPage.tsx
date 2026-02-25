@@ -529,12 +529,13 @@ export default function EmployeeDetailsPage() {
             </div>
           </div>
           <Button
-            onClick={() => navigate("/hr")}
+            onClick={() => navigate(-1)}
             variant="outline"
             className="border-slate-600 text-slate-300 hover:bg-slate-700"
+            title="Go back to previous page"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to HR Dashboard
+            Back
           </Button>
         </div>
 

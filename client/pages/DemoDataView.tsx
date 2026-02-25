@@ -53,11 +53,12 @@ export default function DemoDataView() {
           </div>
           <div className="flex items-center gap-3">
             <Button
-              onClick={() => navigate("/system-info")}
+              onClick={() => navigate(-1)}
               className="bg-slate-700 hover:bg-slate-600 text-white flex items-center gap-2"
+              title="Go back to previous page"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to System Info
+              Back
             </Button>
             <Badge variant="secondary" className="bg-slate-700 text-slate-300">
               {assets.length} system assets

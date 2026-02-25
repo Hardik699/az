@@ -111,8 +111,8 @@ export default function ITPreviewPage() {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center space-y-4">
         <div className="text-white text-xl">IT Account not found</div>
-        <Button onClick={() => navigate("/it-dashboard")}>
-          Back to Dashboard
+        <Button onClick={() => navigate(-1)}>
+          Back
         </Button>
       </div>
     );
@@ -150,9 +150,10 @@ export default function ITPreviewPage() {
         <Button
           variant="ghost"
           className="text-slate-400 hover:text-white mb-4"
-          onClick={() => navigate("/it-dashboard")}
+          onClick={() => navigate(-1)}
+          title="Go back to previous page"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
 
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-900/50 p-6 rounded-xl border border-slate-700 backdrop-blur-sm">

@@ -18,6 +18,7 @@ import {
   Code,
   Play,
   Lightbulb,
+  ArrowLeft,
 } from "lucide-react";
 import {
   googleAppsScriptSync,
@@ -172,10 +173,12 @@ function doPost(e) {
               </Badge>
             )}
             <Button
-              onClick={() => navigate("/")}
+              onClick={() => navigate(-1)}
               className="bg-slate-700 hover:bg-slate-600 text-white"
+              title="Go back to previous page"
             >
-              Home
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
             </Button>
           </div>
         </header>

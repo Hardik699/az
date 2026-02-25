@@ -603,9 +603,10 @@ export default function ITPage() {
         <Button
           variant="ghost"
           className="text-slate-400 hover:text-white mb-4"
-          onClick={() => navigate("/it-dashboard")}
+          onClick={() => navigate(-1)}
+          title="Go back to previous page"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
+          <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
