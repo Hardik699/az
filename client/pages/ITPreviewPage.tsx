@@ -54,7 +54,7 @@ export default function ITPreviewPage() {
 
   const requirePasscode = () => {
     const code = prompt("Enter passcode to show passwords");
-    if (code === "1111") setShowPasswords(true);
+    if (code === "123") setShowPasswords(true);
     else if (code !== null) alert("Incorrect passcode");
   };
 
