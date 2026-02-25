@@ -40,6 +40,7 @@ import {
   AlertCircle,
   X,
   RefreshCw,
+  ArrowLeft,
 } from "lucide-react";
 import {
   getPendingNotifications,
@@ -243,6 +244,15 @@ export default function ITDashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(-1)}
+              className="text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-300 self-start"
+              title="Go back to previous page"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
             <ServerCog className="h-7 w-7 text-blue-400 flex-shrink-0" />
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-white">

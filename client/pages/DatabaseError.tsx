@@ -95,6 +95,15 @@ export default function DatabaseError() {
             <RefreshCw className={`w-4 h-4 mr-2 ${isRetrying ? "animate-spin" : ""}`} />
             {isRetrying ? "Checking..." : "Retry Connection"}
           </Button>
+
+          {/* Back Button */}
+          <Button
+            onClick={() => window.history.back()}
+            variant="outline"
+            className="w-full mt-3 border-red-300 text-red-700 hover:bg-red-50"
+          >
+            Go Back
+          </Button>
         </div>
 
         {/* Footer Info */}

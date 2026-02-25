@@ -1,7 +1,7 @@
 import AppNav from "@/components/Navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Building2, ArrowRight, ServerCog } from "lucide-react";
+import { Users, Building2, ArrowRight, ServerCog, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
@@ -11,13 +11,24 @@ export default function Dashboard() {
       <AppNav />
       <main className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 space-y-8">
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
-          <div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
-              Dashboard
-            </h1>
-            <p className="text-slate-400 text-sm sm:text-base mt-1 sm:mt-2">
-              Overview and quick actions
-            </p>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(-1)}
+              className="text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-300 self-start"
+              title="Go back to previous page"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
+                Dashboard
+              </h1>
+              <p className="text-slate-400 text-sm sm:text-base mt-1 sm:mt-2">
+                Overview and quick actions
+              </p>
+            </div>
           </div>
         </header>
 

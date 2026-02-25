@@ -128,12 +128,13 @@ export default function AdminDashboard() {
             <p className="text-slate-400">Manage users and system settings</p>
           </div>
           <Button
-            onClick={() => navigate("/")}
+            onClick={() => navigate(-1)}
             variant="outline"
             className="border-slate-600 text-slate-300 hover:bg-slate-700 w-full sm:w-auto"
+            title="Go back to previous page"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Home
+            Back
           </Button>
         </div>
 

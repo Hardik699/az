@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -26,6 +27,7 @@ import type {
 } from "@shared/api";
 import { toast } from "sonner";
 import { uploadFileToSupabase } from "@/lib/supabase";
+import { ArrowLeft } from "lucide-react";
 
 function useRoleHeaders(role: UserRole, userId: string) {
   return useMemo(
@@ -35,6 +37,7 @@ function useRoleHeaders(role: UserRole, userId: string) {
 }
 
 export default function Salary() {
+  const navigate = useNavigate();
   const qc = useQueryClient();
   const [role, setRole] = useState<UserRole>("admin");
   const [userId, setUserId] = useState("user-1");
@@ -100,9 +103,20 @@ export default function Salary() {
       <div className="min-h-screen bg-gradient-to-br from-blue-deep-900 via-blue-deep-800 to-slate-900">
         <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <h1 className="text-3xl sm:text-4xl font-bold text-white">
-              Salary Records
-            </h1>
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(-1)}
+                className="text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-300"
+                title="Go back to previous page"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <h1 className="text-3xl sm:text-4xl font-bold text-white">
+                Salary Records
+              </h1>
+            </div>
             <div className="w-full sm:w-auto flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
               <div className="w-full sm:w-auto flex items-center gap-2">
                 <Label className="text-sm whitespace-nowrap text-slate-300">

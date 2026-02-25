@@ -21,6 +21,7 @@ import {
   RefreshCw,
   ExternalLink,
   Settings,
+  ArrowLeft,
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { googleAppsScriptSync } from "@/lib/googleAppsScriptSync";
@@ -456,11 +457,22 @@ export default function SystemInfo() {
       <AppNav />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">
-              System Info
-            </h1>
-            <p className="text-slate-400">Hardware categories</p>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(-1)}
+              className="text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all duration-300 self-start"
+              title="Go back to previous page"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">
+                System Info
+              </h1>
+              <p className="text-slate-400">Hardware categories</p>
+            </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
             <Button
