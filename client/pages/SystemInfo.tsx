@@ -300,14 +300,8 @@ export default function SystemInfo() {
           };
         } else if (asset.category === "vitel-vital") {
           return {
-            ...baseData,
-            "RAM Size": "-",
-            "RAM Type": "-",
-            "Processor Model": "-",
-            "Storage Type": "-",
-            "Storage Capacity": "-",
-            "Vonage Number": "-",
-            "Extension Code": "-",
+            "Asset ID": asset.id,
+            Category: asset.category,
             "Vitel Global Number": asset.vitelGlobalNumber || "-",
             "Vitel Ext": asset.vitelExt || "-",
             "Vitel Username": asset.vitelUsername || "-",
@@ -394,7 +388,7 @@ export default function SystemInfo() {
               };
             } else if (category === "vitel-vital") {
               return {
-                ...baseData,
+                ID: asset.id,
                 "Vitel Global Number": asset.vitelGlobalNumber || "-",
                 "Vitel Ext": asset.vitelExt || "-",
                 "Vitel Username": asset.vitelUsername || "-",
