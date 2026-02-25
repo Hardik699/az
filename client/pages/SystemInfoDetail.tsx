@@ -106,6 +106,12 @@ const registry: Record<
     color: "text-indigo-400",
     bg: "bg-indigo-500/20",
   },
+  "vitel-vital": {
+    title: "Vitel Vital",
+    Icon: Phone,
+    color: "text-orange-400",
+    bg: "bg-orange-500/20",
+  },
   // Alternate spellings
   moush: {
     title: "Mouse",
@@ -152,6 +158,7 @@ export default function SystemInfoDetail() {
   const data = registry[key];
   const categoryKey = canonical[key] || key;
   const isVonage = categoryKey === "vonage";
+  const isVitelVital = categoryKey === "vitel-vital";
 
   const [assets, setAssets] = useState<Asset[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -167,6 +174,10 @@ export default function SystemInfoDetail() {
     vonageNumber: "",
     vonageExtCode: "",
     vonagePassword: "",
+    vitelGlobalNumber: "",
+    vitelExt: "",
+    vitelUsername: "",
+    vitelPassword: "",
     ramSize: "",
     ramType: "",
     processorModel: "",
@@ -210,6 +221,10 @@ export default function SystemInfoDetail() {
       vonageNumber: "",
       vonageExtCode: "",
       vonagePassword: "",
+      vitelGlobalNumber: "",
+      vitelExt: "",
+      vitelUsername: "",
+      vitelPassword: "",
       ramSize: "",
       ramType: "",
       processorModel: "",
@@ -248,6 +263,10 @@ export default function SystemInfoDetail() {
       vonageNumber: asset.vonageNumber || "",
       vonageExtCode: asset.vonageExtCode || "",
       vonagePassword: asset.vonagePassword || "",
+      vitelGlobalNumber: (asset as any).vitelGlobalNumber || "",
+      vitelExt: (asset as any).vitelExt || "",
+      vitelUsername: (asset as any).vitelUsername || "",
+      vitelPassword: (asset as any).vitelPassword || "",
       ramSize: (asset as any).ramSize || "",
       ramType: (asset as any).ramType || "",
       processorModel: (asset as any).processorModel || "",
@@ -260,17 +279,32 @@ export default function SystemInfoDetail() {
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isVonage) {
-      if (
-        !form.companyName ||
-        !form.vonageNumber ||
-        !form.vonageExtCode ||
-        !form.vonagePassword ||
-        !form.purchaseDate ||
-        !form.warrantyEndDate
-      ) {
-        alert("Fill all fields");
-        return;
+    if (isVonage || isVitelVital) {
+      if (isVonage) {
+        if (
+          !form.companyName ||
+          !form.vonageNumber ||
+          !form.vonageExtCode ||
+          !form.vonagePassword ||
+          !form.purchaseDate ||
+          !form.warrantyEndDate
+        ) {
+          alert("Fill all fields");
+          return;
+        }
+      } else if (isVitelVital) {
+        if (
+          !form.companyName ||
+          !form.vitelGlobalNumber ||
+          !form.vitelExt ||
+          !form.vitelUsername ||
+          !form.vitelPassword ||
+          !form.purchaseDate ||
+          !form.warrantyEndDate
+        ) {
+          alert("Fill all fields");
+          return;
+        }
       }
     } else {
       const serialRequired = categoryKey !== "ram"; // allow auto serials for RAM
@@ -299,6 +333,10 @@ export default function SystemInfoDetail() {
       vonageNumber: form.vonageNumber?.trim(),
       vonageExtCode: form.vonageExtCode?.trim(),
       vonagePassword: form.vonagePassword,
+      vitelGlobalNumber: (form.vitelGlobalNumber || "").trim(),
+      vitelExt: (form.vitelExt || "").trim(),
+      vitelUsername: (form.vitelUsername || "").trim(),
+      vitelPassword: form.vitelPassword,
       ramSize: categoryKey === "ram" ? (form.ramSize || "").trim() : undefined,
       ramType: categoryKey === "ram" ? (form.ramType || "").trim() : undefined,
       processorModel:
@@ -418,7 +456,7 @@ export default function SystemInfoDetail() {
                     className="bg-slate-800/50 border-slate-700 text-white"
                   />
                 </div>
-                {isVonage ? (
+                {isVonage || isVitelVital ? (
                   <>
                     <div className="space-y-2">
                       <Label className="text-slate-300">Company Name</Label>
@@ -448,49 +486,114 @@ export default function SystemInfoDetail() {
                         placeholder="Enter modal"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-slate-300">Vonage Number</Label>
-                      <Input
-                        value={form.vonageNumber || ""}
-                        onChange={(e) =>
-                          setForm((s) => ({
-                            ...s,
-                            vonageNumber: e.target.value,
-                          }))
-                        }
-                        className="bg-slate-800/50 border-slate-700 text-white"
-                        placeholder="Enter number"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-slate-300">Extension Code</Label>
-                      <Input
-                        value={form.vonageExtCode || ""}
-                        onChange={(e) =>
-                          setForm((s) => ({
-                            ...s,
-                            vonageExtCode: e.target.value,
-                          }))
-                        }
-                        className="bg-slate-800/50 border-slate-700 text-white"
-                        placeholder="Enter extension code"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-slate-300">Password</Label>
-                      <Input
-                        type="password"
-                        value={form.vonagePassword || ""}
-                        onChange={(e) =>
-                          setForm((s) => ({
-                            ...s,
-                            vonagePassword: e.target.value,
-                          }))
-                        }
-                        className="bg-slate-800/50 border-slate-700 text-white"
-                        placeholder="Enter password"
-                      />
-                    </div>
+                    {isVonage && (
+                      <>
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">Vonage Number</Label>
+                          <Input
+                            value={form.vonageNumber || ""}
+                            onChange={(e) =>
+                              setForm((s) => ({
+                                ...s,
+                                vonageNumber: e.target.value,
+                              }))
+                            }
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="Enter number"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">Extension Code</Label>
+                          <Input
+                            value={form.vonageExtCode || ""}
+                            onChange={(e) =>
+                              setForm((s) => ({
+                                ...s,
+                                vonageExtCode: e.target.value,
+                              }))
+                            }
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="Enter extension code"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">Password</Label>
+                          <Input
+                            type="password"
+                            value={form.vonagePassword || ""}
+                            onChange={(e) =>
+                              setForm((s) => ({
+                                ...s,
+                                vonagePassword: e.target.value,
+                              }))
+                            }
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="Enter password"
+                          />
+                        </div>
+                      </>
+                    )}
+                    {isVitelVital && (
+                      <>
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">Vitel Global Number</Label>
+                          <Input
+                            value={form.vitelGlobalNumber || ""}
+                            onChange={(e) =>
+                              setForm((s) => ({
+                                ...s,
+                                vitelGlobalNumber: e.target.value,
+                              }))
+                            }
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="Enter Vitel global number"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">Ext</Label>
+                          <Input
+                            value={form.vitelExt || ""}
+                            onChange={(e) =>
+                              setForm((s) => ({
+                                ...s,
+                                vitelExt: e.target.value,
+                              }))
+                            }
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="Enter extension"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">Username</Label>
+                          <Input
+                            value={form.vitelUsername || ""}
+                            onChange={(e) =>
+                              setForm((s) => ({
+                                ...s,
+                                vitelUsername: e.target.value,
+                              }))
+                            }
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="Enter username"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-slate-300">Password</Label>
+                          <Input
+                            type="password"
+                            value={form.vitelPassword || ""}
+                            onChange={(e) =>
+                              setForm((s) => ({
+                                ...s,
+                                vitelPassword: e.target.value,
+                              }))
+                            }
+                            className="bg-slate-800/50 border-slate-700 text-white"
+                            placeholder="Enter password"
+                          />
+                        </div>
+                      </>
+                    )}
                     <div className="space-y-2">
                       <Label className="text-slate-300">Purchase Date</Label>
                       <Input
@@ -781,6 +884,19 @@ export default function SystemInfoDetail() {
                         <TableHead>Warranty End Date</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
+                    ) : isVitelVital ? (
+                      <TableRow>
+                        <TableHead>ID</TableHead>
+                        <TableHead>Company</TableHead>
+                        <TableHead>Modal</TableHead>
+                        <TableHead>Vitel Global Number</TableHead>
+                        <TableHead>Ext</TableHead>
+                        <TableHead>Username</TableHead>
+                        <TableHead>Password</TableHead>
+                        <TableHead>Purchase Date</TableHead>
+                        <TableHead>Warranty End Date</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
                     ) : (
                       <TableRow>
                         <TableHead>ID</TableHead>
@@ -819,6 +935,36 @@ export default function SystemInfoDetail() {
                           <TableCell>{a.vonageNumber}</TableCell>
                           <TableCell>{a.vonageExtCode}</TableCell>
                           <TableCell>{a.vonagePassword}</TableCell>
+                          <TableCell>{a.purchaseDate}</TableCell>
+                          <TableCell>{a.warrantyEndDate}</TableCell>
+                          <TableCell className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-blue-600 text-blue-400 hover:bg-blue-500/10"
+                              onClick={() => editAsset(a)}
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-red-600 text-red-400 hover:bg-red-500/10"
+                              onClick={() => deleteAsset(a.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ) : isVitelVital ? (
+                        <TableRow key={a.id}>
+                          <TableCell className="font-medium">{a.id}</TableCell>
+                          <TableCell>{a.companyName}</TableCell>
+                          <TableCell>{a.modal || "-"}</TableCell>
+                          <TableCell>{(a as any).vitelGlobalNumber}</TableCell>
+                          <TableCell>{(a as any).vitelExt}</TableCell>
+                          <TableCell>{(a as any).vitelUsername}</TableCell>
+                          <TableCell>{(a as any).vitelPassword}</TableCell>
                           <TableCell>{a.purchaseDate}</TableCell>
                           <TableCell>{a.warrantyEndDate}</TableCell>
                           <TableCell className="flex gap-2">
