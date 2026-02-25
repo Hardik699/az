@@ -48,8 +48,8 @@ export default function DemoDataView() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-white">Demo System Assets</h1>
-            <p className="text-slate-400">Loaded demo data for mouse, keyboard, and other hardware</p>
+            <h1 className="text-3xl font-bold text-white">System Assets</h1>
+            <p className="text-slate-400">Added system data for mouse, keyboard, and other hardware</p>
           </div>
           <div className="flex items-center gap-3">
             <Button
@@ -60,7 +60,7 @@ export default function DemoDataView() {
               Back to System Info
             </Button>
             <Badge variant="secondary" className="bg-slate-700 text-slate-300">
-              {assets.length} demo assets
+              {assets.length} system assets
             </Badge>
           </div>
         </header>
@@ -69,7 +69,7 @@ export default function DemoDataView() {
           <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="text-white flex items-center justify-between">
-                Demo Set 1 - Gaming Setup
+                System Set 1 - Gaming Setup
                 <Badge className="bg-blue-600 text-white">
                   {demoSet1.length} items
                 </Badge>
@@ -110,7 +110,7 @@ export default function DemoDataView() {
           <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm">
             <CardHeader>
               <CardTitle className="text-white flex items-center justify-between">
-                Demo Set 2 - Office Setup
+                System Set 2 - Office Setup
                 <Badge className="bg-green-600 text-white">
                   {demoSet2.length} items
                 </Badge>
@@ -159,9 +159,9 @@ export default function DemoDataView() {
         {assets.length === 0 && (
           <Card className="bg-slate-900/50 border-slate-700 backdrop-blur-sm">
             <CardContent className="py-12 text-center">
-              <p className="text-slate-400 text-lg">No demo data found.</p>
+              <p className="text-slate-400 text-lg">No system data found.</p>
               <p className="text-slate-500 mt-2">
-                Go back to System Info and click "Load Demo Data" to create sample assets.
+                Go back to System Info and click "Add System Data" to create assets.
               </p>
             </CardContent>
           </Card>
