@@ -98,7 +98,7 @@ const items = [
     bg: "bg-indigo-500/20",
   },
   {
-    name: "Vitel Vital",
+    name: "Vitel Global",
     slug: "vitel-vital",
     Icon: Phone,
     color: "text-orange-400",
@@ -346,7 +346,7 @@ export default function SystemInfo() {
         { name: "Power Supply", category: "power-supply" },
         { name: "Monitor", category: "monitor" },
         { name: "Vonage", category: "vonage" },
-        { name: "Vitel Vital", category: "vitel-vital" },
+        { name: "Vitel Global", category: "vitel-vital" },
       ];
 
       categories.forEach(({ name, category }) => {

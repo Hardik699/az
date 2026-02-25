@@ -107,7 +107,7 @@ const registry: Record<
     bg: "bg-indigo-500/20",
   },
   "vitel-vital": {
-    title: "Vitel Vital",
+    title: "Vitel Global",
     Icon: Phone,
     color: "text-orange-400",
     bg: "bg-orange-500/20",

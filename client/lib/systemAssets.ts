@@ -13,7 +13,7 @@ export type Asset = {
   vonageNumber?: string;
   vonageExtCode?: string;
   vonagePassword?: string;
-  // Vitel Vital-specific optional fields
+  // Vitel Global-specific optional fields
   vitelGlobalNumber?: string;
   vitelExt?: string;
   vitelUsername?: string;
