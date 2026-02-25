@@ -853,7 +853,7 @@ export default function ITPage() {
                               "NSIT",
                               "LP",
                               "MS TEMS",
-                              "OURVIN",
+                              "OORWIN",
                               "MOSTER",
                               "CUSTOM",
                             ].map((opt) => (

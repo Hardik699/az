@@ -97,6 +97,13 @@ const items = [
     color: "text-indigo-400",
     bg: "bg-indigo-500/20",
   },
+  {
+    name: "Vitel Global",
+    slug: "vitel-vital",
+    Icon: Phone,
+    color: "text-orange-400",
+    bg: "bg-orange-500/20",
+  },
 ];
 
 export default function SystemInfo() {
@@ -241,6 +248,9 @@ export default function SystemInfo() {
             "Storage Capacity": "-",
             "Vonage Number": "-",
             "Extension Code": "-",
+            "Vitel Global Number": "-",
+            "Vitel Ext": "-",
+            "Vitel Username": "-",
             Password: "-",
           };
         } else if (asset.category === "motherboard") {
@@ -253,6 +263,9 @@ export default function SystemInfo() {
             "Storage Capacity": "-",
             "Vonage Number": "-",
             "Extension Code": "-",
+            "Vitel Global Number": "-",
+            "Vitel Ext": "-",
+            "Vitel Username": "-",
             Password: "-",
           };
         } else if (asset.category === "storage") {
@@ -265,6 +278,9 @@ export default function SystemInfo() {
             "Storage Capacity": asset.storageCapacity || "-",
             "Vonage Number": "-",
             "Extension Code": "-",
+            "Vitel Global Number": "-",
+            "Vitel Ext": "-",
+            "Vitel Username": "-",
             Password: "-",
           };
         } else if (asset.category === "vonage") {
@@ -277,7 +293,19 @@ export default function SystemInfo() {
             "Storage Capacity": "-",
             "Vonage Number": asset.vonageNumber || "-",
             "Extension Code": asset.vonageExtCode || "-",
+            "Vitel Global Number": "-",
+            "Vitel Ext": "-",
+            "Vitel Username": "-",
             Password: asset.vonagePassword || "-",
+          };
+        } else if (asset.category === "vitel-vital") {
+          return {
+            "Asset ID": asset.id,
+            Category: asset.category,
+            "Vitel Global Number": asset.vitelGlobalNumber || "-",
+            "Vitel Ext": asset.vitelExt || "-",
+            "Vitel Username": asset.vitelUsername || "-",
+            Password: asset.vitelPassword || "-",
           };
         }
 
@@ -290,6 +318,9 @@ export default function SystemInfo() {
           "Storage Capacity": "-",
           "Vonage Number": "-",
           "Extension Code": "-",
+          "Vitel Global Number": "-",
+          "Vitel Ext": "-",
+          "Vitel Username": "-",
           Password: "-",
         };
       });
@@ -309,6 +340,7 @@ export default function SystemInfo() {
         { name: "Power Supply", category: "power-supply" },
         { name: "Monitor", category: "monitor" },
         { name: "Vonage", category: "vonage" },
+        { name: "Vitel Global", category: "vitel-vital" },
       ];
 
       categories.forEach(({ name, category }) => {
@@ -353,6 +385,14 @@ export default function SystemInfo() {
                 "Vonage Number": asset.vonageNumber || "-",
                 "Extension Code": asset.vonageExtCode || "-",
                 Password: asset.vonagePassword || "-",
+              };
+            } else if (category === "vitel-vital") {
+              return {
+                ID: asset.id,
+                "Vitel Global Number": asset.vitelGlobalNumber || "-",
+                "Vitel Ext": asset.vitelExt || "-",
+                "Vitel Username": asset.vitelUsername || "-",
+                Password: asset.vitelPassword || "-",
               };
             }
 
