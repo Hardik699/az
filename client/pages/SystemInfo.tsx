@@ -154,19 +154,19 @@ export default function SystemInfo() {
           if (result.success) {
             setAssetCount((prev) => prev + result.data.length);
             alert(
-              `Loaded ${result.data.length} demo system assets including mouse, keyboard, and other components!`,
+              `Loaded ${result.data.length} system assets including mouse, keyboard, and other components!`,
             );
           } else {
-            alert("Demo data already exists in the system.");
+            alert("System data already exists in the system.");
           }
         } catch (e) {
-          console.error("Failed to parse demo data response:", e);
-          alert("Error loading demo data. Please try again.");
+          console.error("Failed to parse system data response:", e);
+          alert("Error loading system data. Please try again.");
         }
       }
     } catch (error) {
-      console.error("Failed to load demo data:", error);
-      alert("Error loading demo data. Please try again.");
+      console.error("Failed to load system data:", error);
+      alert("Error loading system data. Please try again.");
     }
   };
 
@@ -463,12 +463,19 @@ export default function SystemInfo() {
             <p className="text-slate-400">Hardware categories</p>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+            <Button
+              onClick={handleLoadDemo}
+              className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2 w-full sm:w-auto"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Add System Data
+            </Button>
             {assetCount > 0 && (
               <Button
                 onClick={() => navigate("/demo-data")}
                 className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 w-full sm:w-auto"
               >
-                View Demo Data
+                View System Data
               </Button>
             )}
             {assetCount > 0 && (

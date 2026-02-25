@@ -10,6 +10,7 @@ export interface IPCLaptop extends Document {
   cameraId?: string;
   headphoneId?: string;
   powerSupplyId?: string;
+  monitorId?: string;
   storageId?: string;
   ramId?: string;
   ramId2?: string;
@@ -28,6 +29,7 @@ const pcLaptopSchema = new Schema<IPCLaptop>(
     cameraId: String,
     headphoneId: String,
     powerSupplyId: String,
+    monitorId: String,
     storageId: String,
     ramId: String,
     ramId2: String,
