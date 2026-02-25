@@ -7,15 +7,15 @@ export function createDemoSystemAssets(): Asset[] {
   const warranty = oneYearLater.toISOString();
 
   const categories = [
-    { name: "mouse", count: 10 },
-    { name: "keyboard", count: 10 },
-    { name: "motherboard", count: 10 },
-    { name: "ram", count: 10 },
-    { name: "power-supply", count: 10 },
-    { name: "headphone", count: 10 },
-    { name: "camera", count: 10 },
-    { name: "monitor", count: 10 },
-    { name: "storage", count: 10 },
+    { name: "mouse", count: 12 },
+    { name: "keyboard", count: 12 },
+    { name: "motherboard", count: 12 },
+    { name: "ram", count: 12 },
+    { name: "power-supply", count: 12 },
+    { name: "headphone", count: 12 },
+    { name: "camera", count: 12 },
+    { name: "monitor", count: 12 },
+    { name: "storage", count: 12 },
     { name: "vonage", count: 2 },
   ];
 
