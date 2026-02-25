@@ -463,6 +463,13 @@ export default function SystemInfo() {
             <p className="text-slate-400">Hardware categories</p>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+            <Button
+              onClick={handleLoadDemo}
+              className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-2 w-full sm:w-auto"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Load Demo Data
+            </Button>
             {assetCount > 0 && (
               <Button
                 onClick={() => navigate("/demo-data")}
