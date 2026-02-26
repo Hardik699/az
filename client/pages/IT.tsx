@@ -681,7 +681,7 @@ export default function ITPage() {
                         </div>
                       ) : (
                         availableEmployees.map((e) => (
-                          <SelectItem key={e.id} value={e.id}>
+                          <SelectItem key={`employee-${e.id}`} value={e.id}>
                             {e.fullName}
                           </SelectItem>
                         ))
@@ -731,7 +731,7 @@ export default function ITPage() {
                       </div>
                     ) : (
                       availableSystemIds.map((id) => (
-                        <SelectItem key={id} value={id}>
+                        <SelectItem key={`system-${id}`} value={id}>
                           {id}
                         </SelectItem>
                       ))
@@ -771,7 +771,7 @@ export default function ITPage() {
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700 text-white max-h-64">
                       {departments.map((d) => (
-                        <SelectItem key={d.id} value={d.name}>
+                        <SelectItem key={`dept-${d.id}`} value={d.name}>
                           {d.name}
                         </SelectItem>
                       ))}
@@ -789,7 +789,7 @@ export default function ITPage() {
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700 text-white max-h-64">
                       {filteredTables.map((n) => (
-                        <SelectItem key={n} value={n}>
+                        <SelectItem key={`table-${n}`} value={n}>
                           {n}
                         </SelectItem>
                       ))}
@@ -857,7 +857,7 @@ export default function ITPage() {
                               "MOSTER",
                               "CUSTOM",
                             ].map((opt) => (
-                              <SelectItem key={opt} value={opt}>
+                              <SelectItem key={`email-${idx}-${opt}`} value={opt}>
                                 {opt}
                               </SelectItem>
                             ))}
@@ -934,8 +934,8 @@ export default function ITPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700 text-white">
-                      <SelectItem value="vitel">Vitel Global</SelectItem>
-                      <SelectItem value="vonage">Vonage</SelectItem>
+                      <SelectItem key="provider-vitel" value="vitel">Vitel Global</SelectItem>
+                      <SelectItem key="provider-vonage" value="vonage">Vonage</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -965,7 +965,7 @@ export default function ITPage() {
                         </div>
                       ) : (
                         providerIds.map((id) => (
-                          <SelectItem key={id} value={id}>
+                          <SelectItem key={`provider-id-${id}`} value={id}>
                             {id}
                           </SelectItem>
                         ))
