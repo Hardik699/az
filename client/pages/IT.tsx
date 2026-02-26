@@ -546,6 +546,9 @@ export default function ITPage() {
     console.log("Vonage assets:", vonageAssets);
     console.log("Vitel assets:", vitelAssets);
 
+    console.log("Total systemAssets loaded:", systemAssets.length);
+    console.log("All categories in systemAssets:", [...new Set(systemAssets.map(a => a.category))]);
+
     let ids = systemAssets
       .filter((a) =>
         provider === "vonage"
@@ -553,12 +556,15 @@ export default function ITPage() {
           : a.category === "vitel-vital",
       )
       .map((a) => {
-        if (provider === "vonage")
+        if (provider === "vonage") {
+          console.log(`Vonage asset - ExtCode: "${a.vonageExtCode}", Number: "${a.vonageNumber}", ID: "${a.id}"`);
           return a.vonageExtCode || a.vonageNumber || a.id;
+        }
         return a.id;
       })
       .filter((x) => typeof x === "string" && x.trim() && x.trim() !== "-");
     console.log(`Provider IDs for ${provider}:`, ids);
+    console.log(`Filtered count for ${provider}:`, ids.length);
     if (preSelectedProviderId && !ids.includes(preSelectedProviderId)) {
       ids = [preSelectedProviderId, ...ids];
     }
