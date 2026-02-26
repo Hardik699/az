@@ -206,7 +206,7 @@ export default function ITPreviewPage() {
           </div>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Quick Info */}
           <Card className="bg-slate-900/50 border-slate-700">
             <CardHeader className="pb-2">
@@ -229,33 +229,6 @@ export default function ITPreviewPage() {
                 </div>
                 <div className="text-lg font-semibold">
                   {record.tableNumber}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Telephony */}
-          <Card className="bg-slate-900/50 border-slate-700">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
-                <Smartphone className="h-4 w-4" /> VG/VON
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <div className="text-xs text-slate-500 uppercase tracking-wider">
-                  VG/VON
-                </div>
-                <div className="text-lg font-semibold capitalize">
-                  {record.vitelGlobal?.provider || "Vitel Global"}
-                </div>
-              </div>
-              <div>
-                <div className="text-xs text-slate-500 uppercase tracking-wider">
-                  VG/VON ID
-                </div>
-                <div className="text-lg font-semibold">
-                  {record.vitelGlobal?.id || "-"}
                 </div>
               </div>
             </CardContent>
@@ -332,6 +305,75 @@ export default function ITPreviewPage() {
           </CardContent>
         </Card>
 
+        {/* VG/VON Landscape View */}
+        <Card className="bg-slate-900/50 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Smartphone className="h-5 w-5 text-blue-400" /> VG/VON
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+              <div className="flex-1">
+                <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">
+                  VG/VON Provider
+                </div>
+                <div className="text-lg font-bold capitalize text-blue-400">
+                  {record.vitelGlobal?.provider || "Vitel Global"}
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">
+                  VG/VON ID
+                </div>
+                <div className="text-lg font-bold">
+                  {record.vitelGlobal?.id || "-"}
+                </div>
+              </div>
+              {providerAsset && (
+                <>
+                  <div className="flex-1">
+                    <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">
+                      {record.vitelGlobal?.provider === "vonage"
+                        ? "Vonage Number"
+                        : "Vitel Number"}
+                    </div>
+                    <div className="text-lg font-bold font-mono">
+                      {record.vitelGlobal?.provider === "vonage"
+                        ? providerAsset.vonageNumber || "-"
+                        : providerAsset.vitelGlobalNumber || "-"}
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">
+                      {record.vitelGlobal?.provider === "vonage"
+                        ? "Extension"
+                        : "Username"}
+                    </div>
+                    <div className="text-lg font-bold font-mono">
+                      {record.vitelGlobal?.provider === "vonage"
+                        ? providerAsset.vonageExtCode || "-"
+                        : providerAsset.vitelUsername || "-"}
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">
+                      Password
+                    </div>
+                    <div className="text-base font-bold font-mono bg-slate-900/80 px-3 py-2 rounded border border-slate-700">
+                      {showPasswords
+                        ? record.vitelGlobal?.provider === "vonage"
+                          ? providerAsset.vonagePassword || "-"
+                          : providerAsset.vitelPassword || "-"
+                        : "••••••••"}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Detailed Hardware Info */}
         <Card className="bg-slate-900/50 border-slate-700">
           <CardHeader>
@@ -340,7 +382,7 @@ export default function ITPreviewPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {[
                 { label: "Mouse", value: nameFor(pc.mouseId) },
                 { label: "Keyboard", value: nameFor(pc.keyboardId) },
