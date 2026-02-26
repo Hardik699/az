@@ -382,7 +382,7 @@ export default function ITPreviewPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="flex flex-wrap gap-6 lg:gap-8">
               {[
                 { label: "Mouse", value: nameFor(pc.mouseId) },
                 { label: "Keyboard", value: nameFor(pc.keyboardId) },
@@ -393,11 +393,11 @@ export default function ITPreviewPage() {
                 { label: "RAM", value: nameFor(pc.ramId) },
                 { label: "Monitor", value: nameFor(pc.monitorId) },
               ].map((item, idx) => (
-                <div key={idx} className="space-y-1">
-                  <div className="text-xs text-slate-500 uppercase tracking-wider">
+                <div key={idx} className="flex-1 min-w-[120px]">
+                  <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">
                     {item.label}
                   </div>
-                  <div className="text-sm font-medium text-slate-200">
+                  <div className="text-lg font-bold text-slate-200 break-words">
                     {item.value}
                   </div>
                 </div>
