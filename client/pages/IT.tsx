@@ -1,5 +1,6 @@
 import AppNav from "@/components/Navigation";
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,6 +72,9 @@ interface ITRecord {
 }
 
 export default function ITPage() {
+  // --- HOOKS ---
+  const navigate = useNavigate();
+
   // --- STATE DECLARATIONS ---
   const [userRole, setUserRole] = useState("");
   const [employees, setEmployees] = useState<Employee[]>([]);
