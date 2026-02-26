@@ -37,12 +37,8 @@ export function AppWithDBCheck({ children }: { children: React.ReactNode }) {
     // Check immediately with a short delay
     const timer = setTimeout(checkDBStatus, 100);
 
-    // Recheck every 15 seconds in the background
-    const interval = setInterval(checkDBStatus, 15000);
-
     return () => {
       clearTimeout(timer);
-      clearInterval(interval);
     };
   }, []);
 
