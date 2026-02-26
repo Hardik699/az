@@ -544,7 +544,7 @@ export default function ITPage() {
           return a.vonageExtCode || a.vonageNumber || a.id;
         return a.id;
       })
-      .filter((x) => typeof x === "string" && x.trim());
+      .filter((x) => typeof x === "string" && x.trim() && x.trim() !== "-");
     if (preSelectedProviderId && !ids.includes(preSelectedProviderId)) {
       ids = [preSelectedProviderId, ...ids];
     }
