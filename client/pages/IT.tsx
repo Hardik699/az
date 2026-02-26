@@ -537,11 +537,20 @@ export default function ITPage() {
 
   // Load provider IDs from System assets (from database)
   useEffect(() => {
+    const vonageAssets = systemAssets.filter(
+      (a) => a.category === "vonage"
+    );
+    const vitelAssets = systemAssets.filter(
+      (a) => a.category === "vitel-vital"
+    );
+    console.log("Vonage assets:", vonageAssets);
+    console.log("Vitel assets:", vitelAssets);
+
     let ids = systemAssets
       .filter((a) =>
         provider === "vonage"
           ? a.category === "vonage"
-          : a.category === "vitel" || a.category === "vitel-global",
+          : a.category === "vitel-vital",
       )
       .map((a) => {
         if (provider === "vonage")
@@ -549,6 +558,7 @@ export default function ITPage() {
         return a.id;
       })
       .filter((x) => typeof x === "string" && x.trim() && x.trim() !== "-");
+    console.log(`Provider IDs for ${provider}:`, ids);
     if (preSelectedProviderId && !ids.includes(preSelectedProviderId)) {
       ids = [preSelectedProviderId, ...ids];
     }
