@@ -1,5 +1,6 @@
 import AppNav from "@/components/Navigation";
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,6 +72,9 @@ interface ITRecord {
 }
 
 export default function ITPage() {
+  // --- HOOKS ---
+  const navigate = useNavigate();
+
   // --- STATE DECLARATIONS ---
   const [userRole, setUserRole] = useState("");
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -533,18 +537,28 @@ export default function ITPage() {
 
   // Load provider IDs from System assets (from database)
   useEffect(() => {
+    const vonageAssets = systemAssets.filter(
+      (a) => a.category === "vonage"
+    );
+    const vitelAssets = systemAssets.filter(
+      (a) => a.category === "vitel-vital"
+    );
+    console.log("Vonage assets:", vonageAssets);
+    console.log("Vitel assets:", vitelAssets);
+
     let ids = systemAssets
       .filter((a) =>
         provider === "vonage"
           ? a.category === "vonage"
-          : a.category === "vitel" || a.category === "vitel-global",
+          : a.category === "vitel-vital",
       )
       .map((a) => {
         if (provider === "vonage")
           return a.vonageExtCode || a.vonageNumber || a.id;
         return a.id;
       })
-      .filter((x) => typeof x === "string" && x.trim());
+      .filter((x) => typeof x === "string" && x.trim() && x.trim() !== "-");
+    console.log(`Provider IDs for ${provider}:`, ids);
     if (preSelectedProviderId && !ids.includes(preSelectedProviderId)) {
       ids = [preSelectedProviderId, ...ids];
     }
@@ -681,7 +695,7 @@ export default function ITPage() {
                         </div>
                       ) : (
                         availableEmployees.map((e) => (
-                          <SelectItem key={e.id} value={e.id}>
+                          <SelectItem key={`employee-${e.id}`} value={e.id}>
                             {e.fullName}
                           </SelectItem>
                         ))
@@ -731,7 +745,7 @@ export default function ITPage() {
                       </div>
                     ) : (
                       availableSystemIds.map((id) => (
-                        <SelectItem key={id} value={id}>
+                        <SelectItem key={`system-${id}`} value={id}>
                           {id}
                         </SelectItem>
                       ))
@@ -771,7 +785,7 @@ export default function ITPage() {
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700 text-white max-h-64">
                       {departments.map((d) => (
-                        <SelectItem key={d.id} value={d.name}>
+                        <SelectItem key={`dept-${d.id}`} value={d.name}>
                           {d.name}
                         </SelectItem>
                       ))}
@@ -789,7 +803,7 @@ export default function ITPage() {
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700 text-white max-h-64">
                       {filteredTables.map((n) => (
-                        <SelectItem key={n} value={n}>
+                        <SelectItem key={`table-${n}`} value={n}>
                           {n}
                         </SelectItem>
                       ))}
@@ -857,7 +871,7 @@ export default function ITPage() {
                               "MOSTER",
                               "CUSTOM",
                             ].map((opt) => (
-                              <SelectItem key={opt} value={opt}>
+                              <SelectItem key={`email-${idx}-${opt}`} value={opt}>
                                 {opt}
                               </SelectItem>
                             ))}
@@ -934,8 +948,8 @@ export default function ITPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700 text-white">
-                      <SelectItem value="vitel">Vitel Global</SelectItem>
-                      <SelectItem value="vonage">Vonage</SelectItem>
+                      <SelectItem key="provider-vitel" value="vitel">Vitel Global</SelectItem>
+                      <SelectItem key="provider-vonage" value="vonage">Vonage</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -948,13 +962,17 @@ export default function ITPage() {
                     onValueChange={(v) => setVitel({ id: v })}
                   >
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
-                      <SelectValue
-                        placeholder={
-                          providerIds.length
-                            ? "Select ID"
-                            : "No IDs found in System Info"
-                        }
-                      />
+                      {vitel.id ? (
+                        <span>{vitel.id}</span>
+                      ) : (
+                        <SelectValue
+                          placeholder={
+                            providerIds.length
+                              ? "Select ID"
+                              : "No IDs found in System Info"
+                          }
+                        />
+                      )}
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700 text-white max-h-64">
                       {providerIds.length === 0 ? (
@@ -965,7 +983,7 @@ export default function ITPage() {
                         </div>
                       ) : (
                         providerIds.map((id) => (
-                          <SelectItem key={id} value={id}>
+                          <SelectItem key={`provider-id-${id}`} value={id}>
                             {id}
                           </SelectItem>
                         ))
