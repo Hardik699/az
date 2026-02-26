@@ -948,13 +948,17 @@ export default function ITPage() {
                     onValueChange={(v) => setVitel({ id: v })}
                   >
                     <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
-                      <SelectValue
-                        placeholder={
-                          providerIds.length
-                            ? "Select ID"
-                            : "No IDs found in System Info"
-                        }
-                      />
+                      {vitel.id ? (
+                        <span>{vitel.id}</span>
+                      ) : (
+                        <SelectValue
+                          placeholder={
+                            providerIds.length
+                              ? "Select ID"
+                              : "No IDs found in System Info"
+                          }
+                        />
+                      )}
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700 text-white max-h-64">
                       {providerIds.length === 0 ? (
