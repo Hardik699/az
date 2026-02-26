@@ -318,7 +318,7 @@ export default function ITPreviewPage() {
                 <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">
                   VG/VON Provider
                 </div>
-                <div className="text-2xl font-bold capitalize text-blue-400">
+                <div className="text-lg font-bold capitalize text-blue-400">
                   {record.vitelGlobal?.provider || "Vitel Global"}
                 </div>
               </div>
@@ -326,7 +326,7 @@ export default function ITPreviewPage() {
                 <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">
                   VG/VON ID
                 </div>
-                <div className="text-2xl font-bold">
+                <div className="text-lg font-bold">
                   {record.vitelGlobal?.id || "-"}
                 </div>
               </div>
@@ -338,7 +338,7 @@ export default function ITPreviewPage() {
                         ? "Vonage Number"
                         : "Vitel Number"}
                     </div>
-                    <div className="text-2xl font-bold font-mono">
+                    <div className="text-lg font-bold font-mono">
                       {record.vitelGlobal?.provider === "vonage"
                         ? providerAsset.vonageNumber || "-"
                         : providerAsset.vitelGlobalNumber || "-"}
@@ -350,7 +350,7 @@ export default function ITPreviewPage() {
                         ? "Extension"
                         : "Username"}
                     </div>
-                    <div className="text-2xl font-bold font-mono">
+                    <div className="text-lg font-bold font-mono">
                       {record.vitelGlobal?.provider === "vonage"
                         ? providerAsset.vonageExtCode || "-"
                         : providerAsset.vitelUsername || "-"}
@@ -360,7 +360,7 @@ export default function ITPreviewPage() {
                     <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">
                       Password
                     </div>
-                    <div className="text-xl font-bold font-mono bg-slate-900/80 px-3 py-2 rounded border border-slate-700">
+                    <div className="text-base font-bold font-mono bg-slate-900/80 px-3 py-2 rounded border border-slate-700">
                       {showPasswords
                         ? record.vitelGlobal?.provider === "vonage"
                           ? providerAsset.vonagePassword || "-"
