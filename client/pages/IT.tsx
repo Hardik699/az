@@ -68,6 +68,7 @@ interface ITRecord {
   };
   lmPlayer: { id: string; password: string; license: string };
   notes?: string;
+  status: "active" | "inactive";
   createdAt: string;
 }
 
@@ -95,6 +96,7 @@ export default function ITPage() {
   const [vitel, setVitel] = useState({ id: "" });
   const [lm, setLm] = useState({ id: "", password: "", license: "standard" });
   const [notes, setNotes] = useState("");
+  const [status, setStatus] = useState<"active" | "inactive">("active");
   const [secretsVisible, setSecretsVisible] = useState(false);
   const [availableSystemIds, setAvailableSystemIds] = useState<string[]>([]);
   const [providerIds, setProviderIds] = useState<string[]>([]);
@@ -280,6 +282,7 @@ export default function ITPage() {
       vitelGlobal: { id: vitel.id.trim(), provider },
       lmPlayer: { ...lm },
       notes: notes.trim() || undefined,
+      status,
       createdAt: new Date().toISOString(),
     };
     const success = await saveRecords(editingId ? [rec] : [rec, ...records]);
@@ -295,6 +298,7 @@ export default function ITPage() {
       setVitel({ id: "" });
       setLm({ id: "", password: "", license: "standard" });
       setNotes("");
+      setStatus("active");
       alert(editingId ? "Updated Successfully" : "Saved Successfully");
       if (editingId) {
         window.location.href = "/it-dashboard";
@@ -469,6 +473,7 @@ export default function ITPage() {
             setPreSelectedProviderId(r.vitelGlobal?.id || "");
             setLm(r.lmPlayer || { id: "", password: "", license: "standard" });
             setNotes(r.notes || "");
+            setStatus(r.status || "active");
             setIsPreFilled(true);
           }
         })
@@ -1063,6 +1068,19 @@ export default function ITPage() {
                 />
               </div>
 
+              <div className="md:col-span-3 space-y-2">
+                <Label className="text-slate-300">Status</Label>
+                <Select value={status} onValueChange={(v) => setStatus(v as any)}>
+                  <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="md:col-span-3 flex justify-end gap-2">
                 {editingId && (
                   <Button
@@ -1088,6 +1106,7 @@ export default function ITPage() {
                         license: "standard",
                       });
                       setNotes("");
+                      setStatus("active");
                     }}
                   >
                     Cancel Edit
@@ -1124,6 +1143,7 @@ export default function ITPage() {
                       <TableHead>Emails</TableHead>
                       <TableHead>VG/VON</TableHead>
                       <TableHead>LM ID</TableHead>
+                      <TableHead>Status</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -1146,18 +1166,76 @@ export default function ITPage() {
                         </TableCell>
                         <TableCell>{r.lmPlayer.id || "-"}</TableCell>
                         <TableCell>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-red-600 text-red-400"
-                            onClick={() => {
-                              saveRecords(records.filter((x) => x.id !== r.id));
-                              // Refresh available IDs after deletion
-                              setTimeout(loadAvailableSystemIds, 100);
-                            }}
+                          <Badge
+                            variant={r.status === "active" ? "default" : "secondary"}
+                            className={
+                              r.status === "active"
+                                ? "bg-green-500/20 text-green-400"
+                                : "bg-red-500/20 text-red-400"
+                            }
                           >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                            {r.status === "active" ? "Active" : "Inactive"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="border-blue-600 text-blue-400"
+                              onClick={() => {
+                                setEditingId(r._id || r.id);
+                                setEmployeeId(r.employeeId);
+                                setSystemId(r.systemId);
+                                setPreSelectedSystemId(r.systemId);
+                                setTableNumber(r.tableNumber);
+                                setDepartment(r.department);
+                                setEmails(r.emails);
+                                setProvider(r.vitelGlobal.provider);
+                                setVitel({ id: r.vitelGlobal.id });
+                                setLm(r.lmPlayer);
+                                setNotes(r.notes || "");
+                                setStatus(r.status);
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                              }}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className={
+                                r.status === "active"
+                                  ? "border-orange-600 text-orange-400"
+                                  : "border-green-600 text-green-400"
+                              }
+                              onClick={() => {
+                                const updated = {
+                                  ...r,
+                                  status: r.status === "active" ? "inactive" : "active",
+                                };
+                                saveRecords(
+                                  records.map((x) =>
+                                    x.id === r.id ? updated : x
+                                  )
+                                );
+                              }}
+                            >
+                              {r.status === "active" ? "Mark Inactive" : "Mark Active"}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="border-red-600 text-red-400"
+                              onClick={() => {
+                                saveRecords(records.filter((x) => x.id !== r.id));
+                                // Refresh available IDs after deletion
+                                setTimeout(loadAvailableSystemIds, 100);
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
