@@ -65,6 +65,7 @@ interface ITRecord {
   };
   lmPlayer: { id: string; password: string; license: string };
   notes?: string;
+  status: "active" | "inactive";
   createdAt: string;
 }
 
@@ -96,6 +97,7 @@ export default function ITDashboard() {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [query, setQuery] = useState("");
   const [deptFilter, setDeptFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [pendingNotifications, setPendingNotifications] = useState<
     PendingITNotification[]
   >([]);
@@ -226,6 +228,7 @@ export default function ITDashboard() {
 
   const filtered = records.filter((r) => {
     const matchDept = deptFilter === "all" || r.department === deptFilter;
+    const matchStatus = statusFilter === "all" || r.status === statusFilter;
     const providerLabel =
       (r as any).vitelGlobal?.provider === "vonage"
         ? "vonage"
@@ -235,7 +238,7 @@ export default function ITDashboard() {
     const text =
       `${r.employeeName} ${r.systemId} ${r.emails.map((e) => e.email).join(" ")} ${r.vitelGlobal?.id || ""} ${providerLabel}`.toLowerCase();
     const matchQuery = !query || text.includes(query.toLowerCase());
-    return matchDept && matchQuery;
+    return matchDept && matchStatus && matchQuery;
   });
 
   return (
@@ -414,12 +417,23 @@ export default function ITDashboard() {
                     ))}
                   </SelectContent>
                 </Select>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="bg-slate-800/50 border-slate-700 text-white w-full sm:w-40">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
                 <Button
                   variant="outline"
                   className="border-slate-600 text-slate-300 w-full sm:w-auto"
                   onClick={() => {
                     setQuery("");
                     setDeptFilter("all");
+                    setStatusFilter("all");
                   }}
                 >
                   Clear
@@ -432,6 +446,7 @@ export default function ITDashboard() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Employee</TableHead>
+                    <TableHead>Status</TableHead>
                     <TableHead>Department</TableHead>
                     <TableHead>System ID</TableHead>
                     <TableHead>Table</TableHead>
@@ -447,6 +462,20 @@ export default function ITDashboard() {
                     <TableRow key={r.id}>
                       <TableCell className="font-medium">
                         {r.employeeName}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            r.status === "active" ? "default" : "secondary"
+                          }
+                          className={
+                            r.status === "active"
+                              ? "bg-green-500/20 text-green-400"
+                              : "bg-red-500/20 text-red-400"
+                          }
+                        >
+                          {r.status === "active" ? "Active" : "Inactive"}
+                        </Badge>
                       </TableCell>
                       <TableCell>{r.department}</TableCell>
                       <TableCell>{r.systemId}</TableCell>

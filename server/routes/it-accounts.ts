@@ -196,10 +196,34 @@ const getITAccountsByDepartment: RequestHandler = async (req, res) => {
   }
 };
 
+// Get IT accounts by status
+const getITAccountsByStatus: RequestHandler = async (req, res) => {
+  try {
+    const { status } = req.params;
+
+    const accounts = await ITAccount.find({ status });
+
+    res.json({
+      success: true,
+      data: accounts,
+      count: accounts.length,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch IT accounts by status",
+    });
+  }
+};
+
 router.get("/", getITAccounts);
 router.post("/", createITAccount);
 router.get("/employee/:employeeId", getITAccountByEmployeeId);
 router.get("/department/:department", getITAccountsByDepartment);
+router.get("/status/:status", getITAccountsByStatus);
 router.get("/:id", getITAccountById);
 router.put("/:id", updateITAccount);
 router.delete("/:id", deleteITAccount);

@@ -16,6 +16,7 @@ export interface IITAccount extends Document {
   };
   lmPlayer: { id: string; password: string; license: string };
   notes?: string;
+  status: "active" | "inactive";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -48,6 +49,7 @@ const itAccountSchema = new Schema<IITAccount>(
       license: { type: String },
     },
     notes: String,
+    status: { type: String, enum: ["active", "inactive"], default: "active" },
   },
   { timestamps: true },
 );
